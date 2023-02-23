@@ -1,0 +1,102 @@
+SHELL=/bin/bash
+objdir=objrel
+bindir=../bin
+cpp=g++
+
+cppflags=-fopenmp -std=c++17 -O3 -march=native -m64 -fPIC -pipe -Wno-unused-result
+cpplibs=-L../../fparser -lpthread -lfparser
+target=$(bindir)/npcl
+obj=$(objdir)/cavepdh.o $(objdir)/cdiff.o $(objdir)/cgr.o $(objdir)/cpdh.o $(objdir)/elements.o $(objdir)/help.o  \
+	$(objdir)/main.o $(objdir)/nanograin.o $(objdir)/scriptanalyser.o  $(objdir)/cprogress.o $(objdir)/csupersphere.o \
+	$(objdir)/crandom.o $(objdir)/cmergepdh.o $(objdir)/colormsg.o
+
+
+
+.PHONY: all clean install  sysinstall
+
+
+all:  dirs $(target)
+
+dirs: $(objdir) $(bindir)
+	@echo
+	@echo -n -e "\e[30;44m COMPILATION ....       \033[0m"
+	@echo
+
+
+$(objdir):
+	@echo "create objrel directory"
+	mkdir -p $(objdir)
+	
+$(bindir):
+	@echo "create bin directory"
+	mkdir -p $(bindir)
+	
+	
+	
+	
+$(target): $(obj)
+	@echo -n -e "\e[30;43m BUILDING ....          \033[0m"
+	@echo
+	$(cpp) -o $(target)  $(obj)		$(cppflags) $(cpplibs)
+	@if [ $$? -eq 0 ]; then  echo " "; echo -n -e "\e[30;42m SUCCESSFUL compilation \033[0m" ; else echo " "; echo "\e[30;41m ERROR(S) detected\033[0m"; fi;
+	@echo
+	@echo
+	
+	 
+$(objdir)/cmergepdh.o: cmergepdh.cpp cmergepdh.h
+	$(cpp) -c $< $(cppflags)  -o $@
+	
+$(objdir)/cavepdh.o: cavepdh.cpp cavepdh.h
+	$(cpp) -c $< $(cppflags)  -o $@
+	
+$(objdir)/cdiff.o: cdiff.cpp cdiff.h	
+	$(cpp) -c $< $(cppflags)  -o $@
+
+$(objdir)/cgr.o: cgr.cpp cgr.h	
+	$(cpp) -c $< $(cppflags)  -o $@
+
+$(objdir)/cpdh.o: cpdh.cpp cpdh.h
+	$(cpp) -c $< $(cppflags)  -o $@
+	
+$(objdir)/elements.o: elements.cpp elements.h
+	$(cpp) -c $< $(cppflags)  -o $@	
+	
+$(objdir)/help.o: help.cpp help.h	
+	$(cpp) -c $< $(cppflags)  -o $@
+	
+$(objdir)/main.o: main.cpp	
+	$(cpp) -c $< $(cppflags)  -o $@
+
+$(objdir)/nanograin.o: nanograin.cpp nanograin.h
+	$(cpp) -c $< $(cppflags)  -o $@	
+
+$(objdir)/csupersphere.o: csupersphere.cpp nanograin.h
+	$(cpp) -c $< $(cppflags) -o $@
+	
+$(objdir)/scriptanalyser.o: scriptanalyser.cpp scriptanalyser.h
+	$(cpp) -c $< $(cppflags)  -o $@
+	
+$(objdir)/showprogress.o: showprogress.cpp showprogress.h	
+	$(cpp) -c $< $(cppflags)  -o $@
+	
+$(objdir)/cprogress.o: cprogress.cpp cprogress.h	
+	$(cpp) -c -DTCOLOR -DUC $< $(cppflags)  -o $@	
+
+$(objdir)/colormsg.o: colormsg.cpp colormsg.h
+	$(cpp) -c -DTCOLOR -DUC $< $(cppflags)  -o $@	
+		
+$(objdir)/crandom.o: crandom.cpp crandom.h
+	$(cpp) -c $< $(cppflags)  -o $@
+	
+#../../fparser.o: ../../fparser/fparser.cc	
+#	$(cpp) -c $< $(cppflags)  -o $@
+	
+	
+clean:
+	rm -f $(target) $(objdir)/*
+install:
+	@dt=$$(date +'%Y%m%d-%H%M%S') && mv $(HOME)/bin/npcl $(HOME)/bin/$$dt-npcl
+	cp $(target) $(HOME)/bin/.	
+	
+sysinstall:
+	cp $(target) /usr/bin/.
