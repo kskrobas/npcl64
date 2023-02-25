@@ -1,0 +1,64 @@
+/*
+02-25-2023
+
+example of superellipsoid model creation and diffraction, g(r) spectra calculations
+
+*/
+
+
+
+
+grain 
+	lp 3.5667
+	radius 6lp
+	struct hcp
+	hcpabc 2(3(abc)b)
+	geometry poly 12 1.5 1.25 1 1.2 1.4
+	atom C
+	save model.xyz
+	save model.lmp
+end
+
+	
+	
+#### pair distribution histogram PDH
+
+pdh
+	bin 1024
+	threads 4
+	plot u 1:2 w imp lw 2
+end
+
+##### Debyea diffraction
+
+diff
+	range 5 0.03125 180
+	radiation xray
+	lambda Ag
+	threads 4
+	fastsinc yes
+	
+	
+	### S(Q)
+	#plot u 2:4 w l lw 2 lc 'red'
+	
+	### I(2th)
+	plot u 1:3 w l lw 2 lc 'red'
+	
+	#save semodel.diff
+	
+end
+
+####	
+
+gr
+	wf lorch
+	range 0 0.125 50
+	plot  w l lw 2  lc 'green'
+	
+	threads 2
+end
+	
+
+
+	
