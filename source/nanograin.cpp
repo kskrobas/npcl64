@@ -2192,7 +2192,6 @@ fstream file(fileName,ios::out);
 double mX,mY,mZ;
 StMinMax minmax;
 
-        cout<<__LINE__<<" lmp save "<<endl;
 
         if(margins.empty()){
             if(clp.empty()){
@@ -2215,7 +2214,6 @@ StMinMax minmax;
         }
 
 
-         cout<<__LINE__<<" lmp save "<<endl;
 
         minmax.searchForMinMax(atoms);
 
