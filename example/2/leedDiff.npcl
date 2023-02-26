@@ -1,0 +1,35 @@
+/*
+last update: 02-26-2023
+
+Laue diffraction of  Si(111)-7x7 surface
+wave vector [0 0 1]
+
+WARNING: CODE IS STILL EXPERIMENTAL
+*/
+
+
+##################################
+
+grain
+	open si_111_7x7.xyz
+end
+
+##################################
+
+diff 
+		range -0.5 5e-3 0.5
+		lambda 0.125
+		mode laue
+		threads 6
+		radiation electron
+		
+		save si111_7x7.laueb
+		saveopt  axis z format short
+
+		difftime
+		
+end	
+
+
+##################################
+
