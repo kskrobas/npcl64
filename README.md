@@ -27,8 +27,11 @@ Requirements:
 Other:
 * syntax highlighting for notepad++, see ./n++/npcl.xml
 
+#################################################################
 Debyea diffraction mode
 ![diff](images/im01.png)
+
+##################################################################
 Laue diffraction mode
 ![diffLaue](images/leed_si111_7x7.png)
 
