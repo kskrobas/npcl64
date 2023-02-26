@@ -21,5 +21,10 @@ The npcl is a program for nanocrystal models building and diffraction calculatio
 
 Requirements:
 * Function Parser for C++ v4.5.2 by Juha Nieminen, Joel Yliluoma  http://warp.povusers.org/FunctionParser/
-* c++ v.14
+* c++ v.11
 * gnuplot for Linux version
+
+Other:
+* syntax highlighting for notepad++, see ./n++/npcl.xml
+
+![diff](example/0/diff.png)
