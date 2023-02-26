@@ -27,4 +27,4 @@ Requirements:
 Other:
 * syntax highlighting for notepad++, see ./n++/npcl.xml
 
-![diff](example/0/diff.png)
+![diff](images/im00.png)
