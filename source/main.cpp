@@ -49,7 +49,7 @@ using namespace std;
 #include "cgr.h"
 #include "cavepdh.h"
 #include "cmergepdh.h"
-#include "../../fparser/fparser.hh"
+#include "../fparser/fparser.hh"
 #include "help.h"
 #include "crandom.h"
 #include "colormsg.h"

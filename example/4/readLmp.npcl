@@ -1,0 +1,23 @@
+/*
+last update: 02-27-2023
+
+read Lammps file, add quasi thermal vibrations, and save in 2 formats
+
+*/
+
+#### 
+
+grain
+	open model.lmp
+	
+	disperse * 0.07
+	
+	save model.xyz
+	
+	lmpmargin 2 3 4
+	save modelD.lmp
+	
+end
+
+####	
+

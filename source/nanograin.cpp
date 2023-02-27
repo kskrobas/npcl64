@@ -1849,8 +1849,6 @@ const size_t size=atoms.size();
 
             }
 
-            //cout<<" max(XYZ):  "<<maxX<<"  "<<maxY<<"  "<<maxZ<<endl;
-
             maxR=std::sqrt(maxR);
 }
 //-----------------------------------------------------------------------------
@@ -2195,9 +2193,14 @@ StMinMax minmax;
 
         if(margins.empty()){
             if(clp.empty()){
-                mX=0.5*(uc.vtrans[0].x+uc.vtrans[1].x+uc.vtrans[2].x);
-                mY=0.5*(uc.vtrans[0].y+uc.vtrans[1].y+uc.vtrans[2].y);
-                mZ=0.5*(uc.vtrans[0].z+uc.vtrans[1].z+uc.vtrans[2].z);
+                if(uc.vtrans.empty()){
+                    mX=mY=mZ=0;
+                }
+                else{
+                    mX=0.5*(uc.vtrans[0].x+uc.vtrans[1].x+uc.vtrans[2].x);
+                    mY=0.5*(uc.vtrans[0].y+uc.vtrans[1].y+uc.vtrans[2].y);
+                    mZ=0.5*(uc.vtrans[0].z+uc.vtrans[1].z+uc.vtrans[2].z);
+                }
             }
             else
                 mX=mY=mZ=0.5*std::stod(clp);
@@ -2302,6 +2305,14 @@ void NanoGrain::StNanoGrain::openFile()
             return;
             }
 
+
+            if(fileNameIn.find(".lmp")!=string::npos){
+                openLMPFile();
+                sortAtomsByName();
+            return;
+            }
+
+
             cerr<<" unknown format "<<endl;
             throw Status::ERR_FFORMAT;
 }
@@ -2368,6 +2379,117 @@ int row=0,arows=-1;
                 throw e;
             }
 
+
+fin.close();
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::openLMPFile()
+{
+fstream fin(fileNameIn,ios::in);
+
+            if(!fin){
+                cerr<<"couldn't open file for reading"<<endl;
+                fin.close();
+                throw Status::ERR_FOPEN;
+            }
+
+int nOfatoms,nOftypes;
+string sline;
+            try{
+                    fin.exceptions(ifstream::failbit | ifstream::badbit | ifstream::eofbit);
+
+                    //ignore 2 lines
+                    while(fin.get()!='\n') ;
+                    while(fin.get()!='\n') ;
+
+                    //read number of atoms
+                    std::getline(fin,sline);
+             vector<string> tokens(split<string>(sline," \t"));
+
+                    if(tokens.size()<2 && tokens[1]!="atoms"){
+                        if(DB) cerr<<__FILE__<<":"<<__LINE__<<"  ";
+                        cerr<<" unknown number of atoms";
+                    throw Status::ERR_FFORMAT;
+                    }
+
+                    nOfatoms=std::stoi(tokens[0]);
+
+
+                    //read number of types
+                    std::getline(fin,sline);
+                    tokens=split<string>(sline," \t");
+
+                    nOftypes=std::stoi(tokens[0]);
+
+                    // find tag 'Masses'
+                    do{
+                        std::getline(fin,sline);
+                    }while(sline.find("Masses")==string::npos );
+
+                    int countTypes=0;
+                    do{
+                        std::getline(fin,sline);
+                        tokens=split<string>(sline," \t");
+                        if(tokens.empty()) continue;
+                        countTypes++;
+
+                        // searchin a key for a given value
+                        bool testExists= false;
+
+                            // Traverse the map
+                            for (auto& mass : Elements::mass) {
+                                if (mass.second == tokens[1]) {
+
+                                    // type name push
+                                    atomTypes.push_back(mass.first);
+                                    testExists=true;
+                                    break;
+                                }
+                            }
+
+                            if (!testExists) {
+                                errMsg("unrecognized type of atom ");
+                            }
+
+                    }while(countTypes<nOftypes);
+
+
+                    // find tag 'Atoms'
+                    do{
+                        std::getline(fin,sline);
+                    }while(sline.find("Atoms")==string::npos );
+
+                    // ignore empty line
+                    while(fin.get()!='\n') ;
+
+
+                    // READ atom positions
+                    atoms.clear();
+                    atoms.reserve(nOfatoms);
+
+            position x,y,z;
+            string nofa;
+            int atype,id;
+
+                    fin.exceptions(ifstream::failbit | ifstream::badbit);
+
+                    for(int row=0 ;row<nOfatoms;row++){
+                        fin>>nofa>>id>>x>>y>>z;
+                        atoms.emplace_back(StAtom(x,y,z,id-1));
+                    }
+
+                    atoms.shrink_to_fit();
+
+            }
+            catch(std::ifstream::failure e){
+                cerr<<" exception during file procesing, e.what(): "<<e.what()<<endl;
+                fin.close();
+                throw Status::ERR_FIN_EXC;
+            }
+            catch(Status e){
+                fin.close();
+                throw e;
+            }
 
             fin.close();
 }

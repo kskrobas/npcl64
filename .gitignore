@@ -11,3 +11,7 @@ npcl64
 me00.png
 model.pdhs
 *.laueb
+fparser
+source/npcl64.*
+source/.qtc_clangd
+*.*~
