@@ -15,3 +15,4 @@ fparser
 source/npcl64.*
 source/.qtc_clangd
 *.*~
+Makefile-fp.rel
