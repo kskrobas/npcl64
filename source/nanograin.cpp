@@ -138,6 +138,8 @@ void NanoGrain::StNanoGrain::resetPrms()
         testSNA=false;
         numOfAtomsPush.clear();
         margins.clear();
+
+        saveopt.reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -1973,6 +1975,22 @@ const bool anamedup= (findAtomName(aname__)>=0);
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveToFile()
 {
+const size_t nOfatoms=atoms.size();
+
+            if(nOfatoms<saveopt.min){
+                if(DB) cout<<__FILE__<<":"<<__LINE__<<" number of atoms < min "<<endl;
+
+                testSNA=true;
+            return;
+            }
+
+            if(nOfatoms>saveopt.max){
+                if(DB) cout<<__FILE__<<":"<<__LINE__<<" number of atoms > max "<<endl;
+
+                testSNA=true;
+            return;
+            }
+
 
             if(DB) cout<<__FILE__<<":"<<__LINE__<<" saving atoms "<<endl;
 
@@ -2837,6 +2855,31 @@ const str send("end");
                 continue;
                 }
 
+
+                if(cmd[index]=="saveopt"){
+
+                    for(int i=1; i<cmd[index].numOfKeyValues(); i+=2){
+                    const string key  (cmd[index][i]);
+                    const string value(cmd[index][i+1]);
+
+                        if(key=="min"){
+                            saveopt.min=std::stod(value);
+                        continue;
+                        }
+
+                        if(key=="max"){
+                            saveopt.max=std::stod(value);
+                        continue;
+                        }
+
+                        warnMsg("unknown save option "+key);
+                    }
+
+                    index++;
+                continue;
+                }
+
+
                 if(cmd[index]=="saveHeader"){
                     fileNameHeader=cmd[index++][1];
                     Script::replaceVars(ptr_uvar,fileNameHeader);
@@ -2999,21 +3042,13 @@ const str send("end");
                         const string warn(" grains with the same number of atoms are ignored "+fileNameOut[0]+" "+std::to_string(atoms.size()));
                         warnMsg(warn);
                     }
-
                 }
                 else{
                     savedNumOfAtoms.push_back(atoms.size());
-                    if(!fileNameOut.empty()) saveToFile();
+                    if(!fileNameOut.empty()) {
+                        saveToFile();
+                    }
                 }
-
-                /*if(DB){
-                    cout<<"\n\n::: LIST , number of atoms: ";
-                    for (auto & v :savedNumOfAtoms)
-                        cout<<" "<<v;
-
-                    cout<<endl;
-                }*/
-
             }
             else
                 if(!fileNameOut.empty()) saveToFile();

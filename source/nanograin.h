@@ -339,6 +339,15 @@ bool empty() {return vtrans.empty();}
 
 } uc;
 
+struct StSaveOpt{
+size_t min,max;
+
+    StSaveOpt(){ }
+    void reset(){ min=0;max=-1;}
+
+
+} saveopt;
+
 
 enum ESOURCE {AUTOCREATE,FILE} source;
 enum EFCCTYPE{FCC,ZB,UO2};

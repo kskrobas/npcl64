@@ -208,6 +208,7 @@ public:
         {
         size_t op;
         const size_t cmdSize=cmdlist.size();
+        const size_t cmdIndexBegin=cmdIndex;
                     	
 
                     try{
@@ -226,7 +227,7 @@ public:
 
                             if( cmdlist[cmdIndex]=="break"){
                                 if(grain.testSNA){
-                                    doIgnoreForIf(cmdIndex);
+                                    doIgnoreCommands(cmdIndex);
                                 break;
                                 }
                                 else
@@ -542,6 +543,9 @@ public:
 
                 }
 
+                /// probably below 'if' lines should be removed (they don't look good)
+                /// after update 03-04-2023  searching for "end" instruction
+                /// is done by doIgnoreCommand placed near line 230 ( doCommands-> ... if ("break") ....)
                 if(forCmdIndex<cmdlist.size()){
                     if(cmdlist[forCmdIndex]=="break"){
                         for(;forCmdIndex<cmdlistSize;forCmdIndex++){
@@ -555,6 +559,7 @@ public:
                 }
 
 
+                /// remove local and for's iter  variables
                 cmdIndex=forCmdIndex;
                 uvars.erase(uvars.begin()+currPos,uvars.end());
         return true;
@@ -582,7 +587,7 @@ public:
         string fList;
 
 
-                /////////////// Ootworze strumien
+                /////////////// open pipeline , store results to buffer, close pipeline
                 fid=popen(forArg.c_str(),"r");
 
                 if(!fid){
@@ -600,7 +605,7 @@ public:
                     cerr<<"ERROR: stream status failure"<<endl;
                 return false;
                 }
-                ///////////////////////////////
+                ///////////////////////////////////////////////////////////////////////////
 
         std::size_t from=0,to;
         string fileName;
@@ -609,6 +614,7 @@ public:
 
                 uvars.emplace_back(strpair(iterName,""));
 
+                // do operations for each file
                 do{
                     to=fList.find_first_of('\n',from);
 
@@ -621,7 +627,7 @@ public:
                     auto locIterVar=std::find(uvars.begin(),uvars.end(),iterName);
                     locIterVar->getValue()=fileName;
 
-                    forCmdIndex=cmdIndex+1; // always reset loop to the first statement
+                    forCmdIndex=cmdIndex+1; // always reset loop to the initial statement
                     if(!doCommands(forCmdIndex))
                         return false;
 
@@ -629,6 +635,7 @@ public:
                 }while(true);
 
 
+                // remove local variables if any
                 cmdIndex=forCmdIndex;
                 uvars.erase(uvars.begin()+currPos,uvars.end());
 
@@ -637,8 +644,17 @@ public:
 
         #endif
         //=====================================================================
+        bool isBlock(size_t &cmdIndex){
+        return  cmdlist[cmdIndex]=="for"   ||
+                cmdlist[cmdIndex]=="if"    ||
+                cmdlist[cmdIndex]=="grain" ||
+                cmdlist[cmdIndex]=="pdh"   ||
+                cmdlist[cmdIndex]=="diff"  ||
+                cmdlist[cmdIndex]=="gr" ;
+        }
 
-        bool doIgnoreForIf(size_t &cmdIndex)
+        //=====================================================================
+        bool doIgnoreCommands(size_t &cmdIndex)
         {
                 cmdIndex++;
 
@@ -647,15 +663,14 @@ public:
 
                     if(cmdlist[cmdIndex]=="end")
                         break;
-                    else
-                    {
-                        if(cmdlist[cmdIndex]=="for" || cmdlist[cmdIndex]=="if")
-                            doIgnoreForIf(cmdIndex);
-                    }
+                    else                      
+                        if( isBlock(cmdIndex) )
+                            doIgnoreCommands(cmdIndex);
+
                 }
 
         return true;
-        }
+        }        
 
         //=====================================================================
         bool subExpr(const string &expr)
@@ -732,8 +747,8 @@ public:
 
                             if(DB) cout<<":::  "<<cmdlist[cmdIndex]<<endl;
 
-                            if(cmdlist[cmdIndex]=="for" || cmdlist[cmdIndex]=="if"){
-                                doIgnoreForIf(cmdIndex);
+                            if(isBlock(cmdIndex)){
+                                doIgnoreCommands(cmdIndex);
                             continue;
                             }
 
@@ -749,8 +764,8 @@ public:
 
                         if(DB) cout<<":::  "<<cmdlist[cmdIndex]<<endl;
 
-                        if(cmdlist[cmdIndex]=="for" || cmdlist[cmdIndex]=="if"){
-                            doIgnoreForIf(cmdIndex);
+                        if(isBlock(cmdIndex)){
+                            doIgnoreCommands(cmdIndex);
                         continue;
                         }
 

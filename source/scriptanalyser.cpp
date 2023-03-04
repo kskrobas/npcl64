@@ -837,7 +837,20 @@ bool radiusOrside=false;
 
                     //file operations   save filename
                     if(regex_match(cmdline,regex("save[[:s:]]+[[:print:]]+"))){
+                            testVariables(&cmdline);
+                            appKeyValues(*ptr_cl,cmdline);
+                    continue;
+                    }
 
+
+                    if(regex_match(cmdline,regex("saveHeader[[:s:]]+[[:print:]]+"))){
+                            testVariables(&cmdline);
+                            appKeyValues(*ptr_cl,cmdline);
+                    continue;
+                    }
+
+
+                    if(regex_match(cmdline,regex("saveopt([[:s:]]+(min|max)+"+sPRE_NUMBER+")+"))){
                             testVariables(&cmdline);
                             appKeyValues(*ptr_cl,cmdline);
                     continue;
@@ -846,14 +859,6 @@ bool radiusOrside=false;
                     if(regex_match(cmdline,std::regex("threads[[:s:]]+[0-9]+"))){
                             testDuplicate(gb_cmdlist,"threads");
                             appKeyValues(gb_cmdlist,cmdline);
-                    continue;
-                    }
-
-
-                    if(regex_match(cmdline,regex("saveHeader[[:s:]]+[[:print:]]+"))){
-
-                            testVariables(&cmdline);
-                            appKeyValues(*ptr_cl,cmdline);
                     continue;
                     }
 
@@ -1086,7 +1091,6 @@ void ifBlock(fstream &script, size_t &cline , vcmdlist *ptr_cl , string &cmdline
 vector<string> tokensCmd(split<string>(cmdline.substr(3)," "));
 const size_t tokSize=tokensCmd.size();
 
-           // if(DB) {for(auto &token: tokensCmd)   cout<<token<<endl;}
 
             for(size_t i=0;i<tokSize;i+=2){
 

@@ -1575,7 +1575,6 @@ std::map<std::string, std::string>::const_iterator cathLambda=Elements::xrad.fin
         o<<"#extrapolate: "<<cdiff.extrapolate<<endl;
         o<<"#threads: "<<cdiff.threads<<endl;        
         o<<"#fastsinc: "<<cdiff.fastsinc<<endl;
-        //o<<"#nosf: "<<cdiff.nosf<<endl;
         o<<"#polarization: "<<cdiff.polarization<<endl;
         o<<"#normalization: "<<cdiff.norm<<endl;
         o<<"#numOfatoms: "<<cdiff.pdh->grain->atomNamesNumber[0]<<endl;

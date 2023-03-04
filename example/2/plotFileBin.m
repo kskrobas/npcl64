@@ -14,10 +14,14 @@ kmax=fread(fin,1,'double')
 
 dataSize=fread(fin,1,'uint64')
 nAtoms=fread(fin,1,'uint64')
+
+# raf :  r - radiation  a - axis  f - format
 raf=char(fread(fin,3,'uchar'))
 
 lambda=fread(fin,1,'double')
-layer=fread(fin,1,'int')
+
+## ignore 
+fread(fin,1,'int');
 
 
 
