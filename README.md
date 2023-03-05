@@ -16,7 +16,7 @@
  */
  
 # npcl64
-The npcl is a program for nanocrystal models building and diffraction calculations. It has command line interface, with simple diagram plotting based on gnuplot. Code is based on standard c++(11 and higher) libraries hovewer was tested for Linux only.
+The npcl is a program for nanocrystal models building and diffraction calculations. It has command line interface, with simple diagram plotting based on gnuplot. Code is based on standard c++(11 and higher) libraries hovewer was tested for Linux only. Calculations are supported by parralel computing with OpenMP library.
 
 
 Requirements:
@@ -25,7 +25,7 @@ Requirements:
 * gnuplot for plotting (Linux version only)
 
 Installation instructions for Linux like machines:
-1. download, install and compile fparser library:
+1. download, compile code  and install fparser library:
 
     g++ -c -fpic fparser.cc -o fparser.l
     g++ -shared -o libfparser.so fparser.l 
@@ -86,7 +86,11 @@ Debyea diffraction mode
 ##################################################################
 
 
-
 Laue diffraction mode
 ![diffLaue](images/leed_si111_7x7.png)
 
+##################################################################
+
+
+Notepad++ npcl script
+![npclHigh](images/highNpcl.png)
