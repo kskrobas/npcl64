@@ -208,7 +208,7 @@ public:
         {
         size_t op;
         const size_t cmdSize=cmdlist.size();
-        const size_t cmdIndexBegin=cmdIndex;
+        //const size_t cmdIndexBegin=cmdIndex;
                     	
 
                     try{

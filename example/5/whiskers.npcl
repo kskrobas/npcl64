@@ -1,0 +1,159 @@
+
+
+dirName="whiskersPoly"
+
+system rm -f ./${dirName}/*.lmp
+system mkdir -p ${dirName}
+
+clp="3.5667"
+fileNr="1501"
+
+
+for r=4:1:20
+
+	rd=${r}*0.25*${clp}
+	nOfL=${r}-3
+	
+	cast2int ${nOfL}
+
+	for i=2:1:12
+
+		for j=0:1:12
+		
+		ym=${j}*0.25+1.25	
+		cast2int ${fileNr}
+		
+		system mkdir -p ${dirName}/${fileNr}
+
+		fileName="${dirName}/${fileNr}/atoms.lmp"
+
+		grain
+			hcpcs poly ${i}  1 ${ym}
+			lp ${clp}
+			atom C
+			radius ${rd}
+			struct  hcp
+			geometry cylinder
+			hcpabc ${nOfL}(abc)
+			hcpsurfA no
+			insfault   random 2
+
+			save ${fileName}
+			
+			remove 2 1.56 50
+			numOfatomsTest yes
+			
+			push numAtoms na
+			
+		end
+		
+		breakIfSNA yes
+		
+		
+			pdh
+			bin 1024
+			threads 8
+			end	
+
+		fileNameDiff="${dirName}/${fileNr}/atoms+dw.diff"
+		diff
+			range 5 0.03125 180
+			radiation xray
+			lambda Ag
+			fastsinc yes
+			threads 8
+			
+			save ${fileNameDiff}
+		end
+
+		fileNameGr="${dirName}/${fileNr}/atoms+dw.gr"
+		gr
+			threads 4
+			range 0 0.03125 40
+			wf lorch
+			save ${fileNameGr}
+		end
+				
+		${fileNr}++
+
+		endfor
+	endfor	
+endfor
+
+
+
+clearSNA
+
+
+for r=4:1:20
+
+	rd=${r}*0.25*${clp}
+	nOfL=${r}-3
+	
+	cast2int ${nOfL}
+
+	for i=2:1:1
+
+		for j=0:1:12
+		
+		ym=${j}*0.25+1.25	
+		cast2int ${fileNr}
+		
+		system mkdir -p ${dirName}/${fileNr}
+
+		fileName="${dirName}/${fileNr}/atoms.lmp"
+
+		grain
+			hcpcs poly ${i}   ${ym}  1
+			lp ${clp}
+			atom C
+			radius ${rd}
+			struct  hcp
+			geometry cylinder
+			hcpabc ${nOfL}(abc)
+			hcpsurfA no
+			insfault   random 2
+
+			save ${fileName}
+			
+			remove 2 1.56 50
+			numOfatomsTest yes
+			
+			push numAtoms na
+			
+		end
+		
+		breakIfSNA yes
+		
+		
+			pdh
+			bin 1024
+			threads 8
+			end	
+
+		fileNameDiff="${dirName}/${fileNr}/atoms+dw.diff"
+		diff
+			range 5 0.03125 180
+			radiation xray
+			lambda Ag
+			fastsinc yes
+			threads 8
+			
+			save ${fileNameDiff}
+		end
+
+		fileNameGr="${dirName}/${fileNr}/atoms+dw.gr"
+		gr
+			threads 4
+			range 0 0.03125 40
+			wf lorch
+			save ${fileNameGr}
+		end
+				
+		${fileNr}++
+
+		endfor
+	endfor
+	
+endfor
+

@@ -1583,12 +1583,19 @@ const size_t currPos=ptr_uvar->size();
                     //komentarz blokowy
                     if(cmdline[0]=='#' || cmdline[0]=='%') continue;
 
-                    if(cmdline.find("/*")!=string::npos){
-                        while(cmdline.rfind("*/")==string::npos && !script.eof() ){
+                    if(cmdline.find("/#")!=string::npos){
+                        while(cmdline.rfind("#/")==string::npos && !script.eof() ){
                             std::getline(script,cmdline);
                             rtrim(cmdline);
                             cline++;
                         }
+
+                        if(script.eof()){
+                            errMsg(" block comment brackets are not balanced");
+                            throw Script::Result::ERR_EOF;
+                        }
+
+
                     continue;
                     }
 
@@ -1800,6 +1807,7 @@ const size_t currPos=ptr_uvar->size();
                 case Script::Result::ERR_VAL_0:      cerr<<"argument must be greater than 0"<<endl;break;
                 case Script::Result::ERR_NO_NUMBER:  cerr<<"argument must be a number"<<endl;break;
                 case Script::Result::ERR_UNK_VAR:    cerr<<"unknown variable "<<endl;break;
+                case Script::Result::ERR_EOF:        cerr<<"unexpected end of file "<<endl;break;
 
                 default: cerr<<"  unknown Script::Result,   code"<< scerr<< endl;
                 }

@@ -1,5 +1,5 @@
 /*
-02-05-2023
+03-05-2023
 create a folder with  plate-like models of diamond
 plates differ by:  size , number of layers, number of atoms, shape
 
@@ -10,7 +10,7 @@ plates differ by:  size , number of layers, number of atoms, shape
 
 
 
-sdir="plates0"
+sdir="plates1"
 clp="3.5667"
 fileNr="0"
 mNr="0"
@@ -22,52 +22,44 @@ for y=0:5:15
 		fsa=${sa}*0.1
 		for sb=10:2:20
 			fsb=${sb}*0.1		
-						for p=2:4:18
-							for rep=3:3:12
-							
-								R=${clp}*${rep}
-								${mNr}++
-								
-								print ${mNr}
-								
-								
-								#fileXYZ="${sdir}/model-hcp-${rep}.xyz"
-								
-								cast2int ${fileNr}
-								system mkdir -p ${sdir}/${fileNr}
+				for p=2:4:18
+					for rep=3:3:12
+					
+						R=${clp}*${rep}
+						${mNr}++
+						
+						print ${mNr}
+						
+						
+						#fileXYZ="${sdir}/model-hcp-${rep}.xyz"
+						
+						cast2int ${fileNr}
+						system mkdir -p ${sdir}/${fileNr}
 
-								fileXYZ="${sdir}/${fileNr}/atoms.lmp"
+						fileXYZ="${sdir}/${fileNr}/atoms.lmp"
+						
+							grain
+								struct hcp								
+								atom C
+								lp 3.5667
+								radius ${R}
 								
-									grain
-										struct hcp								
-										atom C
-										lp 3.5667
-										radius ${R}
-										
-										hcpabc abca							
-										geometry poly  ${p}      ${fsa} ${fsb}   1  ${dy}   1
-																
-										#printPrm 
-										
-										numOfatomsTest yes						
-										push numAtoms na
-										remove 2 1.6
-																
-										save ${fileXYZ}
-									end					
+								hcpabc abca							
+								geometry poly  ${p}      ${fsa} ${fsb}   1  ${dy}   1
 																								
-									breakIfSNA yes
-									
-									if ${na}>100								
-										if ${na}<12000									
-											${fileNr}++
-										endif
-										
-									endif
-																															
-																								
-							endfor
-						endfor
+								
+								numOfatomsTest yes		
+								remove 2 1.6
+														
+								save ${fileXYZ}
+								saveopt min 1e2 max 12e3
+							end					
+																						
+							breakIfSNA yes	
+
+							${fileNr}++									
+					endfor
+				endfor
 			endfor
 	endfor
 endfor
@@ -106,26 +98,18 @@ for y=0:5:15
 										
 										hcpabc abcab						
 										geometry poly  ${p}      ${fsa} ${fsb}   1  ${dy}   1
-																
-										#printPrm 
+
 										
-										numOfatomsTest yes						
-										push numAtoms na
+										numOfatomsTest yes	
 										remove 2 1.6
 																
 										save ${fileXYZ}
+										saveopt min 1e2 max 12e3
 									end					
 																								
 									breakIfSNA yes
+									${fileNr}++
 									
-									if ${na}>100								
-										if ${na}<12000									
-											${fileNr}++
-										endif
-										
-									endif
-																															
-																								
 							endfor
 						endfor
 			endfor
@@ -168,22 +152,16 @@ for y=0:5:15
 																
 										#printPrm 
 										
-										numOfatomsTest yes						
-										push numAtoms na
+										numOfatomsTest yes	
 										remove 2 1.6
 																
 										save ${fileXYZ}
+										saveopt min 1e2 max 12e3
 									end					
 																								
 									breakIfSNA yes
-									
-									if ${na}>100								
-										if ${na}<12000									
-											${fileNr}++
-										endif
-										
-									endif
-																															
+									${fileNr}++
+																											
 																								
 							endfor
 						endfor
@@ -224,27 +202,21 @@ for y=0:5:15
 										radius ${R}
 										
 										hcpabc abcab						
-										geometry poly  ${p}      ${fsa} ${fsb}     ${dy}   1  1
+										geometry poly  ${p}   ${fsa} ${fsb}     ${dy}   1  1
 																
 										#printPrm 
 										
-										numOfatomsTest yes						
-										push numAtoms na
+										numOfatomsTest yes	
 										remove 2 1.6
+										
+										saveopt min 1e2 max 12e3
 																
 										save ${fileXYZ}
 									end					
 																								
 									breakIfSNA yes
+									${fileNr}++
 									
-									if ${na}>100								
-										if ${na}<12000									
-											${fileNr}++
-										endif
-										
-									endif
-																															
-																								
 							endfor
 						endfor
 			endfor

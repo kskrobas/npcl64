@@ -58,7 +58,7 @@ print("<numericalVariable>=<math expression> - definition of a numerical(double)
 print("<stringVariable>=\"string of characters\" - definition of a string type variable");
 print("${<math/string variable>} - call the math/string variable");
 print("# or \% - one line comment");
-print("\\*   */ - respectively begin/end of multiline comment");
+print("/#  #/ - respectively begin/end of block/multiline comment");
 cout<<endl;
 
 

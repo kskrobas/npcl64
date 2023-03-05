@@ -124,7 +124,7 @@ namespace Script{
 
 enum Result{OK,WARN,ERR0,ERR1,BLOCK_ERR,MIS_UNK_ERR,DUP_ERR,ERR_EXPR,ERR_OUTOFRANGE,
             ERR_UNK_VAR,ENDRET,ENDELSE,ERR_MATH_EXP,ERR_PRT,ERR_VAL_0,ERR_NO_NUMBER,
-            ERR_INV_PAR,ERR_INF_LOOP,ERR_TRVUC,ERR_NAUC};
+            ERR_INV_PAR,ERR_INF_LOOP,ERR_TRVUC,ERR_NAUC,ERR_EOF};
 enum ResultRepVar{EMPTY,SUCC,FAIL};
 
 Result scriptParsing(fstream &file, size_t &cline, vcmdlist *ptr_cl,stdumap *ptr_uvar,const size_t options);
