@@ -1579,12 +1579,13 @@ const size_t currPos=ptr_uvar->size();
                     if(cmdline.empty()) continue;
                     //--
 
-                    //--
-                    //komentarz blokowy
-                    if(cmdline[0]=='#' || cmdline[0]=='%') continue;
+                    //--            
+                    // one line comment
+                    if(cmdline[0]=='>' || cmdline[0]=='#' || cmdline[0]=='%') continue;
 
-                    if(cmdline.find("/#")!=string::npos){
-                        while(cmdline.rfind("#/")==string::npos && !script.eof() ){
+                    // block comment
+                    if(cmdline.find("/>")!=string::npos){
+                        while(cmdline.rfind("</")==string::npos && !script.eof() ){
                             std::getline(script,cmdline);
                             rtrim(cmdline);
                             cline++;

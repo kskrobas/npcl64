@@ -1,4 +1,4 @@
-/*
+/>
 03-05-2023
 create a folder with  plate-like models of diamond
 plates differ by:  size , number of layers, number of atoms, shape
@@ -6,7 +6,7 @@ plates differ by:  size , number of layers, number of atoms, shape
 * program selects models by number of atoms  to avoid duplicates 
 * program removes 2 or more dangling bonds
 
-*/
+</
 
 
 

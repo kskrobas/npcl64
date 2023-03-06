@@ -1,3 +1,18 @@
+/>  
+last update (MDY): 03-06-2023 
+
+build whisker-like diamond models
+
+* min number of atoms 100
+* max number of atoms 12000
+* surface type B
+* number of random faults 2
+* cross section polygon type
+* remove randomly 2 or more binding bonds
+
+</
+
+
 
 
 dirName="whiskersPoly"
@@ -39,6 +54,7 @@ for r=4:1:20
 			insfault   random 2
 
 			save ${fileName}
+			saveopt min 100 max 12e3
 			
 			remove 2 1.56 50
 			numOfatomsTest yes
@@ -92,7 +108,7 @@ for r=4:1:20
 	
 	cast2int ${nOfL}
 
-	for i=2:1:1
+	for i=2:1:12
 
 		for j=0:1:12
 		
@@ -115,6 +131,7 @@ for r=4:1:20
 			insfault   random 2
 
 			save ${fileName}
+			saveopt min 100 max 12e3
 			
 			remove 2 1.56 50
 			numOfatomsTest yes
