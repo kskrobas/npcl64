@@ -656,7 +656,6 @@ bool radiusOrside=false;
                     }
 
 
-
                     if(regex_match(cmdline,std::regex("hcpabc[[:s:]]+[0-9A-Ca-c\\(\\)"+sVAR+"]+"))){
                             testDuplicate(gb_cmdlist,"hcpabc");
                             testDuplicate(gb_cmdlist,"hcpfillup");
@@ -863,28 +862,11 @@ bool radiusOrside=false;
                     }
 
 
-                   /* if(regex_match(cmdline,std::regex("side"+sPRE_NUMBER+"(A|lp|nm)?"))){
-
-                        if(radiusOrside){
-                            cerr<<"ERROR: the size of grain was defined earlier"<<endl;
-                            throw Script::Result::DUP_ERR;
-                        }
-
-                        radiusOrside=true;
-
-                        testDuplicate(gb_cmdlist,"side");
-                        appKeyValues(gb_cmdlist,cmdline);
-
-                     continue;
-                     }*/
-
                     if(regex_match(cmdline,std::regex("struct[[:s:]]+(sc|bcc|fcc|hcp|zb|uo2|zb110|feni|uc)"))){
                             testDuplicate(gb_cmdlist,"struct");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }
-
-
 
 
                     if(regex_match(cmdline,std::regex("threads[[:s:]]+[0-9]+"))){

@@ -19,29 +19,16 @@
 
 
 
-
-
-
-
 #ifndef SCRIPTANALYSER_H
 #define SCRIPTANALYSER_H
-
-
-
-//#include<QString>
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <algorithm>
-//#include <unordered_map>
-
-
 
 
 using namespace std;
-
-
 typedef std::pair<string, string> strpair;
 
 
@@ -66,7 +53,6 @@ public:
         ClKeyValues & operator << (string &kv);
         ClKeyValues & operator << (const char *);
         ClKeyValues & operator << (const vector<string> &vs ) ;
-        //ClKeyValues & operator << (string kv);
         ClKeyValues & operator >> (string &kv);
         ClKeyValues & operator >> (vector<string> &vs ) ;
 

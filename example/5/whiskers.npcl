@@ -8,7 +8,7 @@ build whisker-like diamond models
 * surface type B
 * number of random faults 2
 * cross section polygon type
-* remove randomly 2 or more binding bonds
+* remove randomly 2 or more dangling bonds
 
 </
 
