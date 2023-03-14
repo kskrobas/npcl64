@@ -54,6 +54,8 @@ print("grain - start grain block");
 print("pdh - start pdh block");
 print("print val0 val1 ${var} ... - print any number of values or strings");
 print("system command - execute a command by the operating system");
+print("breakIfSNA  - command stops processing the current loop if \'save number of atoms' flag is set");
+print("clearSNA - clears buffer of saved number of atoms");
 print("<numericalVariable>=<math expression> - definition of a numerical(double) type variable or expression");
 print("<stringVariable>=\"string of characters\" - definition of a string type variable");
 print("${<math/string variable>} - call the math/string variable");
