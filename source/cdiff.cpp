@@ -23,6 +23,7 @@
 #include "cprogress.h"
 #include "crandom.h"
 #include "colormsg.h"
+#include "createdir.h"
 
 #include <omp.h>
 #include <iomanip>
@@ -906,6 +907,11 @@ void Cdiff::saveResults()
 {
 
             for(string file : fileNameOut){
+
+                    if(!createDirsIfDontExist(file)){
+                        errMsg("couldn't create nested directories for "+file);
+                    throw Cdiff::ERR_FILEOPEN;
+                    }
 
                     if(file.find(".dat")!=string::npos){
                         if(mode==debyea) saveDatFile(file);

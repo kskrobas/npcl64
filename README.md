@@ -16,12 +16,12 @@
  */
  
 # npcl64
-The npcl is a program for nanocrystal models building and diffraction calculations. It has command line interface, with simple diagram plotting based on gnuplot. Code is based on standard c++(11 and higher) libraries hovewer was tested for Linux only. Calculations are supported by parralel computing with OpenMP library.
+The npcl is a program for nanocrystal models building and diffraction calculations. It has command line interface, with simple diagram plotting based on gnuplot. Code is based on standard c++(17 and higher) libraries hovewer was tested for Linux only. Calculations are supported by parralel computing with OpenMP library.
 
 
 Requirements:
 * Function Parser for C++ v4.5.2 by Juha Nieminen, Joel Yliluoma  http://warp.povusers.org/FunctionParser/
-* c++ v.11
+* c++ v.17
 * gnuplot for plotting (Linux version only)
 
 Installation instructions for Linux like machines:

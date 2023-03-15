@@ -20,6 +20,7 @@
 #include "cavepdh.h"
 #include "cprogress.h"
 #include "crandom.h"
+#include "createdir.h"
 
 #include <iomanip>
 #include <ctime>

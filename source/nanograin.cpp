@@ -28,6 +28,7 @@
 #include <functional>
 #include <omp.h>
 
+#include "createdir.h"
 #include "crandom.h"
 #include "colormsg.h"
 
@@ -45,6 +46,8 @@
 #else
 #define DB false
 #endif
+
+
 
 //-----------------------------------------------------------------------------
 inline position sqr(const position &x){return x*x;}
@@ -1997,6 +2000,11 @@ const size_t nOfatoms=atoms.size();
 
             for (auto & fileName:fileNameOut){
 
+                if(!createDirsIfDontExist(fileName)){
+                    errMsg("couldn't create nested directories for "+fileName);
+                throw Status::ERR_FOPEN;
+                }
+
                 if(fileName.find(".dat")!=string::npos){
                     saveDatFile(fileName);
                 continue;
@@ -2012,11 +2020,6 @@ const size_t nOfatoms=atoms.size();
                 continue;
                 }
 
-
-                if(fileName.find(".xyzs")!=string::npos){
-                    saveXYZSFile(fileName);
-                break;
-                }
 
                 if(fileName.find(".xyz")!=string::npos){
                     saveXYZFile(fileName);
@@ -2037,13 +2040,16 @@ const size_t nOfatoms=atoms.size();
 
 
                 cerr<<" unknown file format "<<fileName<<endl;
-                throw Status::ERR_FFORMAT;
+            throw Status::ERR_FFORMAT;
             }
 }
+
 
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveDatFile(const string &fileName)
 {
+
+
 fstream fout(fileName,ios::out);
 
         if(!fout){
@@ -2057,6 +2063,8 @@ fstream fout(fileName,ios::out);
 
         fout.close();
 }
+
+
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveXYZFile(const string &fileName)
 {
@@ -2072,37 +2080,12 @@ fstream fout(fileName,ios::out);
         fout<<atoms.size()<<endl;
         fout<<"ver.01"<<endl;
 
-        //cout<<"atom.atype "<<atoms[0].atype<<endl;
-
         for(StAtom &atom: atoms)
              fout<<atomTypes[atom.atype].name<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<endl;
-            //fout<<atomNames[atom.atype]<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<endl;
 
         fout.close();
 }
-//-----------------------------------------------------------------------------
-void NanoGrain::StNanoGrain::saveXYZSFile(const string &fileName)
-{
 
-
-    if(atoms.size()<2001 && atoms.size()>99){
-    const double maxXY=(maxX>maxY)? maxX :maxY;
-
-            if(2*maxX<maxZ)    {
-            const string fn(fileName.substr(0,fileName.length()-1));
-                saveXYZFile(fn);
-                return;
-            }
-
-            cerr<<" file not saved, atoms out of range maxXY "<< maxX<<", "<<maxZ<<endl;
-
-    }
-
-
-    cerr<<" file not saved, atoms out of range "<< atoms.size()<<endl;
-
-
-}
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveNXYZFile(const string &fileName)
 {
@@ -2175,6 +2158,7 @@ size_t numOfMarkedAtoms=0;
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveNDLFile(const string &fileName)
 {
+
 fstream fout(fileName,ios::out);
 
         if(!fout){
@@ -2194,6 +2178,7 @@ fstream fout(fileName,ios::out);
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveLammpsFile(const string &fileName)
 {
+
 fstream file(fileName,ios::out);
 
         if(!file){
@@ -3212,10 +3197,6 @@ const size_t sizeInner=prm.size();
             rshellN+=(prm[prmI].radius-rshellP)*prm[prmI].dev;
             rshellP =prm[prmI].radius;
         }
-
-
-
-       // cout<<"dr "<<dr<<"\n";
 
 return rshellN+dr;
 }

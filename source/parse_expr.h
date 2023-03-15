@@ -19,12 +19,6 @@
 
 
 
-
-
-
-
-
-
 #ifndef PARSE_EXPR_H
 #define PARSE_EXPR_H
 
@@ -35,26 +29,6 @@ using namespace  std;
 
 
 //---------------------------------------------------------------------------
-//class TExprException: public exception
-//{
-//private:
-//        const char *descr[4]={"unknown","unbalanced brackets","invalid expression","invalid pointer position"};
-//        unsigned ce=0;
-//        unsigned pos=0;
-//public:
-//        enum ErrorCode{UNKNOWN,UNBRACKETS,EXPRESSION,POSITION};
-//        TExprException(){ }
-//        TExprException(const ErrorCode ce_){ce=ce_;}
-//        TExprException(const ErrorCode ce_,const unsigned pos_){ce=ce_;pos=pos_;}
-
-//        virtual const char* what() const throw()
-//        {
-//        return descr[ce];
-//        }
-
-//        const	unsigned & getPosition() {return pos;}
-//} ;
-
 
 class CParseABC{
 private:

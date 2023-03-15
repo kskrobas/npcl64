@@ -402,7 +402,6 @@ std::stringstream atomsRemoved;
         void saveToFile();
         void saveDatFile(const string &fileName);
         void saveXYZFile(const string &fileName);
-        void saveXYZSFile(const string &fileName);
         void saveNXYZFile(const string &fileName);
         void saveMXYZFile(const string &fileName);
         void saveNDLFile(const string &fileName);

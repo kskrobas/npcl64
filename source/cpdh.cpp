@@ -21,6 +21,7 @@
 #include "cpdh.h"
 #include "cprogress.h"
 #include "colormsg.h"
+#include "createdir.h"
 
 #include <omp.h>
 #include <iomanip>
@@ -504,6 +505,11 @@ int progressMultiPDHValue=1;
 //===================================================================================
 void Cpdh::saveResults()
 {
+
+        if(!createDirsIfDontExist(fileName)){
+            errMsg("couldn't create nested directories for "+fileName);
+        throw Cpdh::ERR_FILEOPEN;
+        }
 
         if(fileName.find(".dat")!=string::npos){
             saveDatFile();

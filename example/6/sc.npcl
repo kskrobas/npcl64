@@ -1,0 +1,46 @@
+/>
+last update: 03-15-2023
+create nested directories
+</
+
+
+fileName="./lmp/atoms.lmp"
+grain
+    lp 2
+    radius 3lp
+    struct zb
+    geometry sphere
+    atom C
+    save ${fileName}
+end
+
+fileName="./lmp/pdhs/atoms.pdhs"
+pdh
+	threads 4
+	bin 1024
+	
+	save ${fileName}
+end	
+
+fileName="./lmp/diff/atoms.diff"
+
+diff
+	range 5 0.03125 150
+	lambda Ag
+	radiation xray
+	fastsinc yes
+	 save ${fileName}
+	 threads 4
+end
+
+fileName="./lmp/gr/atoms.gr"	 
+
+gr
+	wf lorch
+	range 0 0.125 20
+	save ${fileName}
+end
+	
+
+
+	

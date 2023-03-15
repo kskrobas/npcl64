@@ -29,6 +29,7 @@
 
 #include "cprogress.h"
 #include "colormsg.h"
+#include "createdir.h"
 
 
 #ifdef DEBUG
@@ -49,6 +50,11 @@ void Cgr::saveResults()
 {
 
         for(string file : fileNameOut){
+
+                if(!createDirsIfDontExist(file)){
+                    errMsg("couldn't create nested directories for "+file);
+                throw Cgr::ERR_FILEOPEN;
+                }
 
                 if(file.find(".dat")!=string::npos)
                     saveDatFile(file);
