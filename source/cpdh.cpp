@@ -511,32 +511,32 @@ void Cpdh::saveResults()
         throw Cpdh::ERR_FILEOPEN;
         }
 
-        if(fileName.find(".dat")!=string::npos){
+        if(fileName.rfind(".dat")!=string::npos){
             saveDatFile();
         return;
         }
 
-        if(fileName.find(".lhs")!=string::npos){
+        if(fileName.rfind(".lhs")!=string::npos){
             saveLhsFile();
         return;
         }
 
-        if(fileName.find(".pdhl")!=string::npos){
+        if(fileName.rfind(".pdhl")!=string::npos){
             savePdhlFile();
         return;
         }
 
-        if(fileName.find(".pdhs")!=string::npos){
+        if(fileName.rfind(".pdhs")!=string::npos){
             savePdhsFile();
         return;
         }
 
-        if(fileName.find(".plb")!=string::npos){
+        if(fileName.rfind(".plb")!=string::npos){
             saveBinFile();
         return;
         }
 
-        if(fileName.find(".pls")!=string::npos){
+        if(fileName.rfind(".pls")!=string::npos){
             saveBinFilePLS();
         return;
         }

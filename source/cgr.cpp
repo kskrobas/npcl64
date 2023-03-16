@@ -56,13 +56,13 @@ void Cgr::saveResults()
                 throw Cgr::ERR_FILEOPEN;
                 }
 
-                if(file.find(".dat")!=string::npos)
+                if(file.rfind(".dat")!=string::npos)
                     saveDatFile(file);
                 else
-                    if(file.find(".grb")!=string::npos)
+                    if(file.rfind(".grb")!=string::npos)
                         saveBinFile(file);
                     else
-                        if(file.find(".gr")!=string::npos)
+                        if(file.rfind(".gr")!=string::npos)
                             saveGrFile(file);
                         else
                             cerr<<"ERROR: Unknown file format"<<endl;

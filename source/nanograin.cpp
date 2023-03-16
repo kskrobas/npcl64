@@ -2005,35 +2005,35 @@ const size_t nOfatoms=atoms.size();
                 throw Status::ERR_FOPEN;
                 }
 
-                if(fileName.find(".dat")!=string::npos){
+                if(fileName.rfind(".dat")!=string::npos){
                     saveDatFile(fileName);
                 continue;
                 }
 
-                if(fileName.find(".nxyz")!=string::npos){
+                if(fileName.rfind(".nxyz")!=string::npos){
                     saveNXYZFile(fileName);
                 continue;
                 }
 
-                if(fileName.find(".mxyz")!=string::npos){
+                if(fileName.rfind(".mxyz")!=string::npos){
                     saveMXYZFile(fileName);
                 continue;
                 }
 
 
-                if(fileName.find(".xyz")!=string::npos){
+                if(fileName.rfind(".xyz")!=string::npos){
                     saveXYZFile(fileName);
                 continue;
                 }
 
 
 
-                if(fileName.find(".ndl")!=string::npos){
+                if(fileName.rfind(".ndl")!=string::npos){
                     saveNDLFile(fileName);
                 continue;
                 }
 
-                if(fileName.find(".lmp")!=string::npos){
+                if(fileName.rfind(".lmp")!=string::npos){
                     saveLammpsFile(fileName);
                 continue;
                 }

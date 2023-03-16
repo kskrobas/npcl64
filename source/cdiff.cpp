@@ -913,28 +913,28 @@ void Cdiff::saveResults()
                     throw Cdiff::ERR_FILEOPEN;
                     }
 
-                    if(file.find(".dat")!=string::npos){
+                    if(file.rfind(".dat")!=string::npos){
                         if(mode==debyea) saveDatFile(file);
                         else warnMsg(" .dat format works only for Debye mode");
                     }
                     else
-                        if(file.find(".diffb")!=string::npos){
+                        if(file.rfind(".diffb")!=string::npos){
                             if(mode==debyea) saveBinFile(file);
                             else warnMsg(" .diffb  format works only for Debye mode");
 
                         }
 						else
-                            if(file.find(".diff")!=string::npos){
+                            if(file.rfind(".diff")!=string::npos){
                                 if(mode==debyea) saveDiffFile(file);
                                 else warnMsg(" .diff format works only for Debye mode");
                             }
 							else
-                                if(file.find(".laueb")!=string::npos){
+                                if(file.rfind(".laueb")!=string::npos){
                                     if(mode==laue) saveLaueFileBin(file);
                                     else warnMsg(" .laueb format works only for Laue mode");
                                 }
                                 else
-                                    if(file.find(".laue")!=string::npos){
+                                    if(file.rfind(".laue")!=string::npos){
                                         if(mode==laue) saveLaueFile(file);
                                         else warnMsg(" .laue format works only for Laue mode");
                                     }
