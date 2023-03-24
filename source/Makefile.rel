@@ -98,7 +98,7 @@ $(objdir)/crandom.o: crandom.cpp crandom.h
 clean:
 	rm -f $(target) $(objdir)/*
 install:
-	@dt=$$(date +'%Y%m%d-%H%M%S') && mv $(HOME)/bin/npcl $(HOME)/bin/$$dt-npcl
+	@dt=$$(date +'%Y%m%d-%H%M%S') && if [ -f $(HOME)/bin/npcl ]; then mv $(HOME)/bin/npcl $(HOME)/bin/$$dt-npcl; fi;
 	cp $(target) $(HOME)/bin/.	
 	
 sysinstall:
