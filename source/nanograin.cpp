@@ -138,8 +138,9 @@ void NanoGrain::StNanoGrain::resetPrms()
         hcpsl=true;
         hcpsurf=EHCPSURF::sB;
         numOfAtomsTest=false;
-        testSNA=false;
+        //testSNA=false;
         numOfAtomsPush.clear();
+        saveFileStatusPush.clear();
         margins.clear();
 
         saveopt.reset();
@@ -1982,17 +1983,24 @@ const size_t nOfatoms=atoms.size();
 
             if(nOfatoms<saveopt.min){
                 if(DB) cout<<__FILE__<<":"<<__LINE__<<" number of atoms < min "<<endl;
-
-                testSNA=true;
+                saveopt.fileSaved=false;
             return;
             }
 
             if(nOfatoms>saveopt.max){
                 if(DB) cout<<__FILE__<<":"<<__LINE__<<" number of atoms > max "<<endl;
-
-                testSNA=true;
+                //testSNA=true;
+                saveopt.fileSaved=false;
             return;
             }
+
+
+            //cout<<"saveopt.fileSaved:  "<<saveopt.fileSaved<<endl;
+            for(auto & ifc : saveopt.lwh){
+                if(ifc=="H>W" && maxX>maxZ) return;
+                if(ifc=="H>L" && maxY>maxZ) return;
+            }
+
 
 
             if(DB) cout<<__FILE__<<":"<<__LINE__<<" saving atoms "<<endl;
@@ -2023,6 +2031,7 @@ const size_t nOfatoms=atoms.size();
 
                 if(fileName.rfind(".xyz")!=string::npos){
                     saveXYZFile(fileName);
+                    saveopt.fileSaved=true;
                 continue;
                 }
 
@@ -2030,11 +2039,13 @@ const size_t nOfatoms=atoms.size();
 
                 if(fileName.rfind(".ndl")!=string::npos){
                     saveNDLFile(fileName);
+                    saveopt.fileSaved=true;
                 continue;
                 }
 
                 if(fileName.rfind(".lmp")!=string::npos){
                     saveLammpsFile(fileName);
+                    saveopt.fileSaved=true;
                 continue;
                 }
 
@@ -2042,6 +2053,8 @@ const size_t nOfatoms=atoms.size();
                 cerr<<" unknown file format "<<fileName<<endl;
             throw Status::ERR_FFORMAT;
             }
+
+
 }
 
 
@@ -2283,7 +2296,12 @@ mapConstIter massIter;
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveHeader()
 {
-    fstream fout(fileNameHeader,ios::out);
+            if(!createDirsIfDontExist(fileNameHeader)){
+                errMsg("couldn't create nested directories for "+fileNameHeader);
+            throw Status::ERR_FOPEN;
+            }
+
+fstream fout(fileNameHeader,ios::out);
 
             if(!fout){
                 cerr<<"couldn't open file for saving, header will be lost: "<<fileNameHeader<<endl;
@@ -2765,6 +2783,12 @@ const str send("end");
                 if(cmd[index]=="push"){
                     if(cmd[index].getValue(1)=="numAtoms"){
                         numOfAtomsPush=cmd[index].getValue(2);
+                        index++;
+                    continue;
+                    }
+
+                    if(cmd[index].getValue(1)=="saveStatus"){
+                        saveFileStatusPush=cmd[index].getValue(2);
                     }
 
                     index++;
@@ -2857,6 +2881,11 @@ const str send("end");
                         continue;
                         }
 
+                        if(key=="if"){
+                            saveopt.lwh.push_back(value);
+                        continue;
+                        }
+
                         warnMsg("unknown save option "+key);
                     }
 
@@ -2866,7 +2895,7 @@ const str send("end");
 
 
                 if(cmd[index]=="saveHeader"){
-                    fileNameHeader=cmd[index++][1];
+                    fileNameHeader =cmd[index++][1];
                     Script::replaceVars(ptr_uvar,fileNameHeader);
                 continue;
                 }
@@ -3020,9 +3049,11 @@ const str send("end");
             if(numOfAtomsTest){
                 if(DB) infoMsg(" testing number of atoms");
 
-                testSNA=testSavedNumOfAtoms(atoms.size());
+                // if true  ->  grain with the same number of atoms already exists
+                //testSNA=testSavedNumOfAtoms(atoms.size());
+                saveopt.fileSaved=false;
 
-                if(testSNA){
+                if(!saveopt.fileSaved){
                     if(DB){
                         const string warn(" grains with the same number of atoms are ignored "+fileNameOut[0]+" "+std::to_string(atoms.size()));
                         warnMsg(warn);
@@ -3039,11 +3070,20 @@ const str send("end");
                 if(!fileNameOut.empty()) saveToFile();
 
 
-            if(!fileNameHeader.empty()) saveHeader();
+            if(!saveFileStatusPush.empty()){
+            const string varName(saveFileStatusPush);
+            auto iterVar=std::find(ptr_uvar->begin(),ptr_uvar->end(),varName);
+            auto sval(std::to_string(saveopt.fileSaved));
+
+                    if(iterVar==ptr_uvar->end())
+                        ptr_uvar->emplace_back(strpair(varName,sval));
+                    else
+                        iterVar->getValue()=sval;
+            }
+
+            if(!fileNameHeader.empty() && saveopt.fileSaved ) saveHeader();
 
             if(dispParams) dispParameters();
-
-
 
          return true;
          }
@@ -3109,7 +3149,7 @@ ostream &NanoGrain::operator<<(ostream &o, NanoGrain::StNanoGrain &grain)
             o<<"#hcpU: "<<grain.hcpu<<endl;
             o<<"#hcpcs: "<<grain.hcpcs<<endl;
             o<<"#hcpSubLattice: "<<grain.hcpsl<<endl;
-            o<<"#shapeParams: "<<grain.ssShape->getInfo()<<endl;
+            o<<"#shapeParams: "<< ( (grain.ssShape)? grain.ssShape->getInfo() : "<empty set>") <<endl;
         }
 
         o<<"#inputFile: "<<grain.fileNameIn<<endl;

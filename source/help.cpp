@@ -43,7 +43,7 @@ cout<<" This is a list of acceptable commands/statements:"<<endl<<endl;
 
 cout<<"\t\t1)general statements: "<<endl;
 print("avepdh - start pdh block");
-print("cast2int ${math_variable}- conversion floating point number to integer");
+print("cast2int <${math_var}>{1,} - conversion floating point number(s) to integer");
 print("diff - start diffraction block");
 print("end - the end of any block");
 print("endfor - the end of for block; optional statement, if not given the 'end' must be used to finish a block");

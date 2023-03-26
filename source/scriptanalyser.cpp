@@ -768,7 +768,7 @@ bool radiusOrside=false;
                     }
 
 
-                    if(regex_match(cmdline,std::regex("push[[:s:]]+(numAtoms|[xyz]size)[[:s:]]+[[:print:]]+"))){
+                    if(regex_match(cmdline,std::regex("push[[:s:]]+(numAtoms|[xyz]size|saveStatus)[[:s:]]+[[:print:]]+"))){
                         appKeyValues(gb_cmdlist,cmdline);
                     vector<string> tokens(split<string> (cmdline," "));
 
@@ -850,6 +850,13 @@ bool radiusOrside=false;
 
 
                     if(regex_match(cmdline,regex("saveopt([[:s:]]+(min|max)+"+sPRE_NUMBER+")+"))){
+                            testVariables(&cmdline);
+                            appKeyValues(*ptr_cl,cmdline);
+                    continue;
+                    }
+
+
+                    if(regex_match(cmdline,regex("saveopt([[:s:]]+if[[:s:]]+[HWL][<>][HWL])+"))){
                             testVariables(&cmdline);
                             appKeyValues(*ptr_cl,cmdline);
                     continue;
@@ -1699,7 +1706,7 @@ const size_t currPos=ptr_uvar->size();
                     }
 
                     ///cast2int
-                    if(regex_match(cmdline,std::regex("cast2int[[:s:]]+[[:print:]]+"))){
+                    if(regex_match(cmdline,std::regex("cast2int([[:s:]]+[[:print:]]+)+"))){
                             testVariables(&cmdline);
                              appKeyValues(*ptr_cl,cmdline);
                     continue;

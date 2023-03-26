@@ -81,6 +81,8 @@ private:
         size_t cmdlistSize;
         std::vector<string> argv;
 
+        bool quiet=false;
+
         void mthelp()
         {
 
@@ -145,6 +147,13 @@ public:
                     else
                        { cerr<<"wrong number of parameters"<<endl; return false;}
                 }
+
+                if(argv[i]=="-q"){
+                    quiet=true;
+                }
+
+
+
             }
 
             options=0;           
@@ -226,12 +235,12 @@ public:
                             }
 
                             if( cmdlist[cmdIndex]=="break"){
-                                if(grain.testSNA){
+                                //if(grain.testSNA){
+                                if(!grain.saveopt.fileSaved){
                                     doIgnoreCommands(cmdIndex);
                                 break;
                                 }
-                                else
-                                continue;
+                                else continue;
                             }
 
 
@@ -302,7 +311,7 @@ public:
 
                             ///
                             if(cmdlist[cmdIndex]=="grain"){
-                                cout<<"grain building/reading"<<endl;
+                                if(!quiet) cout<<"grain building/reading"<<endl;
                                 
                                 if(!grain.parseCommands(cmdlist,++cmdIndex,&uvars))
                                     break;
@@ -312,13 +321,13 @@ public:
 
                             ////
                             if(cmdlist[cmdIndex]=="pdh"){
-                                cout<<"pdh"<<endl;
+                                if(!quiet)  cout<<"pdh"<<endl;
                                 
                                 if(!pdh.parseCommands(cmdlist,++cmdIndex,&uvars))
                                     break;
                                                                        
                                 pdh.calc();
-                                cout<<"\n";
+                                if(!quiet)  cout<<"\n";
 
                                 if(pdh.status!=Cpdh::OK){
                                     cerr<<"ERROR: PDH status not OK"<<endl;
@@ -330,13 +339,13 @@ public:
 
                             ////
                             if(cmdlist[cmdIndex]=="diff"){
-                                cout<<"diffraction"<<endl;
+                                if(!quiet)  cout<<"diffraction"<<endl;
 
                                 if(!diff.parseCommands(cmdlist,++cmdIndex,&uvars))
                                     break;
 
                                 diff.calc();
-                                cout<<"\n";
+                                if(!quiet)  cout<<"\n";
 
 
                             continue;
@@ -344,20 +353,20 @@ public:
 
                             ////
                             if(cmdlist[cmdIndex]=="gr"){
-                                cout<<"G(r)"<<endl;
+                                if(!quiet)  cout<<"G(r)"<<endl;
 
                                 if(!gr.parseCommands(cmdlist,++cmdIndex,&uvars))
                                     break;
 
                                 gr.calc();
-                                cout<<"\n";
+                                if(!quiet)  cout<<"\n";
 
                             continue;
                             }
 
                             ////
                             if(cmdlist[cmdIndex]=="avepdh"){
-                                cout<<"avepdh"<<endl;
+                                if(!quiet)  cout<<"avepdh"<<endl;
 
                                 if(!avepdh.parseCommands(cmdlist,++cmdIndex,&uvars))
                                     break;
@@ -371,7 +380,7 @@ public:
                             }
                             ////
                             if(cmdlist[cmdIndex]=="mergepdh"){
-                                cout<<"mergepdh"<<endl;
+                                if(!quiet)  cout<<"mergepdh"<<endl;
 
                                 if(!mergepdh.parseCommands(cmdlist,++cmdIndex,&uvars))
                                     break;
@@ -421,22 +430,25 @@ public:
 
 
                             if(cmdlist[cmdIndex]=="cast2int"){
-                            string varTofind(cmdlist[cmdIndex][1]);
 
-                                    /// wyluskuje rdzen nazwy, czyli wartosc pomiedzy {...}
-                                    varTofind.erase(varTofind.begin(),varTofind.begin()+2);
-                                    varTofind.erase(varTofind.end()-1,varTofind.end());
+                               for(int i=1;i<cmdlist[cmdIndex].numOfKeyValues();i++ ){
+                                    string varTofind(cmdlist[cmdIndex][i]);
 
-                            auto it=std::find(uvars.begin(),uvars.end(),varTofind);
+                                            /// wyluskuje rdzen nazwy, czyli wartosc pomiedzy {...}
+                                            varTofind.erase(varTofind.begin(),varTofind.begin()+2);
+                                            varTofind.erase(varTofind.end()-1,varTofind.end());
 
-                                    if(it!=uvars.end()){
-                                    const int ival=std::stoi(it->getValue());
-                                        it->getValue()=std::to_string(ival);
-                                    }
-                                    else{
-                                            cout<<" ERROR, unknown keyvalue "<<cmdlist[cmdIndex][1];
-                                            throw Script::ERR_UNK_VAR;
-                                    }
+                                    auto it=std::find(uvars.begin(),uvars.end(),varTofind);
+
+                                            if(it!=uvars.end()){
+                                            const int ival=std::stoi(it->getValue());
+                                                it->getValue()=std::to_string(ival);
+                                            }
+                                            else{
+                                                    cout<<" ERROR, unknown keyvalue "<<cmdlist[cmdIndex][1];
+                                                    throw Script::ERR_UNK_VAR;
+                                            }
+                                }
 
                             continue;
                             }

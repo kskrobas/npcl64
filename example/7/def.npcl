@@ -1,0 +1,76 @@
+/>
+last update:  03-26-2023
+
+new features added to: saveopt  push
+added new command line argument: -q   (suppress some information on output)
+bug fixed:  saveHeader
+
+</
+
+
+fileNr="0"
+fileName="wyniks/${fileNr}.lmp"
+fileNameDiff="wyniks/${fileNr}.diff"
+fileNameHeader="stat/${fileNr}.hdr"
+
+for  ln=1:10
+
+    
+    print ${ln}
+    
+    grain
+		lp 3.5667
+		radius 3lp
+		struct hcp
+		geometry cylinder 
+		
+		hcpabc  ${ln}(abc)
+		
+		save ${fileName}		
+		saveHeader ${fileNameHeader}
+		saveopt if H>W  if H>L
+		
+		push saveStatus savestatus				
+		atom C
+    end	
+    
+
+	if ${savestatus}==1
+		print file saved	
+	else
+		print file not saved
+	endif
+
+	
+	breakIfSNA yes
+	
+	
+	pdh
+		bin 1024
+		threads 8
+	end
+		
+	
+	
+	diff
+		range 5 0.03125 180
+		radiation xray
+		lambda Ag
+		fastsinc yes
+		
+		threads 8
+		save ${fileNameDiff}
+	end
+			
+	
+	
+	${fileNr}++
+	cast2int ${fileNr}
+	fileName="wyniks/${fileNr}.lmp"
+	fileNameDiff="wyniks/${fileNr}.diff"
+	fileNameHeader="stat/${fileNr}.hdr"
+	
+endfor	
+    
+	
+	

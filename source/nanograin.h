@@ -289,7 +289,7 @@ struct StMinMax{
 class StNanoGrain{
 
 private:
-    string numOfAtomsPush;
+    string numOfAtomsPush,saveFileStatusPush;
 
 class CShells{
 public:
@@ -339,14 +339,6 @@ bool empty() {return vtrans.empty();}
 
 } uc;
 
-struct StSaveOpt{
-size_t min,max;
-
-    StSaveOpt(){ }
-    void reset(){ min=0;max=-1;}
-
-
-} saveopt;
 
 
 enum ESOURCE {AUTOCREATE,FILE} source;
@@ -457,9 +449,20 @@ std::string margins;
 std::string catomType;
 position maxR,maxX,maxY,maxZ; //maximal distance from (0,0,0)
 vatoms atoms;
-bool disperse,hcpsl,numOfAtomsTest,testSNA;
+bool disperse,hcpsl,numOfAtomsTest;//,testSNA;
 static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
+struct StSaveOpt{
+    size_t min,max;
+    vector<string> lwh;
+    bool   fileSaved;
+
+        StSaveOpt(){ }
+        void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;}
+
+} saveopt;
+
+
 
 
         void resetPrms();
