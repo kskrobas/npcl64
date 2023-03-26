@@ -57,9 +57,11 @@ Installation instructions for Linux like machines:
 4. ready to use 'npcl' program is placed in the ./npcl64/bin folder
 5. Installation: 
     For global installation type:
+    
     $ sudo make -f Makefile.rel sysinstall
     
-    For local (to your /home/<user>/bin, the bin folder must exist and should be known for system) folder type:
+    For local (to your /home/<user>/bin, the bin folder must exists and should be known for system) folder type:
+ 
     $ make -f Makefile.rel install
     
 6. set variable NPCLPATH, e.g.:
