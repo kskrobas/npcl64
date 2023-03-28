@@ -569,7 +569,6 @@ public:
                     if(ret==ERET_DC::FALSE)
                     return false;
 
-
                     if(ret==ERET_DC::BREAK){
                         forCmdIndex=std::stoi(cmdlist[cmdIndex][2]);
                     break;
@@ -581,22 +580,6 @@ public:
                     }
 
                 }
-
-                /// probably below 'if' lines should be removed (they don't look good)
-                /// after update 03-04-2023  searching for "end" instruction
-                /// is done by doIgnoreCommand placed near line 230 ( doCommands-> ... if ("break") ....)
-                /*if(forCmdIndex<cmdlist.size()){
-                    if(cmdlist[forCmdIndex]=="break"){
-                        for(;forCmdIndex<cmdlistSize;forCmdIndex++){
-
-                            if(DB) cout<<":::  "<<cmdlist[forCmdIndex]<<endl;
-
-                            if(cmdlist[forCmdIndex]=="end" )
-                            break;
-                        }
-                    }
-                }*/
-
 
                 /// remove local and for's iter  variables
                 cmdIndex=forCmdIndex;
@@ -756,7 +739,7 @@ public:
         const size_t numOfArgs=nofKV-2;
         vector<bool> subExprRet;
         size_t i,j;
-        ERET_DC retValue;
+        ERET_DC retValue=ERET_DC::TRUE;
 
 
                 //// conditional expression results

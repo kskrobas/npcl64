@@ -1,0 +1,102 @@
+/>
+init:  03-28-2023
+
+testing whisker shapes creation
+</
+
+
+dirName="whiskersPoly"
+
+
+system mkdir -p ${dirName}
+#system  [ -d "${dirName}" ] && rm -r ${dirName}/*
+
+clp="3.5667"
+fileNr="0"
+
+cast2int ${fileNr}
+fileName="${dirName}/${fileNr}/atoms.lmp"
+fileNameDiff="${dirName}/${fileNr}/atoms.diff"
+
+#set radius
+for r=2:4:18
+
+	rd=${r}*0.1*${clp}
+	nlMin=${r}-9
+	nlMax=${nlMin}+6
+	
+	for nOfLayers=${nlMin}:${nlMax}
+	
+	cast2int ${nOfLayers}
+	
+	if ${nOfLayers}<1
+	print CONTINUE noflayers <1
+	continue
+	endif
+	
+	
+	#set cross section params
+	for i=2:6:8
+		for j=0:4:8
+		
+			ym=${j}/6+1
+			
+			grain
+				hcpcs poly ${i}  1 ${ym}
+				lp ${clp}
+				atom C
+				radius ${rd}
+				struct  hcp
+				geometry cylinder
+				hcpabc ${nOfLayers}(abc)
+				
+				#insfault   random 2
+
+				save ${fileName}
+				saveopt min 100 max 15000
+				
+				remove 1 1.56 50
+				
+				push saveStatus savestatus
+				push numAtoms numatoms
+						
+				threads 8
+				
+			end
+			
+			
+			if ${savestatus}==0
+			print  BREAK ${i} ${j}  ${nOfLayers} ${r} ${numatoms}
+			break
+			endif
+			
+			
+			pdh
+				bin 1024
+				threads 8
+			end
+			
+			
+			diff
+				range 5 0.03125 120
+				radiation xray
+				lambda Ag
+				fastsinc yes
+				
+				save ${fileNameDiff}
+				threads 8
+			end
+			
+			
+			
+			${fileNr}++
+			cast2int ${fileNr}
+			
+			fileName="${dirName}/${fileNr}/atoms.lmp"
+			fileNameDiff="${dirName}/${fileNr}/atoms.diff"
+						
+		
+			endfor
+		endfor
+	endfor
+endfor
