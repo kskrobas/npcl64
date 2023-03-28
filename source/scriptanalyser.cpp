@@ -91,7 +91,7 @@ ClKeyValues &ClKeyValues::operator <<(const  vector<string>  & vs)
 
 return *this;
 }
-
+//-----------------------------------------------------------------------------
 ClKeyValues &ClKeyValues::operator <<(string & kv)
 {
         if(keyvalues.empty()){
@@ -1122,16 +1122,22 @@ const size_t tokSize=tokensCmd.size();
 
             appKeyValues(*ptr_cl,cmdline);
 
+            /// add additional cells to save:  "if's end" and "else" positions
+            const auto ifPosition=(ptr_cl->size()-1);
+            (*ptr_cl)[ifPosition].addValue("");
+            (*ptr_cl)[ifPosition].addValue("");            
+            const auto numOfValues=(*ptr_cl)[ifPosition].numOfKeyValues();
+            ////
+
             auto retValue=Script::scriptParsing(script,cline, ptr_cl,ptr_uvar,options);
 
-            if(retValue==Script::Result::ENDELSE){
-            auto retValueElse=Script::scriptParsing(script,cline, ptr_cl,ptr_uvar,options);
+            if(retValue==Script::Result::ENDELSE){                
+                (*ptr_cl)[ifPosition].getValue(numOfValues-1)=std::to_string(ptr_cl->size()-1);
 
-                if(retValueElse!=Script::Result::ENDRET){
+                if(Script::scriptParsing(script,cline, ptr_cl,ptr_uvar,options)!=Script::Result::ENDRET){
                     cerr<<" ERROR: misplaced END"<<endl;
                 throw Script::ERR0;
                 }
-
             }
             else
                 if(retValue!=Script::Result::ENDRET){
@@ -1139,7 +1145,10 @@ const size_t tokSize=tokensCmd.size();
                 throw Script::ERR0;
             }
 
-//vector<string> tokensArg(split<string>(tokensCmd[1],"&|"));
+            /// save end's position corresponding to its if
+
+            (*ptr_cl)[ifPosition].getValue(numOfValues-2)=std::to_string(ptr_cl->size()-1);
+
 }
 //-----------------------------------------------------------------------------
 void forBlock(fstream &script, size_t &cline , vcmdlist *ptr_cl , string &cmdline, const size_t options, stdumap *ptr_uvar)
@@ -1154,35 +1163,31 @@ vector<string> tokensArg(split<string>(tokensCmd[1],"="));
                 throw Script::ERR0;
                 }
 
-//vector<string> tokensPrm(split<string>(tokensArg[1],":"));
-
-
-                /// czy argumenty for loop są legalne
-                ///if(!regex_match(tokensArg[1],std::regex("[-]?[0-9]+:[0-9]+"))){
-                ///    cerr<<"Error, "<<cline<<" illegal loop parameters  "<<endl;
-                ///throw Script::ERR0;
-                ///}
-
-                /// czy istnieje juz zmienna o tej samej nazwie
-                ///
+                /// duplicate test
                 const auto iter=std::find(ptr_uvar->begin(),ptr_uvar->end(),tokensArg[0]);
 
                 if(iter!=ptr_uvar->end())
                 throw Script::DUP_ERR;
-
+                ////
 
 const size_t currPos=ptr_uvar->size();
 
                 ptr_uvar->emplace_back(strpair(tokensArg[0],tokensArg[1]));
                 appKeyValues(*ptr_cl,cmdline);
 
+                /// save for's  position on the list
+                const auto forPosition=(ptr_cl->size()-1);
 
                 if(Script::scriptParsing(script,cline, ptr_cl,ptr_uvar,options)!=Script::Result::ENDRET){
                     cerr<<" ERROR: misplaced END"<<endl;
-                    throw Script::ERR0;
+                throw Script::ERR0;
                 }
 
-                ptr_uvar->erase(ptr_uvar->begin()+currPos,ptr_uvar->end()); /// delete local variables of for's loop
+                /// save end's position corresponding to its for
+                (*ptr_cl)[forPosition].addValue(std::to_string(ptr_cl->size()-1));
+
+                /// delete local variables of for's loop
+                ptr_uvar->erase(ptr_uvar->begin()+currPos,ptr_uvar->end());
 }
 
 //-----------------------------------------------------------------------------
@@ -1576,24 +1581,25 @@ const size_t currPos=ptr_uvar->size();
                     if(cmdline.find("/>")!=string::npos){
                         while(cmdline.rfind("</")==string::npos && !script.eof() ){
                             std::getline(script,cmdline);
+                            if(DB){ cout<<cline<<": "<<cmdline<<endl;}
                             rtrim(cmdline);
                             cline++;
                         }
 
                         if(script.eof()){
-                            errMsg(" block comment brackets are not balanced");
+                            errMsg(" missing </, block comment brackets are not balanced");
                             throw Script::Result::ERR_EOF;
                         }
-
-
                     continue;
                     }
 
                     //-
 
                     //the end of block
-                    if(regex_match(cmdline,std::regex("end(for|if)?")) )
+                    if(regex_match(cmdline,std::regex("end(for|if)?")) ){
+                        appKeyValues(*ptr_cl,"end");
                     return Script::Result::ENDRET;
+                    }
 
                     //the else of block
                      if(regex_match(cmdline,std::regex("else")) ){
@@ -1668,7 +1674,7 @@ const size_t currPos=ptr_uvar->size();
 
                     if(regex_match(cmdline,std::regex("if[[:s:]]+[[:print:]]+"))){
                         ifBlock(script,cline,ptr_cl,cmdline,options,ptr_uvar);
-                        appKeyValues(*ptr_cl,"end");
+                        //appKeyValues(*ptr_cl,"end");
                     continue;
                     }
 
@@ -1676,14 +1682,14 @@ const size_t currPos=ptr_uvar->size();
 
                     if(regex_match(cmdline,std::regex("for[[:s:]]+\\w+=[[:print:]]+"))){
                         forBlock(script,cline,ptr_cl,cmdline,options,ptr_uvar);
-                        appKeyValues(*ptr_cl,"end");
+                        //appKeyValues(*ptr_cl,"end");
                     continue;
                     }
 
                     #ifdef __linux__
                     if(regex_match(cmdline,std::regex("for[[:s:]]+\\w+[[:s:]]+in[[:s:]]+[[:print:]]+"))){
                         forInBlock(script,cline,ptr_cl,cmdline,options,ptr_uvar);
-                        appKeyValues(*ptr_cl,"end");
+                        //appKeyValues(*ptr_cl,"end");
                     continue;
                     }
                     #endif
@@ -1698,10 +1704,15 @@ const size_t currPos=ptr_uvar->size();
                     continue;
                     }
 
+                    if(regex_match(cmdline,std::regex("continue"))){
+                        appKeyValues(*ptr_cl,cmdline);
+                    continue;
+                    }
+
                     if(regex_match(cmdline,std::regex("breakIfSNA[[:s:]]+(no|yes)?"))){
                     vector<string> cmdtok(split<string>(cmdline," "));
                             if(cmdtok[1]=="yes")
-                                appKeyValues(*ptr_cl,"break");
+                                appKeyValues(*ptr_cl,"breakIfSNA");
                     continue;
                     }
 

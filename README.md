@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Kazimierz Skrobas <kskrobas@unipress.waw.pl>
+ * Copyright (C) 2019-2023 Kazimierz Skrobas <KazimierzSkrobas@ncbj.gov.pl>, <kskrobas@unipress.waw.pl>
  *
  * npcl is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,9 @@
  */
  
 # npcl64
-The npcl is a program for nanocrystal models building and diffraction calculations. It has command line interface, with simple diagram plotting based on gnuplot. Code is based on standard c++(17 and higher) libraries hovewer was tested for Linux only. Calculations are supported by parralel computing with OpenMP library.
+The npcl is a program for nanocrystal models building and diffraction calculations. It has command line interface, with simple diagram plotting based on gnuplot. Code is based on standard c++(17 and higher) libraries hovewer was tested for Linux only. Calculations are supported by parralel computing with the OpenMP library. 
+
+The "npcl" fullfills POSIX standard requirements, hovewer fully tested is only under the Linux like environments. 
 
 
 Requirements:
@@ -41,14 +43,15 @@ Installation instructions for Linux like machines:
     (remember about dot at then end of instruction)
     Finally the npcl64 folder should look like this:
         
+    bin
     example
     fparser
     images
     n++
-    nf.txt
+    source
     README.md
     scFact.sft
-    source
+
 
     
 3. go to the source folder and type:

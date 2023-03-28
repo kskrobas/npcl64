@@ -67,13 +67,14 @@ public:
         int numOfKeyValues(){return keyvalues.size();}
         void clear(){ keyvalues.clear();}
         bool empty(){ return keyvalues.empty();}
-
+        void addValue(const string value){keyvalues.push_back(value);}
 
         bool isKey(std::string str__)
         {   return  keyvalues[0].find(str__)!=std::string::npos;}
 
         const std::string & getKey(){return keyvalues[0];}
         std::string & getValue(const size_t value=1){return keyvalues[value];} // dopuszczalna modyfikacja wartosci
+
 
         bool operator<(const ClKeyValues &b)
             {return keyvalues[0]<b.keyvalues[0];}

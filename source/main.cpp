@@ -213,7 +213,9 @@ public:
         }
         //=====================================================================
 
-        bool doCommands(size_t &cmdIndex)
+        enum ERET_DC{FALSE,TRUE,CONTINUE,BREAK};
+
+        ERET_DC doCommands(size_t &cmdIndex)
         {
         size_t op;
         const size_t cmdSize=cmdlist.size();
@@ -234,15 +236,19 @@ public:
                             break;
                             }
 
-                            if( cmdlist[cmdIndex]=="break"){
-                                //if(grain.testSNA){
+                            if( cmdlist[cmdIndex]=="breakIfSNA"){
                                 if(!grain.saveopt.fileSaved){
                                     doIgnoreCommands(cmdIndex);
                                 break;
                                 }
-                                else continue;
+                            continue;
                             }
 
+                            if( cmdlist[cmdIndex]=="break")
+                            return ERET_DC::BREAK;
+
+                            if(cmdlist[cmdIndex]=="continue")
+                            return ERET_DC::CONTINUE;
 
                             ////////////
                             if(cmdlist[cmdIndex]=="$var_math"){
@@ -422,12 +428,16 @@ public:
                             #endif
 
                             if(cmdlist[cmdIndex]=="if"){
-                                if(!doIfCommand(cmdIndex))
-                                    throw 0;
+                            auto retValue=doIfCommand(cmdIndex);
+
+                                switch(retValue){
+                                case ERET_DC::FALSE:  errMsg(" doIfCommand error");throw 0; break;
+                                case ERET_DC::BREAK:
+                                case ERET_DC::CONTINUE:  return retValue;
+                                case ERET_DC::TRUE:  ;
+                                }
                             continue;
                             }
-
-
 
                             if(cmdlist[cmdIndex]=="cast2int"){
 
@@ -504,20 +514,21 @@ public:
                     }
                     catch(Script::ResultRepVar e){
                         cerr<<"ERROR: unknown variable, code: "<<e<<endl;
-                    return false;
+                    return ERET_DC::FALSE;
                     }
                     catch(Script::Result sr){
                         switch (sr){
                         case Script::Result::ERR_UNK_VAR:  cerr<<" unknown variable "<<endl; break;
                         default : cerr<<"ERROR: script error, code: "<<sr<<endl;
                         }
-                    return false;
+                    return ERET_DC::FALSE;
                     }
                     catch(...){
                         cerr<<"ERROR: unknown code"<<endl;
-                    return false;
+                    return ERET_DC::FALSE;
                     }
-        return true;
+
+        return ERET_DC::TRUE;
         }
 
         //=====================================================================
@@ -550,15 +561,31 @@ public:
                     locIterVar->getValue()=std::to_string(it);
 
                     forCmdIndex=cmdIndex+1; // always reset loop to the first statement
-                    if(!doCommands(forCmdIndex))
-                        return false;
+                    const auto ret=doCommands(forCmdIndex);
+
+                    if(ret==ERET_DC::TRUE)
+                    continue;
+
+                    if(ret==ERET_DC::FALSE)
+                    return false;
+
+
+                    if(ret==ERET_DC::BREAK){
+                        forCmdIndex=std::stoi(cmdlist[cmdIndex][2]);
+                    break;
+                    }
+
+                    if(ret==ERET_DC::CONTINUE){
+                        forCmdIndex=std::stoi(cmdlist[cmdIndex][2]);
+                    continue;
+                    }
 
                 }
 
                 /// probably below 'if' lines should be removed (they don't look good)
                 /// after update 03-04-2023  searching for "end" instruction
                 /// is done by doIgnoreCommand placed near line 230 ( doCommands-> ... if ("break") ....)
-                if(forCmdIndex<cmdlist.size()){
+                /*if(forCmdIndex<cmdlist.size()){
                     if(cmdlist[forCmdIndex]=="break"){
                         for(;forCmdIndex<cmdlistSize;forCmdIndex++){
 
@@ -568,7 +595,7 @@ public:
                             break;
                         }
                     }
-                }
+                }*/
 
 
                 /// remove local and for's iter  variables
@@ -640,7 +667,7 @@ public:
                     locIterVar->getValue()=fileName;
 
                     forCmdIndex=cmdIndex+1; // always reset loop to the initial statement
-                    if(!doCommands(forCmdIndex))
+                    if(doCommands(forCmdIndex)==ERET_DC::FALSE)
                         return false;
 
                     from=to+1;
@@ -720,24 +747,25 @@ public:
 
         //.................................................................
 
-        bool doIfCommand(size_t &cmdIndex)
+        ERET_DC doIfCommand(size_t &cmdIndex)
         {
-        const string cmd(cmdlist[cmdIndex][1]);
+        const size_t nofKV=cmdlist[cmdIndex].numOfKeyValues();
+        const string cmd(cmdlist[cmdIndex][1]);        
+        const auto ifendPos=std::stoi(cmdlist[cmdIndex][nofKV-2]);
         vector<string> tokensCmd(split<string>(cmd," "));
-        //const size_t tokSize=tokensCmd.size();
+        const size_t numOfArgs=nofKV-2;
         vector<bool> subExprRet;
         size_t i,j;
+        ERET_DC retValue;
 
 
                 //// conditional expression results
-                for(i=1;i<cmdlist[cmdIndex].numOfKeyValues();i+=2){
+                for(i=1;i<numOfArgs;i+=2)
                     subExprRet.push_back(subExpr(cmdlist[cmdIndex][i]));
-                }
-
 
         bool result=subExprRet[0];
 
-                for(i=2,j=1;i<cmdlist[cmdIndex].numOfKeyValues();i+=2,j++){
+                for(i=2,j=1;i<numOfArgs;i+=2,j++){
 
                     if(cmdlist[cmdIndex][i]=="&")
                         result = (result && subExprRet[j]);
@@ -746,57 +774,33 @@ public:
 
                 }
 
-                cmdIndex++;
+                if(result){
+                    cmdIndex++;
+                    retValue=doCommands(cmdIndex);
+                    if(retValue==ERET_DC::FALSE)
+                        return ERET_DC::FALSE;
 
-                if(result){                    
-                    if(!doCommands(cmdIndex))
-                        return false;
-
-                    if(cmdlist[cmdIndex]=="else"){
-                        cmdIndex++;
-
-                        for(;cmdIndex<cmdlistSize;cmdIndex++){
-
-                            if(DB) cout<<":::  "<<cmdlist[cmdIndex]<<endl;
-
-                            if(isBlock(cmdIndex)){
-                                doIgnoreCommands(cmdIndex);
-                            continue;
-                            }
-
-                            if(cmdlist[cmdIndex]=="end" )
-                            break;
-                        }
-
-                    }
+                    cmdIndex=ifendPos;
                 }
                 else{
+                     ///  if  'if' is without an 'else'
+                     if(cmdlist[cmdIndex][nofKV-1].empty()){
+                         cmdIndex=ifendPos;
+                     }
+                     else{ /// if 'if' has 'else' companion
+                         //go to 'else' position
+                         cmdIndex=std::stoi(cmdlist[cmdIndex][nofKV-1])+1;
+                         retValue=doCommands(cmdIndex);
+                         if(retValue==ERET_DC::FALSE)
+                             return ERET_DC::FALSE;
 
-                    for(;cmdIndex<cmdlistSize;cmdIndex++){
-
-                        if(DB) cout<<":::  "<<cmdlist[cmdIndex]<<endl;
-
-                        if(isBlock(cmdIndex)){
-                            doIgnoreCommands(cmdIndex);
-                        continue;
-                        }
-
-
-                        if(cmdlist[cmdIndex]=="else"){
-                            cmdIndex++;
-                            if(!doCommands(cmdIndex))
-                                return false;
-                            else
-                                break;
-                        }
-
-
-                        if(cmdlist[cmdIndex]=="end" )
-                        break;
-                    }
+                         if(DB){
+                            if(cmdIndex!=ifendPos) {cerr<<__FILE__<<":"<<__LINE__; errMsg("  cmdIndex!=ifendPos");}
+                         }
+                     }
                 }
 
-        return true;
+        return retValue;
         }
 
         //=====================================================================
