@@ -38,7 +38,7 @@ private:
     position maxDist;
     stdumap *ptr_uvar;
 
-    std::string threads;
+
     std::string fileName,fileNameIn;
     std::string comment;
     std::string title;
@@ -113,6 +113,7 @@ public:
     std::string figWidth,figHeight;
 #endif
 
+    std::string threads;
 
     std::string bin;
     enum EBinMode{SINGLE,DOUBLE};

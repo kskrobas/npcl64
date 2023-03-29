@@ -1209,6 +1209,10 @@ size_t i;
 const size_t currPos=ptr_uvar->size();
 
             appKeyValues(*ptr_cl,forArg);
+            /// save for's  position on the list
+            const auto forPosition=(ptr_cl->size()-1);
+
+
             ptr_uvar->emplace_back(strpair(tokensCmd[1],forArg));
 
             if(Script::scriptParsing(script,cline, ptr_cl,ptr_uvar,options)!=Script::Result::ENDRET){
@@ -1216,8 +1220,11 @@ const size_t currPos=ptr_uvar->size();
                 throw Script::ERR0;
             }
 
-            ptr_uvar->erase(ptr_uvar->begin()+currPos,ptr_uvar->end()); /// delete local variables of for's loop
+            /// save end's position corresponding to its for
+            (*ptr_cl)[forPosition].addValue(std::to_string(ptr_cl->size()-1));
 
+            /// delete local variables of for's loop
+            ptr_uvar->erase(ptr_uvar->begin()+currPos,ptr_uvar->end()); /// delete local variables of for's loop
 }
 //-----------------------------------------------------------------------------
 void diffBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
@@ -1670,6 +1677,12 @@ const size_t currPos=ptr_uvar->size();
                         appKeyValues(*ptr_cl,cmdline);
                     continue;
                     }
+
+                    //-- global threads
+                     if(regex_match(cmdline,std::regex("threads[[:s:]]+[0-9]+"))){
+                             appKeyValues(*ptr_cl,cmdline);
+                     continue;
+                     }
 
 
                     if(regex_match(cmdline,std::regex("if[[:s:]]+[[:print:]]+"))){

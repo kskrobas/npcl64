@@ -24,7 +24,7 @@
 
 
 #include <string>
-
+#include <iostream>
 using namespace  std;
 
 
@@ -33,128 +33,26 @@ using namespace  std;
 class CParseABC{
 private:
 
+        struct StExpr{
+        size_t start=0,stop=0;
+        std::string token;
 
-            struct StExpr{
-            size_t start=0,stop=0;
-            std::string token;
+            StExpr(){ }
+            int Length(){return stop-start;}
+        };
 
-                StExpr(){ }
-                int Length(){return stop-start;}
-            };
-
-
-enum Results{OK,ERR_POS,ERR_BRA};
 
         std::string expression;
         size_t exprLength;
 
-            //---------------------------------------------------------------------------
-            StExpr buildABCexpand(const unsigned startPos)
-            {
-            const string &str=expression;
-            size_t pos=startPos;
-            StExpr expr;
-            string digits;
-
-                    expr.start=startPos;
-
-                    while(pos<exprLength && isdigit(str[pos]) )
-                        digits+=str[pos++];
-
-            string letters;
-
-                    if(isalpha(str[pos]))
-                        letters=str[pos];
-                    else
-                        if(str[pos]=='(') {
-                        StExpr exprUp=buildABC(pos);
-                                pos+=exprUp.Length();
-                                letters=exprUp.token;
-
-                        }
-                        else
-                        throw Results::ERR_POS;
-
-                    expr.stop=pos;
-
-            const size_t intNum=std::stoi(digits);
-
-                        expr.token="";
-                        for(size_t i=0;i<intNum;i++)
-                            expr.token+=letters;
-
-            return expr;
-            }
-
-            //---------------------------------------------------------------------------
-            StExpr buildABC(const unsigned startPos=0)
-            {
-            const string &str=expression;
-            size_t pos=startPos;
-            StExpr expr;
-
-                    expr.start=pos;
-                    pos++;
-
-                    while( pos<exprLength && str[pos]!=')'){
-
-                        if(isalpha(str[pos]))
-                            expr.token+=str[pos];
-                        else{
-                            if(isdigit(str[pos])){
-                            StExpr exprUp=buildABCexpand(pos);
-                                pos+=exprUp.Length();
-                                expr.token+=exprUp.token;
-                            }
-                            else{
-                            StExpr exprUp=buildABC(pos);
-                                pos+=exprUp.Length();
-                                expr.token+=exprUp.token;
-                            }
-                        }
-                        pos++;
-                    }
-
-                    if(pos>exprLength)
-                    throw Results::ERR_POS;
-
-                    expr.stop=pos;
-
-            return	expr;
-            }
-            //---------------------------------------------------------------------------
-
+        //---------------------------------------------------------------------------
+         StExpr buildABCexpand(const unsigned startPos);
+         StExpr buildABC(const unsigned startPos=0);
+        //---------------------------------------------------------------------------
 
 public:
-
-            bool run(const string &expr,string &result){
-
-                    expression="("+expr+")";
-                    exprLength=expression.length();
-
-                    try{
-                    StExpr expr=buildABC();
-
-                        if( expr.stop != exprLength-1) //unbalanced braces detection
-                            throw  Results::ERR_BRA;
-
-                         result=expr.token;
-
-                        return true;
-                    }
-                    catch(Results r){
-                        cerr<<"error: ABC expression fault ";
-
-                        switch(r){
-                        case Results::ERR_BRA : cerr<<"unbalanced brackets"<<endl;break;
-                        case Results::ERR_POS : cerr<<""<<endl;break;
-                        default: cerr<<"OK"<<endl;
-                        }
-
-                        return false;
-                    }
-            }
-
+        enum Results{OK,ERR_POS,ERR_BRA,ERR_ILLCHAR};
+        bool run(const string &expr,string &result);
 };
 
 #endif // PARSE_EXPR_H

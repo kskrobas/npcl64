@@ -320,7 +320,7 @@ public:
                                 if(!quiet) cout<<"grain building/reading"<<endl;
                                 
                                 if(!grain.parseCommands(cmdlist,++cmdIndex,&uvars))
-                                    break;
+                                    return ERET_DC::CONTINUE;
                                     				
                             continue;
                             }
@@ -330,7 +330,7 @@ public:
                                 if(!quiet)  cout<<"pdh"<<endl;
                                 
                                 if(!pdh.parseCommands(cmdlist,++cmdIndex,&uvars))
-                                    break;
+                                return ERET_DC::CONTINUE;
                                                                        
                                 pdh.calc();
                                 if(!quiet)  cout<<"\n";
@@ -348,7 +348,7 @@ public:
                                 if(!quiet)  cout<<"diffraction"<<endl;
 
                                 if(!diff.parseCommands(cmdlist,++cmdIndex,&uvars))
-                                    break;
+                                return ERET_DC::CONTINUE;
 
                                 diff.calc();
                                 if(!quiet)  cout<<"\n";
@@ -362,7 +362,7 @@ public:
                                 if(!quiet)  cout<<"G(r)"<<endl;
 
                                 if(!gr.parseCommands(cmdlist,++cmdIndex,&uvars))
-                                    break;
+                                return ERET_DC::CONTINUE;
 
                                 gr.calc();
                                 if(!quiet)  cout<<"\n";
@@ -399,7 +399,6 @@ public:
                             continue;
                             }
 
-
                             ////
                             if(cmdlist[cmdIndex]=="system"){                            	
                             str scmd;
@@ -412,7 +411,17 @@ public:
                             continue;	
 							}
 
+                             ////
+                            if(cmdlist[cmdIndex]=="threads") {
+                                grain.threads=cmdlist[cmdIndex][1];
+                                pdh.threads=cmdlist[cmdIndex][1];
+                                diff.threads=cmdlist[cmdIndex][1];
+                                gr.threads=cmdlist[cmdIndex][1];
 
+                            continue;
+                            }
+
+                             ///
                             if(cmdlist[cmdIndex]=="for"){
                                 if(!doForCommand(cmdIndex))
                                     throw 0;
@@ -599,9 +608,10 @@ public:
         bool doForInCommand(size_t &cmdIndex)
         {
         const string iterName(cmdlist[cmdIndex][1]);
+        const auto numOfArgs=cmdlist[cmdIndex].numOfKeyValues()-1;
         string forArg;
 
-                    for(size_t i=3;i<cmdlist[cmdIndex].numOfKeyValues();i++)
+                    for(size_t i=3;i<numOfArgs;i++)
                         forArg+=cmdlist[cmdIndex][i]+" ";
 
         FILE *fid=nullptr;
@@ -644,16 +654,32 @@ public:
 
                     fileName=fList.substr(from,to-from);
 
+                    from=to+1;
+
                     if(DB) cout<<"  "<<fileName<<endl;
 
                     auto locIterVar=std::find(uvars.begin(),uvars.end(),iterName);
                     locIterVar->getValue()=fileName;
 
                     forCmdIndex=cmdIndex+1; // always reset loop to the initial statement
-                    if(doCommands(forCmdIndex)==ERET_DC::FALSE)
-                        return false;
 
-                    from=to+1;
+                    const auto ret=doCommands(forCmdIndex);
+                    if(ret==ERET_DC::TRUE)
+                    continue;
+
+                    if(ret==ERET_DC::FALSE)
+                    return false;
+
+                    if(ret==ERET_DC::BREAK){
+                        forCmdIndex=std::stoi(cmdlist[cmdIndex][numOfArgs]);
+                    break;
+                    }
+
+                    if(ret==ERET_DC::CONTINUE){
+                        forCmdIndex=std::stoi(cmdlist[cmdIndex][numOfArgs]);
+                    continue;
+                    }
+
                 }while(true);
 
 

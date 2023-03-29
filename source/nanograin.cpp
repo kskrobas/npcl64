@@ -73,10 +73,10 @@ string parseABC(const string &expression)
 CParseABC parseABC;
 string abcexpr;
 
-            if(parseABC.run(expression,abcexpr))
-            return abcexpr;
-            else
-            throw Script::ERR_EXPR;
+            if(! parseABC.run(expression,abcexpr))
+                throw NanoGrain::Status::ERR_ABCPARSE;
+
+return abcexpr;
 }
 //-----------------------------------------------------------------------------
 
@@ -3101,6 +3101,7 @@ const str send("end");
              case NanoGrain::ERR_UNKSEQ: cerr<<" empty hcp string";           break;
              case Status::ERR_LPLTZERO:  cerr<<" random value of latt. param. is less than zero"; break;
              case Status::ERR_RLTZERO:   cerr<<" random value of radius is less than zero"; break;
+             case Status::ERR_ABCPARSE:  cerr<<" hcpabc failure";               break;
              default: cout<<"unknown error (Status type), code ";
              }
 

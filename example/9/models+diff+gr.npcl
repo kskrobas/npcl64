@@ -1,0 +1,64 @@
+/>
+date:  03-29-2023
+example :   how to use 'for' loop for reading files given from listing
+</
+
+
+
+# all blocks (grain, pdh, diff)  use 8 threads
+
+threads 8
+
+#1. Create some initial models
+dir="models"
+
+for nl=1:5
+
+	cast2int ${nl}
+	fileName="${dir}/${nl}.xyz"
+	
+	grain
+		geometry cylinder
+		struct hcp
+		hcpabc ${nl}(abac)
+		
+		lp 3.5667
+		radius 3lp
+		
+		atom C
+		
+		save ${fileName}
+	end
+	
+endfor	
+
+#2. Read models given by 'find' instruction
+		
+for file in find . -name "*xyz"
+
+		print ${file}
+		
+		grain
+			open ${file}
+		end
+			
+		
+		pdh
+			bin 1024
+		end
+		
+		fileNameDiff="${file}.diff"	
+	
+		diff
+			range 10 0.0625 120
+			radiation xray
+			lambda Ag
+			fastsinc yes
+			
+			save ${fileNameDiff}
+		end
+
+endfor		
+
+
+

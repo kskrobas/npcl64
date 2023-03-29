@@ -43,6 +43,10 @@ cout<<" This is a list of acceptable commands/statements:"<<endl<<endl;
 
 cout<<"\t\t1)general statements: "<<endl;
 print("avepdh - start if pdh block");
+print("break - terminate and next leave the current loop");
+print("continue - stop processing of the current loop iteration  and next continue loop with a new iteration");
+print("breakIfSNA  - command stops processing the current loop if \'save number of atoms failure (SNA)' flag is set (obsolete)");
+print("clearSNA - clear buffer of SNA");
 print("cast2int <${math_var}>{1,} - conversion floating point number(s) to integer");
 print("diff - start diffraction block");
 print("end - the end of any block");
@@ -50,14 +54,11 @@ print("end(if|for) - the end of if/for block; it is an optional statement, if no
 print("for <iterVar>=<from>(:<step>):<to> - start the 'for' block; range must be given by integer numbers, step is optional, if not given 1 is assumed");
 print("for <iterVar>=${var}(:${var}):${var} - as above but range is given by variables. More explanations below");
 print("for <iterVar> in <shell listing command> - loop for files returned by a shell listing command");
-print("break - terminate and next leave the current loop");
-print("continue - stop processing of the current loop iteration  and next continue loop with a new iteration");
 print("grain - start of grain block");
 print("pdh - start of pdh block");
 print("print val0 val1 ${var} ... - print any number of values or strings");
 print("system command - execute a command by the operating system");
-print("breakIfSNA  - command stops processing the current loop if \'save number of atoms' flag is set");
-print("clearSNA - clears buffer of saved number of atoms");
+print("threads <value> - global set number of threads for each block");
 print("<numericalVariable>=<math expression> - definition of a numerical(double) type variable or expression");
 print("<stringVariable>=\"string of characters\" - definition of a string type variable");
 print("${<math/string variable>} - call the math/string variable");
