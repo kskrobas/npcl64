@@ -47,7 +47,9 @@ for file in find . -name "*xyz"
 			bin 1024
 		end
 		
-		fileNameDiff="${file}.diff"	
+		
+		fileNameDiff="${file}"	
+		strRep ${fileNameDiff} -3 diff
 	
 		diff
 			range 10 0.0625 120

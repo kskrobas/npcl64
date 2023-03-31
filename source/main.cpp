@@ -398,6 +398,31 @@ public:
                                     throw 0;
                             continue;
                             }
+                            ////
+                            if(cmdlist[cmdIndex]=="strRep"){
+                            auto strvar(cmdlist[cmdIndex][1]);
+
+                                    strvar.erase(strvar.begin(),strvar.begin()+2);
+                                    strvar.erase(strvar.end()-1,strvar.end());
+
+                            auto it=std::find(uvars.begin(),uvars.end(),strvar);
+
+                                    if(it==uvars.end()){
+                                        cerr<<"ERROR: unknown variable "<<strvar<<endl;
+                                    throw Script::ERR_UNK_VAR;
+                                    }
+
+                            auto &strVal=(it->getValue());
+                            auto from   =std::stoi(cmdlist[cmdIndex][2]);
+                            auto strRep =cmdlist[cmdIndex][3];
+
+
+                                    if(from<0)
+                                        from+=strVal.length();
+
+                                    strVal.replace(from,strRep.length(),strRep);
+                            continue;
+                            }
 
                             ////
                             if(cmdlist[cmdIndex]=="system"){                            	

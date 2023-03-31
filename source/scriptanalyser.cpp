@@ -1671,6 +1671,13 @@ const size_t currPos=ptr_uvar->size();
                     continue;
                     }
 
+                    /// substring replace
+                    if(regex_match(cmdline,std::regex("strRep[[:s:]]+"+sVAR+"[[:s:]]+[-+]?[0-9]+[[:s:]]+\\w+"))){
+                        appKeyValues(*ptr_cl,cmdline);
+                    continue;
+                    }
+
+
                     //system
                     if(regex_match(cmdline,std::regex("system([[:s:]]+[[:print:]]+)+"))){
                         testVariables(&cmdline);
