@@ -37,7 +37,8 @@ private:
         volatile static bool active;
 
         float istep=1;
-
+        
+        static bool printShown;
         static void print();
 
 public:

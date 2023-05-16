@@ -1,0 +1,28 @@
+/>
+ini date: 05-11-2023
+
+grain building based on unit cell definition and its replication and next
+shape modification
+</
+
+
+
+
+grain
+		struct uc
+
+		ucp
+			vx   2.52             0             0
+			vy   1.26         2.182           0
+			vz   1.26         0.7258      2.056
+
+			C 0 0 0
+			C 0 0 1.544
+
+		end
+
+		replicate 10 11 12
+		geometry poly   10 1.5 1.5   1 1.5 0.75
+
+		save model.xyz
+end

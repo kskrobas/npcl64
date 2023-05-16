@@ -49,6 +49,8 @@ for file in find . -name "*xyz"
 		
 		
 		fileNameDiff="${file}"	
+
+		#replace last 3 letters by 'diff' string
 		strRep ${fileNameDiff} -3 diff
 	
 		diff
