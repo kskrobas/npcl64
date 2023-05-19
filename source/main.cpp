@@ -51,6 +51,7 @@ using namespace std;
 #include "cmergepdh.h"
 #include "../fparser/fparser.hh"
 #include "help.h"
+#include "info.h"
 #include "crandom.h"
 #include "colormsg.h"
 
@@ -85,21 +86,10 @@ private:
 
         void mthelp()
         {
-
             help();
-
-            cerr<<" date: "<<__DATE__<<endl;
-            cerr<<" author: Kazimierz Skrobas, kskrobas@unipress.waw.pl"<<endl;
-            cerr<<" NPCLPATH: ";
-
-                    if(const char* env_p = std::getenv("NPCLPATH"))
-                        cerr<<env_p;
-
-                    cerr<<endl;
-
-            std::unordered_map<unsigned,std::string> map{{200505,"2.5"},{200805,"3.0"},{201107,"3.1"},{201307,"4.0"},{201511,"4.5"}};
-
-         //   printf(" OpenMP version: %s \n", map.at(_OPENMP).c_str());
+            info();
+            
+            cout<<endl;           
         }
 
 public:
