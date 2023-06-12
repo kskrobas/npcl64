@@ -2,6 +2,7 @@ README~
 ./bin/npcl*
 ./source/objrel/*.o
 ./source/objdeb/*.o
+./source/omp.h
 bin
 .gitignore~
 objrel
@@ -14,5 +15,6 @@ model.pdhs
 fparser
 source/npcl64.*
 source/.qtc_clangd
+source/omp.h
 *.*~
 Makefile-fp.rel
