@@ -136,8 +136,9 @@ size_t size;
 
 
 const size_t numOfatoms=grain->atoms.size();
-
 const size_t numOfatomsM1=numOfatoms-1;
+const size_t numOfatomsHalf=numOfatoms/2;
+
 const int numOfthreads=stoi(threads);
 
 
@@ -179,14 +180,20 @@ CProgress progress;
                     NanoGrain::StAtom *patom0,*patom1;
                     NanoGrain::StAtom *patoms=grain->atoms.data();
                     size_t  *p_dataYii=new size_t[size];
+                    const int thNum{omp_get_thread_num()};
+
+                            cout<<__LINE__<<" thNum "<<thNum<<endl;
 
 
                             for(pi=0;pi<size;pi++)
                                 p_dataYii[pi]=0;
 
+
                             #pragma omp for nowait
-                            for(pi=0;pi<numOfatomsM1;pi++){
+                            for(pi=0;pi<numOfatomsHalf;pi++){
                                 patom0=patoms+pi;
+
+
                                 for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
 
 
@@ -204,6 +211,53 @@ CProgress progress;
                                 #pragma omp critical
                                 progress++;
                             }
+
+                            #pragma omp for nowait
+                            for(pi=numOfatoms-1;pi>=numOfatomsHalf;pi--){
+
+                                patom0=patoms+pi;
+
+
+                                for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
+
+
+                                    bin=static_cast<size_t> (sqrt(  sqrd(patom1->x-patom0->x)+
+                                                                    sqrd(patom1->y-patom0->y)+
+                                                                    sqrd(patom1->z-patom0->z)));
+
+                                    if(DB){
+                                        if(!bin) cerr<<"ERROR: bin=0"<<endl;
+                                    }
+
+
+                                    p_dataYii[bin]++;
+                                }
+                                #pragma omp critical
+                                progress++;
+
+                            }
+/*
+                            #pragma omp for nowait
+                           for(pi=0;pi<numOfatomsM1;pi++){
+                               patom0=patoms+pi;
+                               for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
+
+
+                                   bin=static_cast<size_t> (sqrt(  sqrd(patom1->x-patom0->x)+
+                                                                   sqrd(patom1->y-patom0->y)+
+                                                                   sqrd(patom1->z-patom0->z)));
+
+                                   if(DB){
+                                       if(!bin) cerr<<"ERROR: bin=0"<<endl;
+                                   }
+
+
+                                   p_dataYii[bin]++;
+                               }
+                               #pragma omp critical
+                               progress++;
+                           }*/
+
 
                             #pragma omp critical
                             {
