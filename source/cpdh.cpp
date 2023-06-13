@@ -117,6 +117,10 @@ void Cpdh::monoLatticePdh()
 {
             if(DB) cout<<"monolattice PDH computations"<<endl;
 
+auto calcBin=[](NanoGrain::StAtom *A, NanoGrain::StAtom *B)
+        {
+        return static_cast<size_t>( sqrt( sqrd(A->x-B->x)+sqrd(A->y-B->y)+sqrd(A->z-B->z)  ));
+        };
 
 position wbin,ibin;
 size_t size;
@@ -190,14 +194,8 @@ CProgress progress;
                                 patom0=patoms+pi;
 
                                 for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
-                                    bin=static_cast<size_t> (sqrt(  sqrd(patom1->x-patom0->x)+
-                                                                    sqrd(patom1->y-patom0->y)+
-                                                                    sqrd(patom1->z-patom0->z)));
 
-                                    if(DB){
-                                        if(!bin) cerr<<"ERROR: bin=0"<<endl;
-                                    }
-
+                                    bin=calcBin(patom0,patom1);
                                     p_dataYii[bin]++;
                                 }
                                 #pragma omp critical
@@ -209,15 +207,8 @@ CProgress progress;
                                 patom0=patoms+pi;
 
                                 for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
-                                    bin=static_cast<size_t> (sqrt(  sqrd(patom1->x-patom0->x)+
-                                                                    sqrd(patom1->y-patom0->y)+
-                                                                    sqrd(patom1->z-patom0->z)));
 
-                                    if(DB){
-                                        if(!bin) cerr<<"ERROR: bin=0"<<endl;
-                                    }
-
-
+                                    bin=calcBin(patom0,patom1);
                                     p_dataYii[bin]++;
                                 }
                                 #pragma omp critical
@@ -274,19 +265,31 @@ CProgress progress;
               }// else end
 
             stopTime = std::time(nullptr);
-            status=Cpdh::OK;
-			
+
 			/// optimalization off
 			for(size_t i=0;i<numOfatoms;i++){
                 grain->atoms[i]*=wbin;
             }
+
+
+            if(dataYii[0]){
+                 cerr<<" ERROR:  detected atoms at the same positions "<<endl;
+             }
+            else
+                status=Cpdh::OK;
+
 }
 //===================================================================================
 
 bool Cpdh::ijLatticePdh(StMultiPdhPrm *prm, vector<dataPdh>::iterator &buffPdh,const string &progressTitle)
 {
 
-//cpos ibin=prm->ibin;
+
+auto calcBin=[](NanoGrain::StAtom *A, NanoGrain::StAtom *B)
+        {
+        return static_cast<size_t>( sqrt( sqrd(A->x-B->x)+sqrd(A->y-B->y)+sqrd(A->z-B->z)  ));
+        };
+
 bool err=false;
 CProgress progress;
 
@@ -298,18 +301,16 @@ CProgress progress;
                     #pragma omp parallel
                     {
                     size_t pi,pj,bin;
-                    size_t numOfatomsI,numOfatomsJ;
-                    NanoGrain::StAtom *patom0,*patom1;
-                    NanoGrain::StAtom *patomsI;//=grain->atoms.data()+prm->ifrom;
-                    NanoGrain::StAtom *patomsJ;//=grain->atoms.data()+prm->jfrom;
                     csize size=prm->size;
                     size_t  *p_dataYii=new size_t[size];
 
                             for(pi=0;pi<size;pi++)
                                 p_dataYii[pi]=0;
 
-
                             if(prm->ifrom == prm->jfrom){ // monoatomic lattice : type I == type J
+                            size_t numOfatomsI,numOfatomsJ;
+                            NanoGrain::StAtom *patom0,*patom1;
+                            NanoGrain::StAtom *patomsI;//=grain->atoms.data()+prm->ifrom;
 
                                 patomsI=grain->atoms.data()+prm->ifrom;
                                 numOfatomsI=prm->ito-prm->ifrom-1;
@@ -322,7 +323,6 @@ CProgress progress;
                                     progress.start(numOfatomsI);
                                 }
 
-
                                 //// first half
                                  #pragma omp for nowait
                                  for(pi=0;pi<numOfatomsHalf;pi++){
@@ -330,10 +330,7 @@ CProgress progress;
                                      for(pj=pi+1;pj<numOfatomsJ;pj++){
                                          patom1=patomsI+pj;
 
-                                         bin=static_cast<size_t>(sqrt(   sqrd(patom1->x-patom0->x)+
-                                                                         sqrd(patom1->y-patom0->y)+
-                                                                         sqrd(patom1->z-patom0->z)) );
-
+                                         bin=calcBin(patom0,patom1);
                                          p_dataYii[bin]++;
                                      }
 
@@ -350,9 +347,7 @@ CProgress progress;
                                      for(pj=pi+1;pj<numOfatomsJ;pj++){
                                          patom1=patomsI+pj;
 
-                                         bin=static_cast<size_t>(sqrt(  sqrd(patom1->x-patom0->x)+
-                                                                        sqrd(patom1->y-patom0->y)+
-                                                                        sqrd(patom1->z-patom0->z)) );
+                                         bin=calcBin(patom0,patom1);
                                          p_dataYii[bin]++;
                                      }
                                      #pragma omp critical
@@ -362,6 +357,11 @@ CProgress progress;
 
                             }// 312 if
                             else{ // biatomic lattice
+                            size_t numOfatomsI,numOfatomsJ;
+                            NanoGrain::StAtom *patom0,*patom1;
+                            NanoGrain::StAtom *patomsI;//=grain->atoms.data()+prm->ifrom;
+                            NanoGrain::StAtom *patomsJ;//=grain->atoms.data()+prm->jfrom;
+
                                 patomsI=grain->atoms.data()+prm->ifrom;
                                 patomsJ=grain->atoms.data()+prm->jfrom;
 
@@ -383,10 +383,7 @@ CProgress progress;
                                    for(pj=0;pj<numOfatomsJ;pj++){
                                        patom1=patomsJ+pj;
 
-                                       bin=(size_t)sqrt(  sqrd(patom1->x-patom0->x)+
-                                                               sqrd(patom1->y-patom0->y)+
-                                                               sqrd(patom1->z-patom0->z));
-
+                                       bin=calcBin(patom0,patom1);
                                        p_dataYii[bin]++;
                                    }
 
@@ -402,10 +399,7 @@ CProgress progress;
                                    for(pj=0;pj<numOfatomsJ;pj++){
                                        patom1=patomsJ+pj;
 
-                                       bin=(size_t)sqrt(  sqrd(patom1->x-patom0->x)+
-                                                               sqrd(patom1->y-patom0->y)+
-                                                               sqrd(patom1->z-patom0->z));
-
+                                       bin=calcBin(patom0,patom1);
                                        p_dataYii[bin]++;
                                    }
 
