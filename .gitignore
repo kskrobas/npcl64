@@ -16,5 +16,6 @@ fparser
 source/npcl64.*
 source/.qtc_clangd
 source/omp.h
+source/*.old
 *.*~
 Makefile-fp.rel

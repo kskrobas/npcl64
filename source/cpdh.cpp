@@ -136,8 +136,9 @@ size_t size;
 
 
 const size_t numOfatoms=grain->atoms.size();
-
 const size_t numOfatomsM1=numOfatoms-1;
+const size_t numOfatomsHalf=numOfatoms/2;
+
 const int numOfthreads=stoi(threads);
 
 
@@ -179,17 +180,35 @@ CProgress progress;
                     NanoGrain::StAtom *patom0,*patom1;
                     NanoGrain::StAtom *patoms=grain->atoms.data();
                     size_t  *p_dataYii=new size_t[size];
-
+                    const int thNum{omp_get_thread_num()};
 
                             for(pi=0;pi<size;pi++)
                                 p_dataYii[pi]=0;
 
                             #pragma omp for nowait
-                            for(pi=0;pi<numOfatomsM1;pi++){
+                            for(pi=0;pi<numOfatomsHalf;pi++){
                                 patom0=patoms+pi;
+
                                 for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
+                                    bin=static_cast<size_t> (sqrt(  sqrd(patom1->x-patom0->x)+
+                                                                    sqrd(patom1->y-patom0->y)+
+                                                                    sqrd(patom1->z-patom0->z)));
 
+                                    if(DB){
+                                        if(!bin) cerr<<"ERROR: bin=0"<<endl;
+                                    }
 
+                                    p_dataYii[bin]++;
+                                }
+                                #pragma omp critical
+                                progress++;
+                            }
+
+                            #pragma omp for nowait
+                            for(pi=numOfatomsM1-1;pi>=numOfatomsHalf;pi--){
+                                patom0=patoms+pi;
+
+                                for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
                                     bin=static_cast<size_t> (sqrt(  sqrd(patom1->x-patom0->x)+
                                                                     sqrd(patom1->y-patom0->y)+
                                                                     sqrd(patom1->z-patom0->z)));
@@ -291,42 +310,57 @@ CProgress progress;
 
 
                             if(prm->ifrom == prm->jfrom){ // monoatomic lattice : type I == type J
-                               patomsI=grain->atoms.data()+prm->ifrom;                               
 
-                               numOfatomsI=prm->ito-prm->ifrom-1;
-                               numOfatomsJ=prm->ito-prm->ifrom;
+                                patomsI=grain->atoms.data()+prm->ifrom;
+                                numOfatomsI=prm->ito-prm->ifrom-1;
+                                numOfatomsJ=prm->ito-prm->ifrom;
+
+                            const size_t numOfatomsHalf=numOfatomsI/2;
 
                                 #pragma omp master
                                 {
-                                    //progressPDHMaxValueInv=100.0f/numOfatomsI;
-                                    //progressPDHValue=0;
-									
-									progress.start(numOfatomsI);
+                                    progress.start(numOfatomsI);
                                 }
 
 
-                               #pragma omp for nowait
-                               for(pi=0;pi<numOfatomsI;pi++){
-                                    patom0=patomsI+pi;
+                                //// first half
+                                 #pragma omp for nowait
+                                 for(pi=0;pi<numOfatomsHalf;pi++){
+                                     patom0=patomsI+pi;
+                                     for(pj=pi+1;pj<numOfatomsJ;pj++){
+                                         patom1=patomsI+pj;
 
-                                    for(pj=pi+1;pj<numOfatomsJ;pj++){
-                                        patom1=patomsI+pj;
+                                         bin=static_cast<size_t>(sqrt(   sqrd(patom1->x-patom0->x)+
+                                                                         sqrd(patom1->y-patom0->y)+
+                                                                         sqrd(patom1->z-patom0->z)) );
 
-                                        bin=(size_t)sqrt(  sqrd(patom1->x-patom0->x)+
-                                                                sqrd(patom1->y-patom0->y)+
-                                                                sqrd(patom1->z-patom0->z));
+                                         p_dataYii[bin]++;
+                                     }
 
-                                        //if(bin>=size) cerr<<"ERROR: bin>=size"<<endl;
-                                        //else
-                                        p_dataYii[bin]++;
+                                     #pragma omp critical
+                                     progress++;
+                                 }//for outer
 
-                                    }
 
-                                    #pragma omp critical
-                                    progress++;
-									
-                                }//for outer
-                            }//else
+                                 //// second half
+                                 #pragma omp for nowait
+                                 for(pi=numOfatomsI-2;pi>=numOfatomsHalf;pi--){
+                                     patom0=patomsI+pi;
+
+                                     for(pj=pi+1;pj<numOfatomsJ;pj++){
+                                         patom1=patomsI+pj;
+
+                                         bin=static_cast<size_t>(sqrt(  sqrd(patom1->x-patom0->x)+
+                                                                        sqrd(patom1->y-patom0->y)+
+                                                                        sqrd(patom1->z-patom0->z)) );
+                                         p_dataYii[bin]++;
+                                     }
+                                     #pragma omp critical
+                                     progress++;
+                                 }
+
+
+                            }// 312 if
                             else{ // biatomic lattice
                                 patomsI=grain->atoms.data()+prm->ifrom;
                                 patomsJ=grain->atoms.data()+prm->jfrom;
@@ -334,45 +368,61 @@ CProgress progress;
                                 numOfatomsI=prm->ito-prm->ifrom;
                                 numOfatomsJ=prm->jto-prm->jfrom;
 
+                            const size_t numOfatomsHalf=numOfatomsI/2;
 
                                 #pragma omp master
                                 {
-									progress.start(numOfatomsI);
+                                    progress.start(numOfatomsI);
                                 }
 
-                                #pragma omp for nowait
-                                for(pi=0;pi<numOfatomsI;pi++){
-                                    patom0=patomsI+pi;
+                                /// first half
+                               #pragma omp for nowait
+                               for(pi=0;pi<numOfatomsHalf;pi++){
+                                   patom0=patomsI+pi;
 
-                                    for(pj=0;pj<numOfatomsJ;pj++){
-                                        patom1=patomsJ+pj;
+                                   for(pj=0;pj<numOfatomsJ;pj++){
+                                       patom1=patomsJ+pj;
 
-                                        bin=(size_t)sqrt(  sqrd(patom1->x-patom0->x)+
-                                                                sqrd(patom1->y-patom0->y)+
-                                                                sqrd(patom1->z-patom0->z));
+                                       bin=(size_t)sqrt(  sqrd(patom1->x-patom0->x)+
+                                                               sqrd(patom1->y-patom0->y)+
+                                                               sqrd(patom1->z-patom0->z));
 
-                                        //if(bin>=size) cerr<<"ERROR: bin>=size"<<endl;
-                                        //else
-                                        p_dataYii[bin]++;                                                                            
-                                    }
+                                       p_dataYii[bin]++;
+                                   }
 
-                                    #pragma omp critical
-                                    progress++;
-                                }// for outer
+                                   #pragma omp critical
+                                   progress++;
+                               }// for outer
+
+
+                               #pragma omp for nowait
+                               for(pi=numOfatomsI-1;pi>=numOfatomsHalf;pi--){
+                                   patom0=patomsI+pi;
+
+                                   for(pj=0;pj<numOfatomsJ;pj++){
+                                       patom1=patomsJ+pj;
+
+                                       bin=(size_t)sqrt(  sqrd(patom1->x-patom0->x)+
+                                                               sqrd(patom1->y-patom0->y)+
+                                                               sqrd(patom1->z-patom0->z));
+
+                                       p_dataYii[bin]++;
+                                   }
+
+                                   #pragma omp critical
+                                   progress++;
+                               }// for outer
                             }//else
-
 
                             #pragma omp critical
                             {
-                            for(pi=0;pi<size;pi++)
-                                (*buffPdh)[pi]+=p_dataYii[pi];
+                                for(pi=0;pi<size;pi++)
+                                    (*buffPdh)[pi]+=p_dataYii[pi];
                             }
 
                             delete [] p_dataYii;
                     }
             }
-
-
            if((*buffPdh)[0]){
                 cerr<<" ERROR:  detected atoms at the same positions "<<endl;
                 err=true;
