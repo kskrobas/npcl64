@@ -368,8 +368,6 @@ CProgress progress;
                                 numOfatomsI=prm->ito-prm->ifrom;
                                 numOfatomsJ=prm->jto-prm->jfrom;
 
-                            const size_t numOfatomsHalf=numOfatomsI/2;
-
                                 #pragma omp master
                                 {
                                     progress.start(numOfatomsI);
@@ -377,7 +375,7 @@ CProgress progress;
 
                                 /// first half
                                #pragma omp for nowait
-                               for(pi=0;pi<numOfatomsHalf;pi++){
+                               for(pi=0;pi<numOfatomsI;pi++){
                                    patom0=patomsI+pi;
 
                                    for(pj=0;pj<numOfatomsJ;pj++){
@@ -392,20 +390,6 @@ CProgress progress;
                                }// for outer
 
 
-                               #pragma omp for nowait
-                               for(pi=numOfatomsI-1;pi>=numOfatomsHalf;pi--){
-                                   patom0=patomsI+pi;
-
-                                   for(pj=0;pj<numOfatomsJ;pj++){
-                                       patom1=patomsJ+pj;
-
-                                       bin=calcBin(patom0,patom1);
-                                       p_dataYii[bin]++;
-                                   }
-
-                                   #pragma omp critical
-                                   progress++;
-                               }// for outer
                             }//else
 
                             #pragma omp critical
