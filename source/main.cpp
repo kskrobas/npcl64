@@ -123,6 +123,8 @@ public:
             str sargv(argv__[i]);
                 argv[i]=std::move(sargv);
 
+                cout<<"arg  : "<<argv[i]<<endl;
+
                 if(argv[i]=="-v"){
                     if( (i+1) <argc){
                     str sargvP(argv__[++i]);
@@ -133,6 +135,7 @@ public:
                     ClKeyValues kv;
                                     kv<<"$var_lit"<<varname[0]<<varname[1];
                                     cmdlist.emplace_back(kv);
+                                    uvars.emplace_back(strpair(varname[0],varname[1]));
                     }
                     else
                        { cerr<<"wrong number of parameters"<<endl; return false;}
@@ -141,8 +144,6 @@ public:
                 if(argv[i]=="-q"){
                     quiet=true;
                 }
-
-
 
             }
 
@@ -167,7 +168,7 @@ public:
          fstream script(argv[1],ios::in);
 
                 if(!script){
-                    cerr<<" couldn't open the script file"<<endl;
+                    cerr<<" couldn't open the script file "<<argv[1]<<endl;
                 return ;
                 }
 
