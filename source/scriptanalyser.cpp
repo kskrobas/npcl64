@@ -613,8 +613,21 @@ bool radiusOrside=false;
                     continue;
                     }
 
+                    if(regex_match(cmdline,std::regex("geometry[[:s:]]+cone"+sPRE_NUMBER+sPRE_NUMBER))){
+                            testDuplicate(gb_cmdlist,"geometry");
+
+                    const size_t prmPos(cmdline.find("cone"));
+                    ClKeyValues kv;
+
+                                    kv<<"geometry"<<"cone"<<cmdline.substr(prmPos+5).c_str();
+                                    gb_cmdlist.emplace_back(kv);
+                    continue;
+                    }
+
                     if(regex_match(cmdline,std::regex("geometry[[:s:]]+(cubic|oct|dod)"+sPRE_NUMBER+"("+sPRE_NUMBER+"){0,3}"))){
                             testDuplicate(gb_cmdlist,"geometry");
+
+                            //// WARNING : passing parameter is errorneus
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }
@@ -631,7 +644,6 @@ bool radiusOrside=false;
 
                             kv<<"geometry"<<"poly"<<cmdline.substr(prmPos+5).c_str();
                             gb_cmdlist.emplace_back(kv);
-                            //appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }
 

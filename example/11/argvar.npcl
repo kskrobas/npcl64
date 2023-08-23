@@ -1,0 +1,19 @@
+/>
+created:  08-23-2023
+
+Demonstration of    input line variables passing,  run:
+
+
+$  npcl argvar.npcl -v varm=123.45 -v vstr0=helloWorld
+
+</
+
+
+
+printvars
+
+vm=${varm}/10-10
+
+print ${vm} ${vstr0}
+
+

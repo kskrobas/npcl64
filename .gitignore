@@ -19,3 +19,4 @@ source/omp.h
 source/*.old
 *.*~
 Makefile-fp.rel
+*.xyz

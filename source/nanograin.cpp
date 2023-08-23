@@ -322,6 +322,7 @@ const size_t atomNameA=0;
                                 if(radii2<=fradii2)
                                     atoms.push_back(StAtom(Xh,Yh,Z,atomNameA));                                
 
+
                                 radii2=X2h+Y2+Zh*Zh;
                                 if(radii2<=fradii2)
                                     atoms.push_back(StAtom(Xh,Y,Zh,atomNameA));
@@ -330,16 +331,16 @@ const size_t atomNameA=0;
                                 if(radii2<=fradii2)
                                     atoms.push_back(StAtom(X,Yh,Zh,atomNameA));
 
+
                             }
                         }
                     }
             }
             else{    /// cube
-            cpos csize=fradius*2+fclp;
-            size_t   appSize=(size_t) cube(csize)/ucv;
-            const size_t mult=(fcctype) ? 8 : 4;
-
-
+                if(shape=="cube"){
+                cpos csize=fradius*2+fclp;
+                size_t   appSize=(size_t) cube(csize)/ucv;
+                const size_t mult=(fcctype) ? 8 : 4;
 
                         if(disloc.empty()){
 
@@ -355,7 +356,7 @@ const size_t atomNameA=0;
                                         }
                                 }
                         }
-                        else {
+                        else { /// add dislocations
                         vector<string> dislocTokens(split<string>(disloc," "));
                         const double from2=sqr(std::stod(dislocTokens[2]));
                         const double to2=  sqr(std::stod(dislocTokens[3]));
@@ -435,6 +436,66 @@ const size_t atomNameA=0;
 
                             delete distr;
                         }
+                }
+                else{
+                    if(shape=="cone"){
+                     vector<string> coneParams(split<string>(shapePrm," "));//scale factors
+                            if(coneParams[1]=="0"){
+                                errMsg("cone height must be greater than 0");
+                            throw Status::ERR_HEIGHT;
+                            }
+
+                     cpos minRadius=std::stod(coneParams[0]);
+                     cpos coneHeight=std::stod(coneParams[1]);
+                     cpos slope=(minRadius-fradius)/coneHeight;
+                     cpos zshift=fradius+slope*coneHeight*0.5;
+                     cpos  gv=1.0*M_PI*sqr(fradius)*coneHeight/3.0; //cone grain volume
+                     size_t   appSize=(size_t)  gv/ucv;
+                     const size_t mult=(fcctype) ? 8 : 4;
+                     position radii2,X2,Y2,r2xy,r2xyh,fradii2,fradii2h;
+                     cpos heightHalf=0.5*coneHeight;
+                     cpos cmaxLp=(cpos) (floor( (fradius>minRadius) ?  fradius/fclp : minRadius/fclp));
+                     cpos cSTART=-cmaxLp*fclp;
+                     cpos cSTOP=-cSTART;
+
+                            atoms.reserve(mult*appSize);
+
+                            for(X=cSTART,Xh=cSTART+fclp*0.5;X<=cSTOP+fclp;X+=fclp,Xh+=fclp){
+
+                                X2=X*X;
+                                X2h=Xh*Xh;
+
+                                for(Y=cSTART,Yh=cSTART+fclp*0.5;Y<=cSTOP+fclp;Y+=fclp,Yh+=fclp){
+
+                                    Y2=Y*Y;
+                                    Y2h=Yh*Yh;
+
+                                    r2xy=X2+Y2;
+                                    r2xyh=X2h+Y2h;
+
+                                    for(Z=-heightHalf,Zh=-heightHalf+fclp*0.5;Z<=heightHalf;Z+=fclp,Zh+=fclp){
+                                        radii2=r2xy;
+                                        fradii2= sqr(slope*Z + zshift );
+                                        //fradii2h=sqr(slope*Zh+ zshift );
+
+                                        if(radii2<=fradii2){
+                                            atoms.push_back(StAtom(X,Y,Z,atomNameA,radii2));
+                                            //if(r2xyh<=fradii2)
+                                            atoms.push_back(StAtom(Xh,Yh,Z,atomNameA));
+                                            //if(Xh<cSTOP)
+                                            atoms.push_back(StAtom(Xh,Y,Zh,atomNameA));
+                                            //if(Yh<cSTOP)
+                                            atoms.push_back(StAtom(X,Yh,Zh,atomNameA));
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                    else{
+                        errMsg(" unknown shape type ");
+                    throw Status::ERR_UNKSHAPE;
+                    }
+                }
             }
 
             if(fcctype==EFCCTYPE::ZB){//zinc blende structure
@@ -1544,7 +1605,8 @@ void NanoGrain::StNanoGrain::build()
 
 
     if(!shapePrm.empty())
-        buildSuperSphere();
+        if(shape!="cone")
+            buildSuperSphere();
 
 
 }
