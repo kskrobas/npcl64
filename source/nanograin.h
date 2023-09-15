@@ -345,7 +345,7 @@ bool empty() {return vtrans.empty();}
 enum ESOURCE {AUTOCREATE,FILE} source;
 enum EFCCTYPE{FCC,ZB,UO2};
 enum EFAULTMODE{OFF,RANDOM,CUSTOM} faultmode;
-enum EHCPSURF{sA,sB,sH} hcpsurf;
+enum EHCPSURF{sA,sB,sAB,sH} hcpsurf;
 enum ECENTER {COFF,GEOM,CATOM,ID} center;
 
 vatoms baseAtomsHcp;

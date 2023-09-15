@@ -123,7 +123,7 @@ public:
             str sargv(argv__[i]);
                 argv[i]=std::move(sargv);
 
-                cout<<"arg  : "<<argv[i]<<endl;
+                //cout<<"arg  : "<<argv[i]<<endl;
 
                 if(argv[i]=="-v"){
                     if( (i+1) <argc){

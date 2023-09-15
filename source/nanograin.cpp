@@ -1211,7 +1211,7 @@ StVector b,c,vd,vres;
 
 
 const size_t seqSize=hcpABC.length();
-size_t i,layer0Atoms=0,atomsExcLastLayer=0;
+size_t i,layer0Atoms=0,layerPrevAtoms=0,layerLastAtoms=0;
 int ii;
 const size_t atomNameA=0;
 
@@ -1235,14 +1235,14 @@ const size_t atomNameA=0;
                 for(StAtom &atom : baseAtomsHcp)
                     (this->*fbuildHcpShape)(atom,vres);
 
-                if(!i){
+                if(!layer0Atoms)
                     layer0Atoms=atoms.size();
 
 
+                if(atoms.size()>layerPrevAtoms){
+                    layerLastAtoms=atoms.size()-layerPrevAtoms;
+                    layerPrevAtoms=atoms.size();
                 }
-
-                if(i<seqSize-1)
-                    atomsExcLastLayer=atoms.size();
 
              }
 
@@ -1288,7 +1288,7 @@ const size_t atomNameA=0;
                                 }
 
 
-                                for(i=atomsExcLastLayer+asize;i<asize*2;i++){
+                                for(i=2*asize-layerLastAtoms;i<2*asize;i++){
                                 StAtom atomH(atoms[i]);
 
                                     atomH.z+=1.1;
@@ -1300,7 +1300,10 @@ const size_t atomNameA=0;
                             }
                     }
                     else   {                           
-                    const size_t asize=atomsExcLastLayer;
+                    const size_t asize=(hcpsurf==EHCPSURF::sA) ? atoms.size()-layerLastAtoms
+                                                               : atoms.size(); // surf AB
+
+                    //const size_t asize=atoms.size()-atomsExcLastLayer;
 
                             for(i=0;i<asize;i++){
                                 atomB.x=atoms[i].x;
@@ -2975,19 +2978,12 @@ const str send("end");
                 }
 
                 if(cmd[index]=="hcpsurfA"){
-                auto cmdC=cmd[index];
+                auto val=cmd[index][1];
+                const vector<string> opt{"yes","no","AB","H"};
+                //auto strCom=[&val](const string &x){return x==val;};
+                auto it=std::find_if(opt.begin(),opt.end(),[&val](const string &x){return x==val;});
 
-                    if(cmdC.numOfKeyValues()==1)
-                        hcpsurf=EHCPSURF::sA;
-                    else
-                        if(cmdC[1]=="yes")
-                            hcpsurf=EHCPSURF::sA;
-                        else {
-                            if(cmdC[1]=="H")
-                                hcpsurf=EHCPSURF::sH;
-                            else
-                                hcpsurf=EHCPSURF::sB;
-                        }
+                     hcpsurf=(EHCPSURF)(std::distance(opt.begin(),it));
 
                     index++;
                 continue;
@@ -3111,15 +3107,14 @@ const str send("end");
             if(numOfAtomsTest){
                 if(DB) infoMsg(" testing number of atoms");
 
-                // if true  ->  grain with the same number of atoms already exists
-                //testSNA=testSavedNumOfAtoms(atoms.size());
-                saveopt.fileSaved=false;
-
-                if(!saveopt.fileSaved){
+                // if true  ->  grain with the same number of atoms already exists                               
+                if(testSavedNumOfAtoms(atoms.size())){
                     if(DB){
                         const string warn(" grains with the same number of atoms are ignored "+fileNameOut[0]+" "+std::to_string(atoms.size()));
                         warnMsg(warn);
                     }
+                    saveopt.fileSaved=false;
+                   
                 }
                 else{
                     savedNumOfAtoms.push_back(atoms.size());

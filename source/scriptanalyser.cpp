@@ -703,7 +703,7 @@ bool radiusOrside=false;
                     }
 
 
-                    if(regex_match(cmdline,std::regex("hcpsurfA([[:s:]]+(yes|no|H))?"))){
+                    if(regex_match(cmdline,std::regex("hcpsurfA([[:s:]]+(yes|no|H|AB))?"))){
                         testDuplicate(gb_cmdlist,"hcpsurfA");
                         appKeyValues(gb_cmdlist,cmdline);
                     continue;
