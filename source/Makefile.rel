@@ -106,6 +106,7 @@ clean:
 	rm -f $(target) $(objdir)/*
 install:
 	@dt=$$(date +'%Y%m%d-%H%M%S') && if [ -f $(HOME)/bin/npcl ]; then mv $(HOME)/bin/npcl $(HOME)/bin/$$dt-npcl; fi;
+	@if [ ! -f $(HOME)/bin/scFact.sft ]; then cp ../scFact.sft $(HOME)/bin/.; fi;
 	cp $(target) $(HOME)/bin/.	
 	
 sysinstall:

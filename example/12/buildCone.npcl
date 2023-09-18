@@ -2,13 +2,14 @@
 Created:  08-23-2023
 
 build cone like shape grain
-	rmin=0
-	rmax=5lp
-	H=15
 
-		^
-	      /   \
-	     -------	
+	rmin=0           rmin=2lp
+	rmax=5lp         rmax=5lp
+	H=15               H=10
+                      _____
+        ^            /     \
+      /   \     or  /       \
+     -------        ----------
 </
 
 
