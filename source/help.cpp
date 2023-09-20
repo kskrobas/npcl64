@@ -106,6 +106,8 @@ print("remove <intvalue - numOfbonds> <value - lenOfbonds> (<value - probability
 print("rescale <value>{1,3}");
 print("save <file name> - ASCII file formats: *.ndl, *.xyz, *.dat. Multisaving is possible, just add another entry");
 print("saveHeader (fileName|var) - save header only");
+print("saveopt (min|max) <value> - save file if number of atoms greater|less than <value>");
+print("saveopt (if [HWL][<>][HWL]) - save file if Height/Width/Lenght size is greater|less than other dimension");
 print("struct (sc|bcc|fcc|hcp|zb|zb110|uo2|nife|uc) - select Bravis lattice or zb(110) or hcp or uo2 or uc");
 print("ucp - start subblock of unit cell parameters. See below for description");
 print("voids <from> <to> - remove atoms according to uniform distributin given by <from> <to> parametrs");
