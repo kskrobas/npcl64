@@ -2816,6 +2816,33 @@ const str send("end");
                 continue;
                 }
 
+                if(cmd[index]=="hcpsurfA"){
+                auto val=cmd[index][1];
+                const vector<string> opt{"yes","no","AB","H"};
+                auto it=std::find_if(opt.begin(),opt.end(),[&val](const string &x){return x==val;});
+
+                     hcpsurf=(EHCPSURF)(std::distance(opt.begin(),it));
+
+                    index++;
+                continue;
+                }
+
+
+                if(cmd[index]=="hcpsurftype"){
+                auto val=cmd[index][1];
+
+                     Script::replaceVars(ptr_uvar,val);
+
+                     switch ( val[0]) {
+                     case '0': hcpsurf=EHCPSURF::sA; break;
+                     case '1': hcpsurf=EHCPSURF::sAB; break;
+                     case '2': hcpsurf=EHCPSURF::sB; break;
+                     default: throw Status::ERR_ST;
+                     }
+
+                    index++;
+                continue;
+                }
 
 
                 if(cmd[index]=="insfault"){
@@ -2977,17 +3004,7 @@ const str send("end");
                 continue;
                 }
 
-                if(cmd[index]=="hcpsurfA"){
-                auto val=cmd[index][1];
-                const vector<string> opt{"yes","no","AB","H"};
-                //auto strCom=[&val](const string &x){return x==val;};
-                auto it=std::find_if(opt.begin(),opt.end(),[&val](const string &x){return x==val;});
 
-                     hcpsurf=(EHCPSURF)(std::distance(opt.begin(),it));
-
-                    index++;
-                continue;
-                }
 
                 if(cmd[index]=="threads"){
                     threads=cmd[index++][1];
@@ -3159,7 +3176,8 @@ const str send("end");
              case Status::ERR_LPLTZERO:  cerr<<" random value of latt. param. is less than zero"; break;
              case Status::ERR_RLTZERO:   cerr<<" random value of radius is less than zero"; break;
              case Status::ERR_ABCPARSE:  cerr<<" hcpabc failure";               break;
-             default: cout<<"unknown error (Status type), code ";
+             case Status::ERR_ST:        cerr<<" unrecognized surface type"; break;
+             default: cout<<"unknown error (Status type), code "<<e<<" ";
              }
 
              cout<<endl;

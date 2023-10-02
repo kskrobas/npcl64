@@ -709,6 +709,14 @@ bool radiusOrside=false;
                     continue;
                     }
 
+
+                    if(regex_match(cmdline,std::regex("hcpsurftype[[:s:]]+([012]|"+sVAR+")"))){
+                        testDuplicate(gb_cmdlist,"hcpsurf");
+                        appKeyValues(gb_cmdlist,cmdline);
+                    continue;
+                    }
+
+
                     ////////////
                     if(regex_match(cmdline,std::regex("insfault([[:s:]]+random[[:s:]]+[[:d:]]+|([[:s:]][[:d:]]+))"))){
 

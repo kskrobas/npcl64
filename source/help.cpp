@@ -86,7 +86,8 @@ print("hcpcs (circle|hex|rhomb) - set cross section: circle or hex or rhomb, def
 print("hcpcs poly <value>{3} - set superpolygon shaped cross section for parameters: p, a, b");
 print("hcpfillup (AB|ABC|ABAC|ABCACB) - hcp filling of perfect hexagonal structure. It works only if struct is set hcp");
 print("hcpsl (no|yes)? - enable sublattice for monoatomic grain; hcpsl is always on for biatomic lattices");
-print("hcpsurfA (yes|no|AB|H) - surface termination type");
+print("hcpsurfA (yes|no|AB|H) - surface termination type (obsolete: see hcpsurftype)");
+print("hcpsurftyp (<value>|var)  - surface termination type given by a value in range 0...2 corresponding to AA, AB or BB");
 print("insfault random <value> - insert stacking faults for hcp at random place(s) with a number given by <value>");
 print("lmpmargin <value> - lammps format file, define distance between the side of a box and  most extended atom(s) for xyz axis");
 print("lp (<value>|var)  - lattice parameter in Angs");
