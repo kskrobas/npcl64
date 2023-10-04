@@ -157,9 +157,18 @@ public:
 
     bool isValid(const position &x, const position &y, const position &z);
 } ;
+//................................................
+class CPolyhedral2D_HOD: public CSuperSphere
+{
+private:
+      const   double a,b;
+      double iap,ibp;
+public:
 
+    CPolyhedral2D_HOD(const double p__, const double R__,const double a__,const double b__);
 
-
+    bool isValid(const position &x, const position &y, const position &z);
+} ;
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 struct StVector{

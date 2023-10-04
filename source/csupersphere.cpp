@@ -77,7 +77,7 @@ return (a+b+c+d+e+f)<=Rp;
 }
 //................................................//................................................
 CPolyhedral::CPolyhedral(const double p__, const double R__,const double a__,const double b__) :
-        CSuperSphere("polyhedral structure",p__,R__),a(a__),b(b__)
+        CSuperSphere("polyhedral geometry",p__,R__),a(a__),b(b__)
 {
     iap=1.0/std::pow(a,p);
     ibp=1.0/std::pow(b,p);
@@ -87,7 +87,7 @@ CPolyhedral::CPolyhedral(const double p__, const double R__,const double a__,con
 
 //................................................//................................................
 CPolyhedral::CPolyhedral(const double p__, const double R__,const double a__,const double b__,cdouble xa__, cdouble yb__,cdouble zc__) :
-        CSuperSphere("polyhedral structure",p__,R__,xa__,yb__,zc__),a(a__),b(b__)
+        CSuperSphere("polyhedral geometry",p__,R__,xa__,yb__,zc__),a(a__),b(b__)
 {
     iap=1.0/std::pow(a,p);
     ibp=1.0/std::pow(b,p);
@@ -136,8 +136,54 @@ return (Hcubic+Hocta+Hdoda)<=Rp;
 //......................................................................................................
 bool CPolyhedral2D::isValid(const position &x, const position &y, const position &z)
 {
+
+
 cdouble xp=powf(x/xa,p);
 cdouble yp=powf(y/yb,p);
 
 return (xp+yp)<=Rp;
+}
+
+//......................................................................................................
+
+CPolyhedral2D_HOD::CPolyhedral2D_HOD(const double p__, const double R__,const double a__,const double b__)
+        :CSuperSphere("2D HOD polygon", p__,R__) ,a(a__),b(b__)
+{
+    iap=1.0/std::pow(a,p);
+    ibp=1.0/std::pow(b,p);
+    info+=", (a,b)=("+std::to_string(a)+","+std::to_string(b)+")";
+}
+
+//......................................................................................................
+bool CPolyhedral2D_HOD::isValid(const position &x, const position &y, const position &z)
+{
+cdouble xn=x/xa;
+cdouble yn=y/yb;
+
+cdouble xp{std::pow(fabs(xn),p)};
+cdouble yp{std::pow(fabs(yn),p)};
+cdouble Hcubic=(xp+yp);
+
+
+/// octa
+
+cdouble oa=2*pow( fabs(xn+yn),p);
+cdouble ob=2*pow( fabs(-xn+yn),p);
+//cdouble oc=pow( fabs(xn-yn),p);
+//cdouble od=pow( fabs(xn+yn),p);
+cdouble Hocta=(oa+ob)*iap;
+
+///doda
+
+cdouble da=pow( fabs(xn+yn),p);
+cdouble db=pow( fabs(xn-yn),p);
+cdouble dc=2*pow( fabs(yn),p);
+//cdouble dd=pow( fabs(yn),p);
+cdouble de=2*pow( fabs(xn),p);
+//cdouble df=pow( fabs(xn),p);
+cdouble Hdoda=(da+db+dc+de)*ibp;
+
+///
+
+return (Hcubic+Hocta+Hdoda)<=Rp;
 }

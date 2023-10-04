@@ -661,11 +661,19 @@ bool radiusOrside=false;
                     }
 
 
-                    if(regex_match(cmdline,std::regex("hcpcs[[:s:]]+poly("+sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){3}"))){
+                    if(regex_match(cmdline,std::regex("hcpcs[[:s:]]+poly(("+sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){3}|("
+                                                                           +sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){5})"))){
                             testDuplicate(gb_cmdlist,"hcpcs");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }
+//
+                    /*
+                    if(regex_match(cmdline,std::regex("hcpcs[[:s:]]+poly([[:s:]]+[01]){2}("+sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){6}"))){
+                            testDuplicate(gb_cmdlist,"hcpcs");
+                            appKeyValues(gb_cmdlist,cmdline);
+                    continue;
+                    }*/
 
 
                     if(regex_match(cmdline,std::regex("hcpabc[[:s:]]+[0-9A-Ca-c\\(\\)"+sVAR+"]+"))){

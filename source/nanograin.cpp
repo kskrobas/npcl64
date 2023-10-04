@@ -965,15 +965,33 @@ void (*pushAtom)(NanoGrain::vatoms &,const NanoGrain::StAtom & ,cpos &, NanoGrai
                 if(hcpcs=="hex") {pushAtom=&pushAtomCSHex;   }
                 else{
                 vector<string> tokens(split<string>(shapePrm2D," "));
-                const double a=std::stod(tokens[0]);
-                const double b=std::stod(tokens[1]);
-                const double p=std::stod(tokens[2]);
+                    if(tokens.size()==3){
+                    const double xa=std::stod(tokens[0]); //elongation paramter
+                    const double xb=std::stod(tokens[1]); //elongation paramter
+                    const double p=std::stod(tokens[2]);   //olyhedrality parameter
 
-                    ssShape=new CPolyhedral2D(p,hcpRadius*0.75);
-                    ssShape->xa=a;
-                    ssShape->yb=b;
+                        ssShape=new CPolyhedral2D(p,hcpRadius*0.75);
+                        ssShape->xa=xa;
+                        ssShape->yb=xb;
 
-                    pushAtom=&pushAtomCSPoly;
+                        pushAtom=&pushAtomCSPoly;
+                    }
+                    else { //tokens.size==5
+                    cdouble p=std::stod(tokens[0]);  // polyhedrality parameter
+                    cdouble a=std::stod(tokens[1]);  // select shape
+                    cdouble b=std::stod(tokens[2]);  // select shape
+                    cdouble xa=std::stod(tokens[3]); // elongation parameter
+                    cdouble xb=std::stod(tokens[4]); // elongation paramter
+
+                            ssShape=new CPolyhedral2D_HOD(p,hcpRadius*0.75,a,b);
+
+                            ssShape->xa=xa;
+                            ssShape->yb=xb;
+
+                            pushAtom=&pushAtomCSPoly;
+                    }
+
+
                 }
 
 
