@@ -24,7 +24,7 @@
 namespace  Elements {
 
     const std::map<std::string, std::string> mass{
-
+        {"Al",  "26.982"},
         {"H",  "1.00794"},
         {"C",  "12.0107"},
         {"Cd", "112.411"},
