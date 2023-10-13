@@ -1055,6 +1055,9 @@ void NanoGrain::StNanoGrain::buildHcpBaseRhm()
             b.y=0;         b.x= -hcpa;     b.z=0;
             a.y= hcpa*wj;  a.x= hcpa*wi;  a.z=0;
             
+            
+            
+            
             c=a+b;
 
             baseAtomsHcp.clear();
