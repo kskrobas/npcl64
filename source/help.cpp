@@ -84,6 +84,7 @@ print("hcpabc (uniform|normal|lognormal) <value> <value> (ab|abc|abac|abcacb|ran
 print("hcpu <value> - distance between two sublayers for zb structures given in percentage");
 print("hcpcs (circle|hex|rhomb) - set cross section: circle or hex or rhomb, default: circle");
 print("hcpcs poly <value>{3} - set superpolygon shaped cross section based on supercubic shape where 3 parameters control respectively: elongation along x, y axis and third one is a  measure of polyhedrality ");
+print("hcpcs poly <value>{5} - set superpolygon shaped cross section where 5 parameters control respectively: 1st- polyhedrality, 2-3 kind of shape, 4-5 elngation along x, y axis");
 print("hcpfillup (AB|ABC|ABAC|ABCACB) - hcp filling of perfect hexagonal structure. It works only if struct is set hcp");
 print("hcpsl (no|yes)? - enable sublattice for monoatomic grain; hcpsl is always on for biatomic lattices");
 print("hcpsurfA (yes|no|AB|H) - surface termination type (obsolete: see hcpsurftype)");

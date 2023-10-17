@@ -1,0 +1,28 @@
+/>  last update: 10-17-2023
+
+create  cylinder-like shapes with  cross section controlled by supershape parameters : hcpcs poly 4 ${pa} ${pb} 1 1
+</
+
+fnr=0
+for a=10:5:20
+	pa=${a}/10
+	
+	for b=10:5:30
+		pb=${b}/10
+		
+	cast2int ${fnr}
+	fileName="${fnr}.xyz"
+	
+	grain
+	atoms Si C
+	geometry cylinder
+	hcpabc abc
+	hcpcs poly 4 ${pa} ${pb} 1 1
+	radius 50
+	lp 3.5667
+	save ${fileName}
+	end
+	
+	${fnr}++
+	endfor
+endfor
