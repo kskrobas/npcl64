@@ -16,7 +16,7 @@
  */
  
 # npcl64
-The npcl is a software application designed for the creation of nanocrystal models and the computation of diffraction. It comes with a command line interface, with simple diagram plotting based on gnuplot. The code is based on standard C++ libraries (17 and higher); however, it was exclusively tested on Linux. Parallel computing employs the OpenMP library to facilitate computations. 
+The npcl is a software application designed for the creation of nanocrystal models and the computation of diffraction spectra. It comes with a command line interface, with simple diagram plotting based on gnuplot. The code is based on standard C++ libraries (17 and higher); however, it was exclusively tested on Linux. Parallel computing employs the OpenMP library to facilitate computations. 
 
 The 'npcl' meets the POSIX standard, but it's only fully tested in Linux-like and 'cygwin' environments.
 
@@ -38,9 +38,11 @@ Installation instructions for Linux like machines:
    
    Restart your console/terminal.
 2. go to the npcl64 folder and set link to fparser folder, e.g.: 
-    $ ln -s <path_to_fparser> . 
-    (remember about dot at then end of instruction)
-    Finally the npcl64 folder should look like this:
+
+   $ ln -s <path_to_fparser> .
+   
+    (remember about dot at the end of instruction)
+    Finally, the npcl64 folder should look like this:
         
     bin
     example
@@ -53,11 +55,11 @@ Installation instructions for Linux like machines:
 
 
     
-3. go to the source folder and type:
+4. Go to the source folder and type:
     make -f Makefile.rel
     
-4. ready to use the 'npcl' program is placed in the ./npcl64/bin folder
-5. Installation: 
+5. Ready to use the 'npcl' program is placed at the ./npcl64/bin folder
+6. Installation: 
     For global installation type:
     
     $ sudo make -f Makefile.rel sysinstall
@@ -66,14 +68,14 @@ Installation instructions for Linux like machines:
  
     $ make -f Makefile.rel install
     
-6. set the variable NPCLPATH, e.g.:
+7. set the variable NPCLPATH, e.g.:
     $ export NPCLPATH=/home/<user/bin
     
     and copy to it  the scFact.sft   file
     
-    To add the variable permanently, go to .bashrc (as shown in p.1) and insert export instruction.
+    To add the variable permanently, go to .bashrc (as shown in p.1) and insert the "export ... " instruction.
     
-7. start using 
+8. start using 
    
     
 
