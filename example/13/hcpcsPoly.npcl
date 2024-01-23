@@ -10,18 +10,18 @@ for a=10:5:20
 	for b=10:5:30
 		pb=${b}/10
 		
-	cast2int ${fnr}
-	fileName="${fnr}.xyz"
-	
-	grain
-	atoms Si C
-	geometry cylinder
-	hcpabc abc
-	hcpcs poly 4 ${pa} ${pb} 1 1
-	radius 50
-	lp 3.5667
-	save ${fileName}
-	end
+		cast2int ${fnr}
+		fileName="${fnr}.xyz"
+		
+		grain
+		atoms Si C
+		geometry cylinder
+		hcpabc abc
+		hcpcs poly 4 ${pa} ${pb} 1 1
+		radius 50
+		lp 3.5667
+		save ${fileName}
+		end
 	
 	${fnr}++
 	endfor
