@@ -234,6 +234,7 @@ static size_t idIterator;
 size_t id;
 size_t atype;  ///  position of an atom type in array
 bool mark=false;
+bool rdh=false;
 vector<size_t> neighID;  /// ID of neigneighborhood atoms
 
         StAtom(){x=y=z=r2=0;setId();}
@@ -331,24 +332,6 @@ public:
 
 
 } coreshell;
-
-
-
-struct StUnitCell{
-vector<StVector> vtrans;
-
-struct StBaseAtoms{ position x,y,z; string name;size_t id;
-                    StBaseAtoms() { }
-                    StBaseAtoms(const string &name__):name(name__){ }
-                    bool operator()(const string &a){ return a==name;} };
-
-vector<StBaseAtoms> baseAtoms;
-
-void clear() {vtrans.clear(); baseAtoms.clear();}
-bool empty() {return vtrans.empty();}
-
-} uc;
-
 
 
 enum ESOURCE {AUTOCREATE,FILE} source;
@@ -462,6 +445,25 @@ vatoms atoms;
 bool disperse,hcpsl,numOfAtomsTest;//,testSNA;
 static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
+
+struct StUnitCell{
+vector<StVector> vtrans;
+size_t rdhAtoms;
+
+    struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false;
+                        StUcAtom() { }
+                        StUcAtom(const string &name__):name(name__){ }
+                        bool operator()(const string &a){ return a==name;}
+                   };
+
+vector<StUcAtom> atoms;
+
+void clear() {rdhAtoms=0;vtrans.clear(); atoms.clear();}
+bool empty() {return vtrans.empty();}
+
+} uc;
+
+
 struct StSaveOpt{
     size_t min,max;
     vector<string> lwh;

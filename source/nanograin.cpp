@@ -761,7 +761,7 @@ void NanoGrain::StNanoGrain::buildFromUC()
 const int repX=std::stoi(replicate[0]);
 const int repY=std::stoi(replicate[1]);
 const int repZ=std::stoi(replicate[2]);
-const size_t sizeBase=uc.baseAtoms.size();
+const size_t sizeBase=uc.atoms.size();
 
 int i,j,k;
 size_t n;
@@ -775,7 +775,7 @@ position X,Y,Z;
             atomTypes.clear();
             atomTypes.reserve(sizeBase);
 
-            for(auto &baseAtom: uc.baseAtoms){
+            for(auto &baseAtom: uc.atoms){
             auto iter=std::find(atomTypes.begin(),atomTypes.end(),NanoGrain::StAtomType(baseAtom.name));
 
                 if(iter==atomTypes.end())
@@ -798,16 +798,18 @@ position X,Y,Z;
                         vi=uc.vtrans[0]*i+vj;
 
                         for(n=0;n<sizeBase;n++){
-                            X=vi.x+uc.baseAtoms[n].x;
-                            Y=vi.y+uc.baseAtoms[n].y;
-                            Z=vi.z+uc.baseAtoms[n].z;
+                            X=vi.x+uc.atoms[n].x;
+                            Y=vi.y+uc.atoms[n].y;
+                            Z=vi.z+uc.atoms[n].z;
 
-                            atoms.push_back(StAtom(X,Y,Z,uc.baseAtoms[n].id));
+                            atoms.push_back(StAtom(X,Y,Z,uc.atoms[n].id));
                         }
                     }
                 }
             }
 
+            for(n=0;n<sizeBase;n++)
+                atoms[n].rdh=uc.atoms[n].rdh;
 
             atoms.shrink_to_fit();
 
@@ -1936,9 +1938,9 @@ const size_t size=atoms.size();
             for(size_t i=0;i<size;i++){
             auto &atom=atoms[i];
 
-                if(atom.x>maxX)maxX=atom.x;
-                if(atom.y>maxY)maxY=atom.y;
-                if(atom.z>maxZ)maxZ=atom.z;
+                if(atom.x>maxX)  maxX=atom.x;
+                if(atom.y>maxY)  maxY=atom.y;
+                if(atom.z>maxZ)  maxZ=atom.z;
                 if(atom.r2>maxR) maxR=atom.r2;
 
             }
@@ -2182,7 +2184,7 @@ fstream fout(fileName,ios::out);
         fout<<"ver.01"<<endl;
 
         for(StAtom &atom: atoms)
-             fout<<atomTypes[atom.atype].name<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<endl;
+             fout<<atomTypes[atom.atype].name<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<"\t"<<( (atom.rdh) ? "*" : "" )<<endl;
 
         fout.close();
 }
@@ -3047,7 +3049,7 @@ const str send("end");
                 if(cmd[index]=="ucp"){
 
                     uc.vtrans.resize(3);
-                    uc.baseAtoms.reserve(1);
+                    uc.atoms.reserve(1);
 
                     do{
                         index++;
@@ -3064,7 +3066,6 @@ const str send("end");
                         if(cmd[index].getKey()[0]=='v'){
                         auto  ptr=uc.vtrans.begin()+( cmd[index].getKey()[1]-'x');
 
-
                             ptr->x=std::stod(keyValues.getValue(1));
                             ptr->y=std::stod(keyValues.getValue(2));
                             ptr->z=std::stod(keyValues.getValue(3));
@@ -3072,11 +3073,14 @@ const str send("end");
                         continue;
                         }
 
-                        uc.baseAtoms.push_back(StUnitCell::StBaseAtoms());
-                        uc.baseAtoms.back().name=cmd[index].getKey();
-                        uc.baseAtoms.back().x=std::stod(keyValues.getValue(1));
-                        uc.baseAtoms.back().y=std::stod(keyValues.getValue(2));
-                        uc.baseAtoms.back().z=std::stod(keyValues.getValue(3));
+                        uc.atoms.push_back(StUnitCell::StUcAtom());
+                        uc.atoms.back().name=cmd[index].getKey();
+                        uc.atoms.back().x=std::stod(keyValues.getValue(1));
+                        uc.atoms.back().y=std::stod(keyValues.getValue(2));
+                        uc.atoms.back().z=std::stod(keyValues.getValue(3));
+                        auto rdhKV=(keyValues.numOfKeyValues()-4);
+                        uc.atoms.back().rdh=(bool)rdhKV;
+                        uc.rdhAtoms+=rdhKV;
 
 
                     }while(true);

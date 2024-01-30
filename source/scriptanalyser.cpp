@@ -219,10 +219,6 @@ bool prtOpen=false;
             }
 }
 
-
-
-
-
 //-----------------------------------------------------------------------------
 
 void avePdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
@@ -312,6 +308,7 @@ vcmdlist apdh_cmdlist;
 
 }
 
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void mergePdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
 {
@@ -448,7 +445,7 @@ vcmdlist uc_cmdlist;
                 continue;
                 }
 
-                if(regex_match(cmdline,std::regex("[A-Z][[:w:]]*("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}"))){
+                if(regex_match(cmdline,std::regex("[A-Z][[:w:]]*("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:space:]]+[\\*])?"))){
                     appKeyValues(uc_cmdlist,cmdline);
                     atoms++;
                 continue;
@@ -959,13 +956,8 @@ bool radiusOrside=false;
                 //inserting the current list to the main list
                 for(auto &kv: gb_cmdlist)
                         ptr_cl->emplace_back(kv);
-
 }
-
-
-
 //-----------------------------------------------------------------------------
-
 void pdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
 {
 vcmdlist gb_cmdlist;
@@ -1103,6 +1095,65 @@ vcmdlist gb_cmdlist;
                         ptr_cl->emplace_back(kv);
 }
 //-----------------------------------------------------------------------------
+void rdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
+{
+
+
+        while(!script.eof()){
+
+            std::getline(script,cmdline);
+            cline++;
+
+            if(DB){ cout<<cline<<": "<<cmdline<<endl;}
+
+            trim(cmdline);
+
+            //-- empty line
+            if(cmdline.empty()) continue;
+            //--
+
+            //-- comments
+            if(cmdline[0]=='#' || cmdline[0]=='%') continue;
+            //--
+
+            // replace tabs by spaces
+             std::replace(std::begin(cmdline),std::end(cmdline),'\t',' ');
+            // ----------------------------
+
+             if(regex_match(cmdline,std::regex("bin"+sPRE_NUMBER+"(A|lp|nm)?"))){
+                testDuplicate(*ptr_cl,"bin");
+                appKeyValues(*ptr_cl,cmdline);
+
+             continue;
+             }
+
+              // ----------------------------
+             if(regex_match(cmdline,std::regex("threads[[:s:]]+[0-9]+"))){
+                     testDuplicate(*ptr_cl,"threads");
+                     appKeyValues(*ptr_cl,cmdline);
+             continue;
+             }
+
+
+             //file operations   save filename
+             if(regex_match(cmdline,regex("save[[:s:]]+[[:print:]]+"))){
+                     testVariables(&cmdline);
+                     appKeyValues(*ptr_cl,cmdline);
+             continue;
+             }
+             //----------------------------
+
+             //the end of block
+             if(regex_match(cmdline,std::regex("end"))){
+             break;
+             }
+
+
+    throw Script::Result::MIS_UNK_ERR;
+    }
+
+}
+//-----------------------------------------------------------------------------
 void ifBlock(fstream &script, size_t &cline , vcmdlist *ptr_cl , string &cmdline, const size_t options, stdumap *ptr_uvar)
 {
 vector<string> tokensCmd(split<string>(cmdline.substr(3)," "));
@@ -1217,9 +1268,7 @@ const size_t currPos=ptr_uvar->size();
                 /// delete local variables of for's loop
                 ptr_uvar->erase(ptr_uvar->begin()+currPos,ptr_uvar->end());
 }
-
 //-----------------------------------------------------------------------------
-
 void forInBlock(fstream &script, size_t &cline , vcmdlist *ptr_cl , string &cmdline, const size_t options, stdumap *ptr_uvar)
 {
 vector<string> tokensCmd(split<string>(cmdline," "));
@@ -1683,6 +1732,14 @@ const size_t currPos=ptr_uvar->size();
                     continue;
                     }
 
+                    //policz rdh
+                    if(regex_match(cmdline,std::regex("rdh"))){
+                        appKeyValues(*ptr_cl,"rdh");
+                        rdhBlock(script,ptr_cl,cmdline,options,cline);
+                        appKeyValues(*ptr_cl,"end");
+                    continue;
+                    }
+
                     //policz diff
                     if(regex_match(cmdline,std::regex("diff"))){
                         appKeyValues(*ptr_cl,"diff");
@@ -1881,7 +1938,6 @@ const size_t currPos=ptr_uvar->size();
 
 return scres;
 }
-
 //-----------------------------------------------------------------------------
 struct StIsBrace{
     bool operator () (const char &ch) const {return (ch=='{') || (ch =='}') ;}

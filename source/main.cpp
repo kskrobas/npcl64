@@ -54,7 +54,7 @@ using namespace std;
 #include "info.h"
 #include "crandom.h"
 #include "colormsg.h"
-
+#include "crdh.h"
 
 typedef std::string str;
 
@@ -73,6 +73,7 @@ private:
 
         NanoGrain::StNanoGrain grain;
         Cpdh pdh;
+        Crdh rdh;
         Cdiff diff;
         Cgr gr;
         Cavepdh avepdh;
@@ -97,6 +98,7 @@ public:
         ClMainTask()
         {
             pdh.grain=&grain;
+            rdh.grain=&grain;
             avepdh.pdh=&pdh;
             diff.pdh=&pdh;
             gr.diff=&diff;
@@ -335,6 +337,30 @@ public:
                             }
 
                             ////
+
+                            if(cmdlist[cmdIndex]=="rdh"){
+                                if(!quiet)  cout<<"rdh"<<endl;
+
+                                if(!rdh.parseCommands(cmdlist,++cmdIndex,&uvars))
+                                return ERET_DC::CONTINUE;
+
+                                rdh.calc();
+
+                               /* if(!pdh.parseCommands(cmdlist,++cmdIndex,&uvars))
+                                return ERET_DC::CONTINUE;
+
+                                pdh.calc();
+                                if(!quiet)  cout<<"\n";
+
+                                if(pdh.status!=Cpdh::OK){
+                                    cerr<<"ERROR: PDH status not OK"<<endl;
+                                throw 0;
+                                }*/
+
+                            continue;
+                            }
+
+                            ////
                             if(cmdlist[cmdIndex]=="diff"){
                                 if(!quiet)  cout<<"diffraction"<<endl;
 
@@ -493,7 +519,6 @@ public:
                             continue;
                             }
 
-
                             if(cmdlist[cmdIndex]=="print"){                                
 
                                 for(int i=1;i<cmdlist[cmdIndex].numOfKeyValues();i++){
@@ -524,7 +549,6 @@ public:
                             continue;
                             }
 
-
                             if(cmdlist[cmdIndex]=="printvars"){
                                 cout<<"variables :"<<endl;
 
@@ -533,7 +557,7 @@ public:
                             continue;
                             }
 
-                            cerr<<__FILE__<<":"<<__LINE__<<" unknown command "<<cmdlist[cmdIndex]<<endl;
+                            cerr<<__FILE__<<":"<<__LINE__<<" here unknown or misplaced  command "<<cmdlist[cmdIndex]<<endl;
                             throw 0;
                         }
                     }

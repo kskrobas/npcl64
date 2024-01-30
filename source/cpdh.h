@@ -114,8 +114,8 @@ public:
 #endif
 
     std::string threads;
-
     std::string bin;
+
     enum EBinMode{SINGLE,DOUBLE};
     EBinMode binMode=SINGLE;
 	
