@@ -9,7 +9,7 @@ target=$(bindir)/npcl
 obj=$(objdir)/cavepdh.o $(objdir)/cdiff.o $(objdir)/cgr.o $(objdir)/cpdh.o $(objdir)/elements.o  \
 	$(objdir)/main.o $(objdir)/nanograin.o $(objdir)/scriptanalyser.o  $(objdir)/cprogress.o $(objdir)/csupersphere.o \
 	$(objdir)/crandom.o $(objdir)/cmergepdh.o $(objdir)/colormsg.o  $(objdir)/createdir.o $(objdir)/parse_expr.o \
-	$(objdir)/help.o $(objdir)/info.o  $(objdir)/crdf.o
+	$(objdir)/help.o $(objdir)/info.o  $(objdir)/crdh.o
 
 
 
@@ -74,9 +74,10 @@ $(objdir)/main.o: main.cpp
 
 $(objdir)/nanograin.o: nanograin.cpp nanograin.h
 	$(cpp) -c $< $(cppflags)  -o $@	
-	
-$(objdir)/crdf.o: crdf.cpp crdf.h
-	$(cpp) -c $< $(cppflags)  -o $@		
+
+$(objdir)/crdh.o: crdh.cpp crdh.h
+	$(cpp) -c $< $(cppflags)  -o $@
+
 
 $(objdir)/csupersphere.o: csupersphere.cpp nanograin.h
 	$(cpp) -c $< $(cppflags) -o $@
