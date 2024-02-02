@@ -826,7 +826,7 @@ bool radiusOrside=false;
                    }
 
 
-                   if(regex_match(cmdline,std::regex("replicate("+sUINT_NUMBER+"|[[:s:]]+"+sVAR+"){3}"))){
+                   if(regex_match(cmdline,std::regex("replicate("+sUINT_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:space:]]+[\\+][/\\\\]-)?"))){
                            // testDuplicate(gb_cmdlist,"replace");
                             appKeyValues(gb_cmdlist,cmdline);
                    continue;

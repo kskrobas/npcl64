@@ -52,7 +52,7 @@ void Crdh::saveResults()
         }
 
 
-        cerr<<"Warning:  RDH results not saved"<<endl;
+        cerr<<"Warning:  unknown file extension, RDH results not saved"<<endl;
 }
 
 
@@ -267,14 +267,16 @@ bool nzb;
                 //fout<<"#comment: "<<comment<<endl;
                 fout<<"#";
 
+
+csize numOfRdhAtoms=grain->uc.rdhAtoms;
 csize nprec=11;
 csize colwh=12;
 
             /// wypisuje nazwy column
             fout<<setw(colwh)<<'X';
-
-            for (i=0;i<numOfAtomTypes;i++)
-                fout<<" "<<setw(colwh)<<std::string(grain->atomTypes[i].name);
+            for(auto ucAtom: grain->uc.atoms)
+                if(ucAtom.rdh)
+                    fout<<" "<<setw(colwh)<<ucAtom.name;
 
             fout<<endl;
 

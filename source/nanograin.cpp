@@ -758,18 +758,25 @@ void NanoGrain::StNanoGrain::buildFromUC()
 {
             if(DB){ cout<<" building by UC replication"<<endl;}
 
+int is,js,ks;
+int pm;
 const int repX=std::stoi(replicate[0]);
 const int repY=std::stoi(replicate[1]);
 const int repZ=std::stoi(replicate[2]);
+
+            if(replicate.size()==4)  // +/- option
+                { is=-repX;    js=-repY;    ks=-repZ;     pm=2;}
+            else
+                { is=js=ks=0;    pm=1;     }
+
 const size_t sizeBase=uc.atoms.size();
 
-int i,j,k;
 size_t n;
 StVector vi,vj,vk;
 position X,Y,Z;
 
 
-            atoms.reserve(repX*repY*repZ*sizeBase);
+            atoms.reserve(pm*repX*pm*repY*pm*repZ*sizeBase);
 
             //-----------------------------------------
             atomTypes.clear();
@@ -788,13 +795,15 @@ position X,Y,Z;
             //-------------------------------------------
 
 
-            for(k=0;k<repZ;k++){
+
+
+            for(int k=ks;k<repZ;k++){
                 vk=uc.vtrans[2]*k;
 
-                for(j=0;j<repY;j++){
+                for(int j=js;j<repY;j++){
                     vj=uc.vtrans[1]*j+vk;
 
-                    for(i=0;i<repX;i++){
+                    for(int i=is;i<repX;i++){
                         vi=uc.vtrans[0]*i+vj;
 
                         for(n=0;n<sizeBase;n++){
@@ -2184,7 +2193,7 @@ fstream fout(fileName,ios::out);
         fout<<"ver.01"<<endl;
 
         for(StAtom &atom: atoms)
-             fout<<atomTypes[atom.atype].name<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<"\t"<<( (atom.rdh) ? "*" : "" )<<endl;
+             fout<<atomTypes[atom.atype].name<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<endl;///<<"\t"<<( (atom.rdh) ? "*" : "" )
 
         fout.close();
 }
@@ -2933,10 +2942,10 @@ const str send("end");
                     Script::replaceVars(ptr_uvar,keyValues.getValue(2));
                     Script::replaceVars(ptr_uvar,keyValues.getValue(3));
 
-                    replicate.resize(3);
+                    replicate.resize(keyValues.numOfKeyValues()-1);
                     replicate[0]=keyValues.getValue(1);
                     replicate[1]=keyValues.getValue(2);
-                    replicate[2]=keyValues.getValue(3);
+                    replicate[2]=keyValues.getValue(3);                    
 
                     index++;
                 continue;
