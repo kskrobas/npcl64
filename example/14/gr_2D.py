@@ -6,7 +6,7 @@ Created on Sat Jan 27 10:09:53 2024
 @author: fizyk
 """
 
-from pandas import *
+#from pandas import *
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -15,7 +15,7 @@ plt.figure(figsize=(9,9))
 
 #------------------------------------------------------------------------------
 N=2**14
-A=5.0
+A=8.0
 x=A*np.random.rand(N)+.025
 y=A*np.random.rand(N)+.025
 aveD=A**2/N
@@ -79,7 +79,7 @@ wyniks=np.zeros((len(rss),),float)
 art=a.reshape(Ntot,)
 brt=b.reshape(Ntot,)
 
-Mr=1000
+Mr=100
 k0=2*np.pi*dr
 k1=1/16
 
@@ -102,15 +102,8 @@ for i in range(0,Mr):
     for itr,rs in enumerate(rss):
         indm=np.where( (rt>rs) & (rt<rs+dr))
         ns=len(indm[0])
-
-        if ns!=0:
-            locD=k0*rs/ns
-            
-            wsp=locD/aveD
-            wyniks[itr]+=1/wsp
-            #print(itr,rs,f' {wsp:5.3f}')
-        else:
-            wyniks[itr]+=0         
+        wyniks[itr]+=aveD*ns/(k0*rs)
+      
 
     
     #aind.append(itr)
@@ -154,7 +147,7 @@ plt.plot(art,brt,'ok',markersize=0.5)
 plt.axis('equal')
 plt.title('sc lattice + diffusion')
 
-
+plt.show()
 
 '''
 clear

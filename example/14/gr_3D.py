@@ -6,7 +6,7 @@ Created on Sun Jan 28 09:40:21 2024
 @author: fizyk
 """
 
-from pandas import *
+#from pandas import *
 
 # Import libraries
 from mpl_toolkits import mplot3d
@@ -92,16 +92,9 @@ for i in range(0,Mr):
     
     for itr,rs in enumerate(rss):
         indm=np.where( (rt>rs) & (rt<rs+dr))
-        ns=len(indm[0])      
-        xs,ys,zs=xrt[indm[0]],yrt[indm[0]],zrt[indm[0]]
-        #ax.scatter3D(xs,ys,zs,s=150)
-        
-        if ns!=0:
-            #wsp=k0*rs**2/ns/aveD
-            wyniks[itr]+=aveD*ns/(k0*rs**2)
-            #print(itr,rs,f' {wsp:5.3f}')
-        else:
-            wyniks[itr]+=0  
+        ns=len(indm[0])              
+        wyniks[itr]+=aveD*ns/(k0*rs**2)
+
                                     
 print('stop')
 #------------------------------------------------------------------------------       
