@@ -39,6 +39,12 @@ typedef  const double cdouble ;
 #define DB false
 #endif
 
+#ifdef __linux__
+
+#else
+#define M_SQRT2  1.414213562373095	
+#endif
+
 //===================================================================================
 
 Cavepdh::Cavepdh()

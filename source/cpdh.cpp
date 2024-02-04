@@ -1838,6 +1838,7 @@ bool Cpdh::parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__)
                 continue;
                 }
 
+				#ifdef __linux__
                 if(cmd[index]=="saveFigure"){
                 string fileName(cmd[index][1]);
                         Script::replaceVars(ptr_uvar,fileName);
@@ -1855,14 +1856,8 @@ bool Cpdh::parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__)
                         index++;
                 continue;
                 }
-
-                if( cmd[index].isKey("difftime")){
-                    diffTime=true;
-                    index++;
-                continue;
-                }
-
-                if ( cmd[index].isKey("plot")){
+				
+				if ( cmd[index].isKey("plot")){
                     plotPrm=cmd[index][1];
 
                     // if gnuplot statement is empty add a space
@@ -1871,6 +1866,16 @@ bool Cpdh::parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__)
                     index++;
                 continue;
                 }
+				
+				#endif
+
+                if( cmd[index].isKey("difftime")){
+                    diffTime=true;
+                    index++;
+                continue;
+                }
+
+
 
                 if( cmd[index].isKey("printprm") || cmd[index].isKey("printPrm")){
                     printPrm=true;

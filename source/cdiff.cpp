@@ -1515,7 +1515,7 @@ string xlabel("set xlabel "),ylabel("set ylabel ");
                 }
 
 
-
+#ifdef __linux__
 FILE *plotHandle = NULL;
 
                 if(plotHandle == NULL){
@@ -1551,8 +1551,9 @@ position *plotData=new position[2*dataSize];
                //fflush(plotHandle);
                pclose(plotHandle);
 
-                                      delete [] plotData;
-                          }
+                delete [] plotData;
+#endif									  
+}
 //===================================================================================
 char Cdiff::radiationToChar()
 {

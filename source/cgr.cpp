@@ -218,7 +218,7 @@ const str send("end");
                     continue;
                     }
 
-
+				#ifdef __linux__
                     if ( cmd[index].isKey("plot")){
                         plotPrm=cmd[index][1];
 
@@ -228,6 +228,7 @@ const str send("end");
                         index++;
                     continue;
                     }
+				#endif
 
 
                     if(cmd[index]=="rangeN"){
@@ -252,6 +253,7 @@ const str send("end");
                     continue;
                     }
 
+					#ifdef __linux__
                     if(cmd[index]=="save"){
                     string fileName(cmd[index++][1]);
                         Script::replaceVars(ptr_uvar,fileName);
@@ -276,6 +278,7 @@ const str send("end");
                             index++;
                     continue;
                     }
+					#endif
 
 
                     if(cmd[index]=="threads"){

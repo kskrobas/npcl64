@@ -20,6 +20,11 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef __linux__
+
+#else
+#define M_PI  3.1415926535897932	
+#endif
 
 Crandom::Crandom(const double &A, const double &B): prmA(A),prmB(B)
 {
