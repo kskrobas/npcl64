@@ -1106,8 +1106,7 @@ vector<size_t> &atomNamesNumber=grain->atomNamesNumber;
                 fin>>cmd;
                 if(DB) {cout<<cmd<<endl;}
 
-
-                if(cmd.find("#ver:")!=string::npos) { fin>>fver;}
+                if(cmd.find("#ver:")!=string::npos) { fin>>fver;}                
                 if(cmd.find("#sizeRC:")!=string::npos){fin>>rows>>cols;}
 
                 if(cmd.find("#atomTypes:")!=string::npos){
@@ -1138,8 +1137,6 @@ vector<size_t> &atomNamesNumber=grain->atomNamesNumber;
                     //cout<<"#atomsNumber: "<<atomsNumber<<endl;
                 }
 
-
-
                 if(cmd.find("#binWidth:")!=string::npos){fin>>bin;}
 
                 //pobiera all do konca linii
@@ -1161,9 +1158,7 @@ vector<size_t> &atomNamesNumber=grain->atomNamesNumber;
 const size_t pdhcols=(atomTypes*(atomTypes+1)/2);
 
 
-             if(!fin.good () ||
-                !( fver=="0" && headerLines==11) ||
-                atomNames.size()!=atomTypes||  pdhcols!=(cols-1)){
+             if(!fin.good () ){
                 cerr<<"ERROR: the header of input file is corrupted: "<< fileNameIn<<endl;
                 fin.close();
              return;

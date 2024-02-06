@@ -200,11 +200,12 @@ size_t i,j;
 csize nprec=11;
 csize colwh=12;
 
+
             /// wypisuje nazwy column
             fout<<setw(colwh)<<'X';
-
-            for (i=0;i<numOfAtomTypes;i++)
-                fout<<" "<<setw(colwh)<<std::string(grain->atomTypes[i].name);
+            for(auto ucAtom: grain->uc.atoms)
+                if(ucAtom.rdh)
+                    fout<<" "<<setw(colwh)<<ucAtom.name;
 
             fout<<endl;
 
