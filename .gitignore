@@ -20,4 +20,4 @@ source/*.old
 *.*~
 Makefile-fp.rel
 *.xyz
-./example/14/*.rhds
+example/14/hap.rdhs
