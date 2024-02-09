@@ -43,7 +43,7 @@ private:
     stdumap *ptr_uvar;
 
     enum Ediffstatus{OK,RUN,ERR_EMPTYPDH,ERR_SCATCOEFF,
-                    ERR_RANGE,ERR_FILEOPEN,ERR_ATYPE_NUM} diffstatus;
+                    ERR_RANGE,ERR_FILEOPEN,ERR_ATYPE_NUM,ERR_FFORMAT,ERR_FOPEN} diffstatus;
 
     std::time_t startTime,stopTime;
 
@@ -101,6 +101,8 @@ private:
     void saveLaueFile(const string &fileName);
     void saveLaueFileBin(const string &fileName);
 
+    void openFile();
+    void openDiffFile();
 
     void allocMem(const size_t &size);
     void clearMem();

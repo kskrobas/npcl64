@@ -3125,6 +3125,9 @@ const str send("end");
             else
                 openFile();
 
+
+            /// -------------- common operations --------------------
+
             if(atoms.empty()) throw Status::ERR_ANUM_ZERO;
 
             if(!voidsprm.empty()) voids();
@@ -3219,10 +3222,10 @@ const str send("end");
              cout<<endl;
 
          }
-        catch (const std::out_of_range& e) {
+         catch (const std::out_of_range& e) {
            std::cerr << "ERROR: Out of Range error: " << e.what() << endl;
          }
-        catch(Script::ResultRepVar e){
+         catch(Script::ResultRepVar e){
             throw e;
         }
          catch(...){

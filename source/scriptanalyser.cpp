@@ -1414,6 +1414,11 @@ vcmdlist gb_cmdlist;
                     continue;
                     }
 
+                    if(regex_match(cmdline,regex("open[[:s:]]+[[:print:]]+"))){
+                            appKeyValues(*ptr_cl,cmdline);
+                    continue;
+                    }
+
                     //if(regex_match(cmdline,regex("nosf[[:s:]]+(yes|no)"))){
                     //        appKeyValues(*ptr_cl,cmdline);
                     //continue;

@@ -172,6 +172,12 @@ const str send("end");
                 continue;
                 }
 
+                if(cmd[index]=="open"){
+                string fileName(cmd[index++][1]);
+                    Script::replaceVars(ptr_uvar,fileName);
+                    fileNameIn=fileName;
+                continue;
+                }
 
                 if ( cmd[index].isKey("plot")){
                     plotPrm=cmd[index][1];
@@ -182,8 +188,6 @@ const str send("end");
                     index++;
                 continue;
                 }
-
-
 
                 if(cmd[index]=="polarization"){
                     polarization=(cmd[index++][1]=="yes");
@@ -291,8 +295,10 @@ const str send("end");
             }
 
 
-            if(range.empty() ){cerr<<"ERROR: diffraction range undefined"<<endl; return false;}
-            if(lambda.empty()){cerr<<"ERROR: diffraction lambda undefined"<<endl;return false;}
+            if(fileNameIn.empty()){
+                if(range.empty() ){errMsg("ERROR: diffraction range undefined"); return false;}
+                if(lambda.empty()){errMsg("ERROR: diffraction lambda undefined"); return false;}
+            }
 
 
 return true;
@@ -302,6 +308,8 @@ void Cdiff::calc()
 {
 
     try{
+
+        if(fileNameIn.empty()){
             if(mode==Cdiff::debyea){
 
                 if(pdh->dataX.empty){
@@ -345,6 +353,11 @@ void Cdiff::calc()
             const double comptime=std::difftime(stopTime,startTime);
                 if(diffTime) cout<<" computation time (seconds): "<<comptime<<endl;
             }
+        }
+        else{
+            openFile();
+            if(!plotPrm.empty()) plot();
+        }
 
     }
     catch(Ediffstatus e){
@@ -1223,6 +1236,89 @@ void Cdiff::saveLaueFileBin(const string &fileName)
              progress.stop();
 
 
+}
+//===================================================================================
+void Cdiff::openFile()
+{
+        if(fileNameIn.find(".diff")!=string::npos){
+            openDiffFile();
+        return;
+        }
+
+
+        cerr<<" unknown format "<<endl;
+        throw Ediffstatus::ERR_FFORMAT;
+}
+//===================================================================================
+void Cdiff::openDiffFile()
+{
+fstream fin(fileNameIn,ios::in);
+
+            if(!fin){
+                cerr<<"couldn't open file for reading"<<endl;
+                fin.close();
+            throw Ediffstatus::ERR_FOPEN;
+            }
+
+size_t size,headerSize,numOfAtoms;
+std::string tagkey,tagvalue,fline;
+
+            fin>>tagkey>>tagvalue;
+
+            if(tagkey!="#ver:") throw Ediffstatus::ERR_FFORMAT;
+            if(tagvalue=="04") headerSize=17-1; else throw Ediffstatus::ERR_FFORMAT;
+
+            while(fin.get()!='\n' && !fin.eof()) ;
+
+
+            ///----------- read header --------------------
+            for(size_t hline=0;hline<headerSize;hline++){
+                std::getline(fin,fline);
+
+                if(hline>7) continue;
+
+            vector<string> tokens(split<string>(fline," \t"));
+
+                if(tokens[0]=="#sizeRC:") {
+                    size=std::stoi(tokens[1]);
+                continue;
+                }
+
+                if(tokens[0]=="#numOfAtoms:"){
+                    numOfAtoms=std::stoi(tokens[1]);
+                    pdh->grain->atoms.resize(numOfAtoms);
+                continue;
+                }
+
+                if(tokens[0]=="#radiation:"){
+                    radiation=(tokens[1]=="xray") ? ERADIATION::XRAY :  ( (tokens[1]=="neutron") ? ERADIATION::NEUTR :ERADIATION::ELECT);
+                continue;
+                }
+
+                if(tokens[0]=="#lambda:"){
+                    lambda=tokens[1];
+                continue;
+                }
+            }
+            ///-------------------------------------------------
+            ///
+
+position ft,fq,fI,fS;
+
+            t.allocMem(size);
+            q.allocMem(size);
+            I.allocMem(size);
+            S.allocMem(size);
+
+            for(size_t i=0;i<size;i++){
+                fin>>ft>>fq>>fI>>fS;
+                t[i]=ft;
+                q[i]=fq;
+                I[i]=fI;
+                S[i]=fS;
+            }
+
+            fin.close();
 }
 //===================================================================================
 void Cdiff::allocMem(const size_t &size)
