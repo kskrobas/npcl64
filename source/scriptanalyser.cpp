@@ -1379,15 +1379,16 @@ vcmdlist gb_cmdlist;
                     }
 
 
+
                     //-- wavelength
-                    if(regex_match(cmdline,std::regex("lambda"+sPRE_NUMBER))){
+                    if(regex_match(cmdline,std::regex("lambda[[:s:]]+(Ag|Co|Cr|Cu|Fe|Mo|W|"+sPRE_NUMBER_1+")"))){
                             testDuplicate(gb_cmdlist,"lambda");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }
 
                     //-- wavelength
-                    if(regex_match(cmdline,std::regex("lambda[[:s:]]+(Ag|Co|Cr|Cu|Fe|Mo|W)"))){
+                    if(regex_match(cmdline,std::regex("lambda("+sPRE_NUMBER+sPRE_NUMBER+")+"))){
                             testDuplicate(gb_cmdlist,"lambda");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;

@@ -295,6 +295,8 @@ struct StMinMax{
 
 
 };
+//---------------------------------------------------------------------------
+
 
 //---------------------------------------------------------------------------
 class StNanoGrain{
@@ -326,11 +328,7 @@ public:
 
     vector<shell> prm;
     shell & operator [] (size_t i) {return prm[i];}
-
-
     position newR(const position &r);
-
-
 } coreshell;
 
 
@@ -445,52 +443,46 @@ vatoms atoms;
 bool disperse,hcpsl,numOfAtomsTest;//,testSNA;
 static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
+//************************************************
 
 struct StUnitCell{
-vector<StVector> vtrans;
-size_t rdhAtoms;
+    vector<StVector> vtrans;
+    size_t rdhAtoms;
 
-    struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false;
-                        StUcAtom() { }
-                        StUcAtom(const string &name__):name(name__){ }
-                        bool operator()(const string &a){ return a==name;}
-                   };
+        struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false;
+                            StUcAtom() { }
+                            StUcAtom(const string &name__):name(name__){ }
+                            bool operator()(const string &a){ return a==name;}
+                       };
 
-vector<StUcAtom> atoms;
+    vector<StUcAtom> atoms;
 
-void clear() {rdhAtoms=0;vtrans.clear(); atoms.clear();}
-bool empty() {return vtrans.empty();}
+    void clear() {rdhAtoms=0;vtrans.clear(); atoms.clear();}
+    bool empty() {return vtrans.empty();}
 
 } uc;
 
-
+//************************************************
 struct StSaveOpt{
     size_t min,max;
     vector<string> lwh;
     bool   fileSaved;
 
-        StSaveOpt(){ }
-        void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;}
+    StSaveOpt(){ }
+    void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;}
 
 } saveopt;
-
-
-
-
+//************************************************
         void resetPrms();
         bool parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__);
 				
-
-
 friend ostream & operator<< (ostream &, StNanoGrain &grain) ;
-
 };
 
 
 ostream & operator<< (ostream &, StNanoGrain &grain) ;
 
 } //end namespace :: Grain
-
 
 
 

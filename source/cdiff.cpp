@@ -144,9 +144,9 @@ const str send("end");
                 continue;
                 }
 
-
                 if(cmd[index]=="lambda"){
-                    lambda=(cmd[index++][1]);
+                    for(size_t i=1;i<cmd[index].numOfKeyValues();i++)
+                        lambda+=cmd[index][i]+" ";
                 continue;
                 }
 
