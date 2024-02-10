@@ -4,9 +4,11 @@
 #include<iomanip>
 #include"createdir.h"
 #include"colormsg.h"
+#include"cprogress.h"
 
 inline double sqrd (const position &x)  {return x*x;}
 
+using namespace std;
 //===================================================================================
 
 Crdh::Crdh()
@@ -18,6 +20,10 @@ void Crdh::clearData()
 {
     threads="1";
     fileName="";
+    saveopt.clear();
+
+    range.clear();
+    fileNameIn.clear();
     dataX.freeMem();
     dataYnn.clear();
 }
@@ -73,12 +79,22 @@ const str send("end");
                continue;
                }
 
+               if(cmd[index]=="range"){
+                    range=cmd[index][1]+" "+cmd[index][2]+" "+cmd[index][3];
+                    index++;
+               continue;
+               }
+
                if(cmd[index]=="save"){
                    fileName=cmd[index++][1];
                    Script::replaceVars(ptr_uvar,fileName);
                continue;
                }
 
+               if(cmd[index]=="saveopt"){
+                   saveopt=cmd[index++][1];
+               continue;
+               }
 
                if(cmd[index]=="threads"){
                    threads=cmd[index++][1];
@@ -98,57 +114,80 @@ csize numOfAtoms=grain->atoms.size();
 csize numOfRdhAtoms=grain->uc.rdhAtoms;
 auto atoms=grain->atoms.data();
 
-const auto wbin=std::stod(bin);
-const auto ibin=1.0/wbin;
-csize size=static_cast<size_t>(std::ceil(grain->maxR*2.5/wbin));
+vector<string> trange{split<string>(range," ")};
+cdouble rmin =std::stod(trange[0]);
+cdouble rstep=std::stod(trange[1]);
+cdouble rmax =std::stod(trange[2]);
 
-auto calcBin=[](NanoGrain::StAtom *A, NanoGrain::StAtom *B){
-        return static_cast<size_t>(  std::sqrt(   sqrd(A->x-B->x)+
-                                                  sqrd(A->y-B->y)+
-                                                  sqrd(A->z-B->z)  ));  };
+                if(rmax-rmin<0 || (rstep>rmax-rmin) ){
+                    errMsg("wrong values of range instruction, usage: min step max");
+                throw Crdh::ERR_RANGE;
+                }
+
+csize size=static_cast<size_t>(std::ceil((rmax-rmin)/rstep/0.95));
+cdouble ibin=1.0/rstep;
 
 
-        dataYnn.resize(numOfRdhAtoms);
-        for(size_t i=0;i<numOfRdhAtoms;i++)
-            dataYnn[i].allocMem(size);
+cdouble rmin2=rmin*rmin;
+cdouble rmax2=rmax*rmax;
+auto calcR2=[](NanoGrain::StAtom *A, NanoGrain::StAtom *B){
+        return sqrd(A->x-B->x) + sqrd(A->y-B->y) + sqrd(A->z-B->z) ; };
 
-        dataX.allocMem(size);
-        for(size_t i=0;i<size;i++){
-            dataX[i]=i*wbin;
-            for(size_t k=0;k<numOfRdhAtoms;k++)
-                dataYnn[k][i]=0;
-        }
 
-        /// optimalization on
-        for(size_t i=0;i<numOfAtoms;i++)
-            grain->atoms[i]*=ibin;
+                dataYnn.resize(numOfRdhAtoms);
+                for(size_t i=0;i<numOfRdhAtoms;i++)
+                    dataYnn[i].allocMem(size);
 
+                dataX.allocMem(size);
+                for(size_t i=0;i<size;i++){
+                    dataX[i]=rmin+i*rstep;
+                    for(size_t k=0;k<numOfRdhAtoms;k++)
+                        dataYnn[k][i]=0;
+                }
+
+                /// optimalization on
+                //for(size_t i=0;i<numOfAtoms;i++)
+                //    grain->atoms[i]*=ibin;
 
 
 size_t rdhAtom=0;
 size_t k,bin;
+CProgress progress;
+double r,dr2;
 
-        for(size_t ia=0;ia<numOfAtoms && rdhAtom<numOfRdhAtoms;ia++){
-            if(atoms[ia].rdh){
+                progress.title=(string(" RDH "));
+                progress.start(numOfAtoms);
 
-                for(k=0;k<ia;k++){
-                    bin=calcBin(&atoms[ia],&atoms[k]);
-                    dataYnn[rdhAtom][bin]++;
+                for(size_t ia=0;ia<numOfAtoms && rdhAtom<numOfRdhAtoms;ia++,progress++){
+                    if(atoms[ia].rdh){
+
+                        for(k=0;k<ia;k++){
+                            dr2=calcR2(&atoms[ia],&atoms[k]);
+
+                            if(rmin2<=dr2 && dr2<=rmax2){
+                                r=std::sqrt(dr2)-rmin;
+                                bin=static_cast<size_t>(r/rstep);
+                                    dataYnn[rdhAtom][bin]++;
+                            }
+                        }
+
+                        for(k=ia+1;k<numOfAtoms;k++){
+                            dr2=calcR2(&atoms[ia],&atoms[k]);
+
+                            if(rmin2<=dr2 && dr2<=rmax2){
+                                r=std::sqrt(dr2)-rmin;
+                                bin=static_cast<size_t>(r/rstep);
+                                    dataYnn[rdhAtom][bin]++;
+                            }
+                        }
+                        rdhAtom++;
+                    }
                 }
-
-                for(k=ia+1;k<numOfAtoms;k++){
-                    bin=calcBin(&atoms[ia],&atoms[k]);
-                    dataYnn[rdhAtom][bin]++;
-                }
-
-                rdhAtom++;
-            }
-        }
 
         /// optimalization off
-        for(size_t i=0;i<numOfAtoms;i++){
-            grain->atoms[i]*=wbin;
-        }
+        //for(size_t i=0;i<numOfAtoms;i++){
+        //    grain->atoms[i]*=wbin;
+        //}
 
         if(!fileName.empty())
             saveResults();
@@ -225,6 +264,27 @@ csize colwh=12;
             fout.close();
 }
 //===================================================================================
+size_t sumPartsSave(fstream &fout,csize i, vector<dataRdh> &dataYnn)
+{
+csize nprec=11;
+csize colwh=12;
+size_t sum=0;
+
+        for(dataRdh & rdh : dataYnn){
+          sum+=rdh[i];
+          fout<<" "<<setw(colwh)<<rdh[i];
+        }
+return sum;
+}
+//===================================================================================
+size_t sumParts(fstream &fout,csize i, vector<dataRdh> &dataYnn)
+{
+size_t sum=0;
+        for(dataRdh & rdh : dataYnn)
+          sum+=rdh[i];
+return sum;
+}
+//===================================================================================
 void Crdh::saveRdhsFile()
 {
 fstream fout(fileName,ios::out);
@@ -245,6 +305,23 @@ size_t i,j;
 std::streampos sizeRCpos;
 size_t nonZeroBins=0;
 bool nzb;
+
+bool soptParts,soptTot;
+
+
+
+            if(saveopt.empty()){
+               soptParts=soptTot=true;
+            }
+            else{
+            vector<string> sopt{split<string>(saveopt," ")};
+                soptParts=soptTot=false;
+
+                for(auto &opt: sopt){
+                    if(opt=="parts") soptParts=true;
+                    if(opt=="tot")   soptTot  =true;
+                }
+            }
 
             //--------------------------- HEADER ----------------------------//
             fout<<"#ver: 0"<<endl;
@@ -269,43 +346,89 @@ bool nzb;
                 fout<<"#";
 
 
-csize numOfRdhAtoms=grain->uc.rdhAtoms;
+//csize numOfRdhAtoms=grain->uc.rdhAtoms;
 csize nprec=11;
 csize colwh=12;
 
+
+
             /// wypisuje nazwy column
             fout<<setw(colwh)<<'X';
-            for(auto ucAtom: grain->uc.atoms)
-                if(ucAtom.rdh)
-                    fout<<" "<<setw(colwh)<<ucAtom.name;
+
+            if(soptParts){
+                for(auto ucAtom: grain->uc.atoms)
+                    if(ucAtom.rdh)
+                        fout<<" "<<setw(colwh)<<ucAtom.name;
+            }
+
+            if(soptTot){
+                fout<<" "<<setw(colwh)<<"Total";
+            }
 
             fout<<endl;
 
             //--------------------------------------------------------------------//
 
 
-            for(i=0;i<dataSize;i++){
 
-                nzb=false;
-                for(dataRdh &rdh : dataYnn){
-                    if(rdh[i]>0) {
-                        nzb=true;
-                    break;
+
+            if(soptTot){
+            auto fs=(soptParts) ? &sumPartsSave: &sumParts;
+            size_t sum;
+
+                for(i=0;i<dataSize;i++){
+
+                    nzb=false;
+                    for(dataRdh &rdh : dataYnn){
+                        if(rdh[i]>0) {
+                            nzb=true;
+                        break;
+                        }
                     }
-                }
 
-                if(nzb){
-                    nonZeroBins++;
-                    fout<<" "<<setw(colwh)<<dataX[i];
-                    for(dataRdh & rdh : dataYnn)
-                      fout<<" "<<setw(colwh)<<rdh[i];
+                    if(nzb){
+                        nonZeroBins++;
 
-                    fout<<endl;
-                }
-            }//for's end
+                        fout<<" "<<setw(colwh)<<dataX[i];
+                        sum=fs(fout,i,dataYnn);
+                        fout<<" "<<setw(colwh)<<sum;
 
+                        fout<<endl;
+                    }
+                }//for's end
 
+            }
+            else{
+                for(i=0;i<dataSize;i++){
+
+                    nzb=false;
+                    for(dataRdh &rdh : dataYnn){
+                        if(rdh[i]>0) {
+                            nzb=true;
+                        break;
+                        }
+                    }
+
+                    if(nzb){
+                        nonZeroBins++;
+                        fout<<" "<<setw(colwh)<<dataX[i];
+                        for(dataRdh & rdh : dataYnn)
+                          fout<<" "<<setw(colwh)<<rdh[i];
+
+                        fout<<endl;
+                    }
+                }//for's end
+            }
+
+            //--------------------------------------------------------------------//
             fout.seekp(sizeRCpos,ios_base::beg);
-            fout<<nonZeroBins<<"\t"<<(1+mrdhSize);
+
+            fout<<nonZeroBins<<"\t";
+                if(soptParts && !soptTot) fout <<(1+mrdhSize);
+                else
+                    if(soptParts && soptTot) fout<<(2+mrdhSize);
+                    else
+                        fout<<2;
+
             fout.close();
 }

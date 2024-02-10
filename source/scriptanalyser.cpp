@@ -1097,7 +1097,9 @@ vcmdlist gb_cmdlist;
 //-----------------------------------------------------------------------------
 void rdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
 {
+vcmdlist gb_cmdlist;
 
+        gb_cmdlist.reserve(10);
 
         while(!script.eof()){
 
@@ -1121,16 +1123,43 @@ void rdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t 
             // ----------------------------
 
              if(regex_match(cmdline,std::regex("bin"+sPRE_NUMBER+"(A|lp|nm)?"))){
-                testDuplicate(*ptr_cl,"bin");
-                appKeyValues(*ptr_cl,cmdline);
+                testDuplicate(gb_cmdlist,"bin");
+                appKeyValues(gb_cmdlist,cmdline);
 
+             continue;
+             }
+
+
+             //----------------------------
+             if(regex_match(cmdline,std::regex("range("+sPRE_NUMBER+"){3}"))){
+             vector<string> tokens(split<string> (cmdline," "));
+
+                     if(tokens[2]=="0")
+                         throw Script::Result::ERR_VAL_0;
+
+                     testDuplicate(gb_cmdlist,"range");
+                     testDuplicate(gb_cmdlist,"bin");
+
+             ClKeyValues kv;
+                        kv<<tokens;
+                        appKeyValues(gb_cmdlist,cmdline);
+             continue;
+             }
+
+             //file operations   save filename
+             if(regex_match(cmdline,regex("saveopt[[:s:]]+[[:print:]]+"))){
+             string saveOptPrm(cmdline.substr(7));
+             ClKeyValues kv;
+
+                        kv<<"saveopt"<<saveOptPrm;
+                        gb_cmdlist.emplace_back(kv);
              continue;
              }
 
               // ----------------------------
              if(regex_match(cmdline,std::regex("threads[[:s:]]+[0-9]+"))){
-                     testDuplicate(*ptr_cl,"threads");
-                     appKeyValues(*ptr_cl,cmdline);
+                     testDuplicate(gb_cmdlist,"threads");
+                     appKeyValues(gb_cmdlist,cmdline);
              continue;
              }
 
@@ -1138,7 +1167,7 @@ void rdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t 
              //file operations   save filename
              if(regex_match(cmdline,regex("save[[:s:]]+[[:print:]]+"))){
                      testVariables(&cmdline);
-                     appKeyValues(*ptr_cl,cmdline);
+                     appKeyValues(gb_cmdlist,cmdline);
              continue;
              }
              //----------------------------
@@ -1151,6 +1180,11 @@ void rdhBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t 
 
     throw Script::Result::MIS_UNK_ERR;
     }
+
+
+        //inserting the current list to the main list
+        for(auto &kv: gb_cmdlist)
+                ptr_cl->emplace_back(kv);
 
 }
 //-----------------------------------------------------------------------------

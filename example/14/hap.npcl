@@ -1,7 +1,9 @@
 />
 date:  02-07-2024
-
+update: 02-10-2024
 		RDH   computation for selected atoms (*) of  hydroxyapatite structure
+		range, saveopt added
+		
 
 </
 
@@ -65,8 +67,8 @@ O     -2.3555  -4.0799  -0.4124
 			end
 			
 			
-			replicate 15  15  20  +/-
-			disperse * 0.07
+			replicate  3 3 2 +/-
+			#disperse * 0.07
 			
 			save hap.xyz
 			
@@ -74,7 +76,21 @@ end
 
 
 rdh
-	bin 0.1
 	
-	save hap.rdhs
+	range 0 0.5  20
+	saveopt parts 
+	save hap00.rdhs
+end
+
+
+rdh	
+	range 2 0.5 10		
+	save hap01.rdhs
+end
+
+rdh
+	
+	range 1 0.5  20
+	saveopt tot
+	save hap02.rdhs
 end
