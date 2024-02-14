@@ -345,17 +345,7 @@ public:
                                 return ERET_DC::CONTINUE;
 
                                 rdh.calc();
-
-                               /* if(!pdh.parseCommands(cmdlist,++cmdIndex,&uvars))
-                                return ERET_DC::CONTINUE;
-
-                                pdh.calc();
                                 if(!quiet)  cout<<"\n";
-
-                                if(pdh.status!=Cpdh::OK){
-                                    cerr<<"ERROR: PDH status not OK"<<endl;
-                                throw 0;
-                                }*/
 
                             continue;
                             }
