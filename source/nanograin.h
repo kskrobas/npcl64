@@ -211,6 +211,8 @@ position x,y,z;
 
       //int operator = (const StGrainNode &node);
       //int operator +=(const StGrainNode &node);
+      StVector() {  }
+      StVector(cpos &x__, cpos &y__, cpos &z__):x(x__),y(y__),z(z__) { }
 
 
       double getModule()const { return sqrt(x*x+y*y+z*z);}

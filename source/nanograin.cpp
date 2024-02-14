@@ -1640,7 +1640,7 @@ bool on=false;
 
     void buildMatrix(const StAxis &axis_);
     void buildMatrix(const StAxis &axis_,const coordinate &sinA);
-    StAtom operator*(const coordinate & x, const coordinate & y,const coordinate & z);
+    StVector operator*(const StVector &v);
 //StAtom operator*=(S);
 
     StRotationMatrix(){ ux=uy=uz=theta=0;}
@@ -1694,9 +1694,7 @@ ccoord norm=sqrt(1/sumSq);
 }
 
 //-----------------------------------------------------------------------------
-/*
-//StVector3 StRotationMatrix::operator*(const StVector3 &a)
-StAtom StRotationMatrix::operator*(const coordinate & x, const coordinate & y,const coordinate & z)
+StVector StRotationMatrix::operator*(const StVector &a)
 {
 coordinate bx,by,bz;
 
@@ -1704,10 +1702,8 @@ coordinate bx,by,bz;
                 by=m21*a.x+m22*a.y+m23*a.z;
                 bz=m31*a.x+m32*a.y+m33*a.z;
 
-//return StVector3(bx,by,bz);
+return StVector(bx,by,bz);
 }
-*/
-
 //---------------------------------------------------------------------------
 
 
@@ -1740,23 +1736,28 @@ std::default_random_engine generatorAngle (std::chrono::system_clock::now().time
 std::uniform_real_distribution<double> adistr(0,2*M_PI);
 
 double sqR,Ang,x,y,z;
-std::string aname("Si");
+std::string aname("C");
 size_t atype;
+StVector v;
+double dTh=2*M_PI/(N-1);
 
             atomTypes.push_back(StAtomType(aname));
             atype=atomTypes.size()-1;
             planeAtoms.reserve(N);
-            z=D;
+            Ang=0;
 
             for(size_t i=0;i<N;i++){
                 sqR=std::sqrt(rdistr(generatorRadius));
-                Ang=adistr(generatorAngle);
+                Ang=dTh*i;
+                //Ang=adistr(generatorAngle);
 
-                x=sqR*std::cos(Ang);
-                y=sqR*std::sin(Ang);
+                v.x=sqR*std::cos(Ang);
+                v.y=sqR*std::sin(Ang);
+                v.z=D;
 
-                planeAtoms.emplace_back(StAtom(x,y,z,atype));
+                v=rotMat*v;
 
+                planeAtoms.emplace_back(StAtom(v.x,v.y,v.z,atype));
             }
 
 
