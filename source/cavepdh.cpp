@@ -583,9 +583,13 @@ fstream fileList(tmpPdhFiles,ios::in);
 
 
                     if(numberOfAtomTypes==1){
+                    CProgress progress;
                     auto  &sumBinij=dataYnn[0];
                             sumBinij.allocMem(binSize,0);
                             totalSumBins=0;
+
+                            progress.title=std::string(" ave pdh ");
+                            progress.start(fileNames.size());
 
                             //................. READ DATA FROM FILES AND FILL UP THE BUFFER ...............
 
@@ -647,17 +651,18 @@ fstream fileList(tmpPdhFiles,ios::in);
                                 }
 
                                 fin.close();
+                                progress++;
                             }
-
-
                     }/// end : numberOfatoms==1
                     else {
+                    CProgress progress;
+
+                        progress.title=std::string(" ave pdh ");
+                        progress.start(fileNames.size());
+
 
                         for(auto &bins: dataYnn){
                             bins.allocMem(binSize,0);
-
-                            //for(size_t i=0;i<binSize;i++)
-                               // bins[i]=0;
                         }
 
                         totalSumBins=0;
@@ -730,6 +735,7 @@ fstream fileList(tmpPdhFiles,ios::in);
                                 }
 
                                 fin.close();
+                                progress++;
                             }
 
                     }

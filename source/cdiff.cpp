@@ -147,6 +147,7 @@ const str send("end");
                 if(cmd[index]=="lambda"){
                     for(size_t i=1;i<cmd[index].numOfKeyValues();i++)
                         lambda+=cmd[index][i]+" ";
+                    index++;
                 continue;
                 }
 
@@ -462,9 +463,9 @@ size_t *noneZeroBins=new size_t[noneZeroBinsSize];
 
 
                 ////// 2. setting initial values
-
-std::map<std::string, std::string>::const_iterator cathLambda=Elements::xrad.find(lambda);
-const position lambda__=(cathLambda!=Elements::xrad.end()) ? std::stod(cathLambda->second) : std::stod(lambda);
+vector<string> lambdaToks{split<string>(lambda," ")};
+std::map<std::string, std::string>::const_iterator cathLambda=Elements::xrad.find(lambdaToks[0]);
+const position lambda__=(cathLambda!=Elements::xrad.end()) ? std::stod(cathLambda->second) : std::stod(lambdaToks[0]);
 
 const position k1=M_PI/360;
 const position invWL=1.0/lambda__;
