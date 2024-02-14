@@ -594,7 +594,20 @@ bool radiusOrside=false;
                     }
 
                     if(regex_match(cmdline,std::regex("disloc[[:s:]]+(dumbell|intdef)[[:s:]]+uniform"+sRE_NUMBER+sPRE_NUMBER+sPRE_NUMBER+"([[:s:]]+(x|y|z))?"))){
-                            appKeyValues(gb_cmdlist,cmdline);
+                    ClKeyValues kv("disloc");
+
+                            kv<<cmdline.substr(6).c_str();
+                            gb_cmdlist.emplace_back(kv);
+                    continue;
+                    }
+
+
+                    if(regex_match(cmdline,std::regex("disloc[[:s:]]+plane("+sRE_NUMBER+"){6}"+sUINT_NUMBER))){
+                    ClKeyValues kv("disloc");
+                    const size_t prmPos(cmdline.find("plane"));
+
+                            kv<<"plane"<<cmdline.substr(prmPos+5).c_str();
+                            gb_cmdlist.emplace_back(kv);
                     continue;
                     }
 

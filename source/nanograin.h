@@ -379,6 +379,7 @@ std::stringstream atomsRemoved;
         void grainCentering();
         void catomCentering();
         void idCentering();
+        void insertDisloc();
 
         static bool testSavedNumOfAtoms(const size_t );
 
@@ -424,15 +425,16 @@ std::stringstream atomsRemoved;
 
 
 public:
-std::string side,radius,clp,scaleFactors,voidsprm;
-std::string structure,shape,shapePrm,shapePrm2D,lmpstyle,disloc;
+std::string side,radius,clp,structure,scaleFactors;
+std::string shape,shapePrm,shapePrm2D;
+std::string disloc,dislocPlane,voidsprm;
 std::string hcpu,hcpcs, hcpABC;
 vector<StAtomType> atomTypes;
 vector<size_t> atomNamesNumber;
 vector<StAtomDispFactor> atomDisperse;
 std::string fileNameIn,fileNameHeader;
 vector<string> fileNameOut;
-std::string comment;
+std::string lmpstyle,comment;
 std::string rmatoms;
 std::string threads;
 std::string rename;
@@ -443,42 +445,42 @@ vatoms atoms;
 bool disperse,hcpsl,numOfAtomsTest;//,testSNA;
 static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
-//************************************************
+    //************************************************
 
-struct StUnitCell{
-    vector<StVector> vtrans;
-    size_t rdhAtoms;
+    struct StUnitCell{
+        vector<StVector> vtrans;
+        size_t rdhAtoms;
 
-        struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false;
-                            StUcAtom() { }
-                            StUcAtom(const string &name__):name(name__){ }
-                            bool operator()(const string &a){ return a==name;}
-                       };
+            struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false;
+                                StUcAtom() { }
+                                StUcAtom(const string &name__):name(name__){ }
+                                bool operator()(const string &a){ return a==name;}
+                           };
 
-    vector<StUcAtom> atoms;
+        vector<StUcAtom> atoms;
 
-    void clear() {rdhAtoms=0;vtrans.clear(); atoms.clear();}
-    bool empty() {return vtrans.empty();}
+        void clear() {rdhAtoms=0;vtrans.clear(); atoms.clear();}
+        bool empty() {return vtrans.empty();}
 
-} uc;
+    } uc;
 
-//************************************************
-struct StSaveOpt{
-    size_t min,max;
-    vector<string> lwh;
-    bool   fileSaved;
+    //************************************************
+    struct StSaveOpt{
+        size_t min,max;
+        vector<string> lwh;
+        bool   fileSaved;
 
-    StSaveOpt(){ }
-    void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;}
+        StSaveOpt(){ }
+        void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;}
 
-} saveopt;
-//************************************************
-        void resetPrms();
-        bool parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__);
-				
-friend ostream & operator<< (ostream &, StNanoGrain &grain) ;
-};
+    } saveopt;
+    //************************************************
+            void resetPrms();
+            bool parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__);
 
+    friend ostream & operator<< (ostream &, StNanoGrain &grain) ;
+    };
+    //************************************************
 
 ostream & operator<< (ostream &, StNanoGrain &grain) ;
 
