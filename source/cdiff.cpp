@@ -727,7 +727,7 @@ const double step =std::stod(ststst[1]);
 const double stop =std::stod(ststst[2]);
 
 const int KSize=1+std::floor( (stop-start)/step);
-position K;
+//position K;
 
 
 
@@ -759,9 +759,9 @@ const position lambda__=(cathLambda!=Elements::xrad.end()) ? std::stod(cathLambd
                 ///                                                                               ///
                 /////////////////////////////////////////////////////////////////////////////////////
 
-const position ilambda=1.0/lambda__;
+//const position ilambda=1.0/lambda__;
 const StKivector Ki(ki,lambda__);
-const position deg2rad=M_PI/180.0;
+//const position deg2rad=M_PI/180.0;
 const size_t N=pdh->grain->atomNamesNumber[0];
 //position fi; //atomic scattering factor
 
@@ -1080,7 +1080,7 @@ fstream file(fileName,ios::out);
             throw Cdiff::ERR_FILEOPEN;
             }
 
-const double k0=180*M_1_PI;
+//const double k0=180*M_1_PI;
 std::time_t datetime = std::time(nullptr);
 const size_t numOfAtoms=pdh->grain->atoms.size();
 
@@ -1091,7 +1091,7 @@ auto (*eol)(ostream &)=(u2dendl)? &endld : &endlu;
 const size_t dataSize=laueDiffData.size();
 constexpr int nprec=10;
 constexpr int colwh=15;
-size_t i,j,k,l;
+size_t i,j,k;
 
             file<<"#ver: 01"<<eol;
             file<<"#title: laue diffraction data"<<eol;

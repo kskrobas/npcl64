@@ -216,7 +216,7 @@ csize numOfAtomTypes= grain->atomTypes.size();
 csize numOfAtoms=   grain->atoms.size();
 csize mrdhSize=grain->uc.rdhAtoms;
 std::time_t datetime = std::time(nullptr);
-size_t i,j;
+size_t i;
 
             //--------------------------- HEADER ----------------------------//
             fout<<"#ver: 0"<<endl;
@@ -236,7 +236,7 @@ size_t i,j;
                 //fout<<"#comment: "<<comment<<endl;
                 fout<<"#";
 
-csize nprec=11;
+//csize nprec=11;
 csize colwh=12;
 
 
@@ -266,7 +266,7 @@ csize colwh=12;
 //===================================================================================
 size_t sumPartsSave(fstream &fout,csize i, vector<dataRdh> &dataYnn)
 {
-csize nprec=11;
+//csize nprec=11;
 csize colwh=12;
 size_t sum=0;
 
@@ -301,7 +301,7 @@ csize numOfAtomTypes= grain->atomTypes.size();
 csize numOfAtoms=   grain->atoms.size();
 csize mrdhSize=grain->uc.rdhAtoms;
 std::time_t datetime = std::time(nullptr);
-size_t i,j;
+size_t i;
 std::streampos sizeRCpos;
 size_t nonZeroBins=0;
 bool nzb;
@@ -347,7 +347,7 @@ bool soptParts,soptTot;
 
 
 //csize numOfRdhAtoms=grain->uc.rdhAtoms;
-csize nprec=11;
+//csize nprec=11;
 csize colwh=12;
 
 

@@ -31,7 +31,7 @@
 #include "createdir.h"
 #include "crandom.h"
 #include "colormsg.h"
-
+#include "affinemat.h"
 #include "parse_expr.h"
 
 #ifndef __linux
@@ -1595,122 +1595,16 @@ position Xm,Ym,Zm;
 
 
 }
-//-----------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-struct StAxis{
-union{
-    struct{
-    position a,b,c,xo,yo,zo;
-    };
-    position prm[6];
-    };
-bool on=false;
-position tmax,tmin;
 
-//StVector3 begin,end;
-
-    StAxis(const float &x, const float &y, const float &z){
-        a=x;b=y;c=z;
-    }
-
-};
-
-///https://en.wikipedia.org/wiki/Rotation_matrix
-///
-/// typedef const coordinate ccoord;
-///
-typedef position coordinate;
-typedef const coordinate ccoord;
-auto sqrCoord=[](ccoord &x){return x*x;};
-
-
-class StRotationMatrix{
-public:
-
-union{
-      struct{ coordinate m11,m12,m13,m21,m22,m23,m31,m32,m33;};
-      coordinate m[9];
-      coordinate mm[3][3];
-};
-
-coordinate ux,uy,uz;//axis of rotation
-coordinate theta;
-
-bool on=false;
-
-    void buildMatrix(const StAxis &axis_);
-    void buildMatrix(const StAxis &axis_,const coordinate &sinA);
-    StVector operator*(const StVector &v);
-//StAtom operator*=(S);
-
-    StRotationMatrix(){ ux=uy=uz=theta=0;}
-    StRotationMatrix(const StAxis &axis_,const coordinate &sinA){
-        buildMatrix(axis_,sinA);
-    }
-
-private:
-    void buildRotationAxis(const StAxis &axis_);
-    void normUxyz();
-};
-//-----------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-void StRotationMatrix::buildMatrix(const StAxis &axis_, const coordinate &sinA)
-{
-ccoord sinTheta=sinA;//sqrt(1-sqrCoord(cosTheta));
-ccoord cosTheta=std::sqrt(1-sqrCoord(sinTheta));
-ccoord oneMinCos=1-cosTheta;
 
-        buildRotationAxis(axis_);
 
-        ///rotation matrix elements
-        m11=cosTheta+sqrCoord(ux)*oneMinCos; m12=ux*uy*oneMinCos-uz*sinTheta; m13=ux*uz*oneMinCos+uy*sinTheta;
-        m21=uy*ux*oneMinCos+uz*sinTheta; m22=cosTheta+sqrCoord(uy)*oneMinCos; m23=uy*uz*oneMinCos-ux*sinTheta;
-        m31=uz*ux*oneMinCos-uy*sinTheta; m32=uz*uy*oneMinCos+ux*sinTheta; m33=cosTheta+sqrCoord(uz)*oneMinCos;
-
-        on=true;
-}
-
-//-----------------------------------------------------------------------------
-void StRotationMatrix::buildRotationAxis(const StAxis &axis_)
-{
-        ux=axis_.a;
-        uy=axis_.b;
-        uz=axis_.c;
-
-        normUxyz();
-}
-
-//-----------------------------------------------------------------------------
-void StRotationMatrix::normUxyz()
-{
-ccoord sumSq=sqrCoord(ux)+sqrCoord(uy)+sqrCoord(uz);
-ccoord norm=sqrt(1/sumSq);
-
-            ux*=norm;
-            uy*=norm;
-            uz*=norm;
-}
-
-//-----------------------------------------------------------------------------
-StVector StRotationMatrix::operator*(const StVector &a)
-{
-coordinate bx,by,bz;
-
-                bx=m11*a.x+m12*a.y+m13*a.z;
-                by=m21*a.x+m22*a.y+m23*a.z;
-                bz=m31*a.x+m32*a.y+m33*a.z;
-
-return StVector(bx,by,bz);
-}
 //---------------------------------------------------------------------------
-
 
 void NanoGrain::StNanoGrain::insertDisloc()
 {
 vector<string> toks{split<string>(dislocPlane," ")};
-
 
 //plane axis params
 cpos  A{std::stod(toks[0])};

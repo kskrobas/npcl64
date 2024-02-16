@@ -527,6 +527,111 @@ void cshBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t 
 
 }
 //-----------------------------------------------------------------------------
+void dislocBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
+{
+vcmdlist gb_cmdlist;
+bool radiusOrside=false;
+
+
+                gb_cmdlist.reserve(10);
+
+                while(!script.eof()){
+
+                    std::getline(script,cmdline);
+                    cline++;
+
+                    if(DB){ cout<<cline<<": "<<cmdline<<endl;}
+
+                    trim(cmdline);
+
+                    //-- empty line
+                    if(cmdline.empty()) continue;
+                    //--
+
+                    //-- comments
+                    if(cmdline[0]=='#' || cmdline[0]=='%') continue;
+                    //--
+
+
+                    // replace tabs by spaces
+                     std::replace(std::begin(cmdline),std::end(cmdline),'\t',' ');
+
+                     //atom types
+                     if(regex_match(cmdline,std::regex("atom(s)?[[:s:]]+\\w+"))){
+                             testDuplicate(gb_cmdlist,"atom");
+                             testDuplicate(gb_cmdlist,"atoms");
+                             appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+
+                     //----------------------------
+                     if(regex_match(cmdline,std::regex("(axis|position)("+sPRE_NUMBER+"){3}"))){
+                         testVariables(&cmdline);
+                         appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+
+                     if(regex_match(cmdline,std::regex("mindist("+sPRE_NUMBER+"){1}"))){
+                         testVariables(&cmdline);
+                         appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+
+                     //----------------------------
+                     if(regex_match(cmdline,std::regex("mode[[:s:]]+loop"))){
+                         testVariables(&cmdline);
+                         appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+
+                     //----------------------------
+                     if(regex_match(cmdline,std::regex("range(A|R)("+sPRE_NUMBER+"){3}"))){
+                     vector<string> tokens(split<string> (cmdline," "));
+
+                             if(tokens[2]=="0")
+                                 throw Script::Result::ERR_VAL_0;
+
+                     ClKeyValues kv;
+                                kv<<tokens;
+                                appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+
+                     //----------------------------
+                     if(regex_match(cmdline,regex("save[[:s:]]+[[:print:]]+"))){
+                             testVariables(&cmdline);
+                             appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+                     //----------------------------
+                     if(regex_match(cmdline,std::regex("scatter[[:s:]]+RA("+sPRE_NUMBER+"){2}"))){
+                         testVariables(&cmdline);
+                         appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+                     //the end of block
+                     if(regex_match(cmdline,std::regex("end"))){
+                     break;
+                     }
+
+
+                throw Script::Result::MIS_UNK_ERR;
+                }
+
+                //inserting the current list to the main list
+                for(auto &kv: gb_cmdlist)
+                        ptr_cl->emplace_back(kv);
+
+}
+
+//-----------------------------------------------------------------------------
 void grainBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline,stdumap *ptr_uvar)
 {
     ///
@@ -592,6 +697,7 @@ bool radiusOrside=false;
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }
+
 
                     if(regex_match(cmdline,std::regex("disloc[[:s:]]+(dumbell|intdef)[[:s:]]+uniform"+sRE_NUMBER+sPRE_NUMBER+sPRE_NUMBER+"([[:s:]]+(x|y|z))?"))){
                     ClKeyValues kv("disloc");
@@ -1755,6 +1861,14 @@ const size_t currPos=ptr_uvar->size();
                     if(regex_match(cmdline,std::regex("avepdh"))){
                         appKeyValues(*ptr_cl,"avepdh");
                         avePdhBlock(script,ptr_cl,cmdline,options,cline);
+                        appKeyValues(*ptr_cl,"end");
+                    continue;
+                    }
+
+                    //dislocation introducing
+                    if(regex_match(cmdline,std::regex("disloc"))){
+                        appKeyValues(*ptr_cl,cmdline);
+                        dislocBlock(script,ptr_cl,cmdline,options,cline);
                         appKeyValues(*ptr_cl,"end");
                     continue;
                     }
