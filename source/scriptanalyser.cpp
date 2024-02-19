@@ -50,6 +50,24 @@ const std::string sVAR(VAR);
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
+ClKeyValues::ClKeyValues(const string &keyvalues__, int pos)
+{
+auto keyWidth=keyvalues__.find_first_of(" ");
+auto valuesStartPos=keyvalues__.find_first_not_of(" ",keyWidth);
+
+        keyvalues.reserve(2);
+        keyvalues.push_back(keyvalues__.substr(0,keyWidth));
+        keyvalues.push_back(keyvalues__.substr(valuesStartPos));
+}
+//-----------------------------------------------------------------------------
+ClKeyValues::ClKeyValues(strpair keyValue)
+{
+    keyvalues.reserve(2);
+    keyvalues.emplace_back(keyValue.first);
+    keyvalues.emplace_back(keyValue.second);
+}
+//-----------------------------------------------------------------------------
+
 ClKeyValues &ClKeyValues::operator <<(const char *ckv)
 {
 const string kv(ckv);
@@ -160,6 +178,12 @@ void ClKeyValues::dispValues()
 }
 //-----------------------------------------------------------------------------
 
+strpair extractKeyValues(const std::string line)
+{
+auto firstSpacePos=line.find_first_of(" ");
+return strpair(line.substr(0,firstSpacePos),line.substr(firstSpacePos));
+}
+//-----------------------------------------------------------------------------
 
 void appKeyValues(vcmdlist &ptr_cl,const std::string &cl)
 {
@@ -566,9 +590,11 @@ bool radiusOrside=false;
 
 
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("(axis|position)("+sPRE_NUMBER+"){3}"))){
+
+                     if(regex_match(cmdline,std::regex("(axis|position)("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}"))){
                          testVariables(&cmdline);
-                         appKeyValues(gb_cmdlist,cmdline);
+                         //appKeyValues(gb_cmdlist,cmdline);
+                         gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
                      continue;
                      }
 
@@ -595,9 +621,7 @@ bool radiusOrside=false;
                              if(tokens[2]=="0")
                                  throw Script::Result::ERR_VAL_0;
 
-                     ClKeyValues kv;
-                                kv<<tokens;
-                                appKeyValues(gb_cmdlist,cmdline);
+                            gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
                      continue;
                      }
 
@@ -609,10 +633,17 @@ bool radiusOrside=false;
                      continue;
                      }
 
+
+                     if(regex_match(cmdline,regex("saveopt[[:s:]]+if[[:s:]]+"+sVAR+"[[:s:]]*=[[:s:]]*[0-9]+"))){
+                             testVariables(&cmdline);
+                             gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
+                     continue;
+                     }
+
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("scatter[[:s:]]+RA("+sPRE_NUMBER+"){2}"))){
+                     if(regex_match(cmdline,std::regex("scatter[[:s:]]+xyz("+sPRE_NUMBER+"){3}"))){
                          testVariables(&cmdline);
-                         appKeyValues(gb_cmdlist,cmdline);
+                         gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
                      continue;
                      }
 

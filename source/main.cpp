@@ -55,6 +55,7 @@ using namespace std;
 #include "crandom.h"
 #include "colormsg.h"
 #include "crdh.h"
+#include "cdisloc.h"
 
 typedef std::string str;
 
@@ -72,6 +73,7 @@ private:
         stdumap  uvars; //user variables
 
         NanoGrain::StNanoGrain grain;
+        Cdisloc disloc;
         Cpdh pdh;
         Crdh rdh;
         Cdiff diff;
@@ -97,6 +99,7 @@ public:
 
         ClMainTask()
         {
+            disloc.grain=&grain;
             pdh.grain=&grain;
             rdh.grain=&grain;
             avepdh.pdh=&pdh;
@@ -363,6 +366,21 @@ public:
 
                             continue;
                             }
+
+                            ////
+                            if(cmdlist[cmdIndex]=="disloc"){
+                                if(!quiet)  cout<<"disloc"<<endl;
+
+                                if(!disloc.parseCommands(cmdlist,++cmdIndex,&uvars))
+                                return ERET_DC::CONTINUE;
+
+                                disloc.calc();
+                                if(!quiet)  cout<<"\n";
+
+
+                            continue;
+                            }
+
 
                             ////
                             if(cmdlist[cmdIndex]=="gr"){

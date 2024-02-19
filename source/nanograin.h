@@ -35,6 +35,9 @@
 #include "scriptanalyser.h"
 #include "elements.h"
 
+#include <random>
+#include <chrono>
+
 using namespace std;
 
 
@@ -385,7 +388,7 @@ std::stringstream atomsRemoved;
 
         static bool testSavedNumOfAtoms(const size_t );
 
-        void saveToFile();
+
         void saveDatFile(const string &fileName);
         void saveXYZFile(const string &fileName);
         void saveNXYZFile(const string &fileName);
@@ -412,9 +415,6 @@ std::stringstream atomsRemoved;
         void findAtomNamesNumber();
         position getLP();
         position getRadius(cpos & lp);
-
-        int findAtomName(const string &aname__);
-        void addAtomName(const string &aname__);
 
         void dispParameters();
 
@@ -477,12 +477,21 @@ CSuperSphere *ssShape=nullptr;
 
     } saveopt;
     //************************************************
-            void resetPrms();
-            bool parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__);
+
+
+    void resetPrms();
+    bool parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__);
+    int findAtomName(const string &aname__);
+    void addAtomName(const string &aname__);
+    void saveToFile();
 
     friend ostream & operator<< (ostream &, StNanoGrain &grain) ;
-    };
-    //************************************************
+};
+//************************************************
+
+
+
+
 
 ostream & operator<< (ostream &, StNanoGrain &grain) ;
 

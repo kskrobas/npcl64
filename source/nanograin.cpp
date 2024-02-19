@@ -19,7 +19,6 @@
 
 
 #include "nanograin.h"
-
 #include <cmath>
 #include <random>
 #include <chrono>

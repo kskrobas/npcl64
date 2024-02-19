@@ -48,7 +48,8 @@ public:
         ClKeyValues(){ keyvalues.reserve(8);}
         ClKeyValues(const char *key){keyvalues.reserve(8);keyvalues.emplace_back(string(key));}
         ClKeyValues(const string key){keyvalues.reserve(1);keyvalues.emplace_back(string(key));}
-        ClKeyValues(strpair keyValue){keyvalues.reserve(2);keyvalues.emplace_back(keyValue.first);keyvalues.emplace_back(keyValue.second);}
+        ClKeyValues(const string &keyvalues__,int pos);
+        ClKeyValues(strpair keyValue);
 
         ClKeyValues & operator << (string &kv);
         ClKeyValues & operator << (const char *);
