@@ -580,6 +580,16 @@ bool radiusOrside=false;
                     // replace tabs by spaces
                      std::replace(std::begin(cmdline),std::end(cmdline),'\t',' ');
 
+
+                     //rotation angle
+                     if(regex_match(cmdline,std::regex("angle("+sPRE_NUMBER+"){1}"))){
+                         testVariables(&cmdline);
+                         appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
+
+
                      //atom types
                      if(regex_match(cmdline,std::regex("atom(s)?[[:s:]]+\\w+"))){
                              testDuplicate(gb_cmdlist,"atom");
@@ -607,15 +617,22 @@ bool radiusOrside=false;
 
 
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("mode[[:s:]]+loop"))){
+                     if(regex_match(cmdline,std::regex("mode[[:s:]]+(loop|rot)"))){
                          testVariables(&cmdline);
                          appKeyValues(gb_cmdlist,cmdline);
                      continue;
                      }
 
 
+                     //projection height
+                     if(regex_match(cmdline,std::regex("projh("+sPRE_NUMBER+"){1}"))){
+                         testVariables(&cmdline);
+                         appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("range(A|R)("+sPRE_NUMBER+"){3}"))){
+                     if(regex_match(cmdline,std::regex("range(A|R)("+sPRE_NUMBER+"){2,3}"))){
                      vector<string> tokens(split<string> (cmdline," "));
 
                              if(tokens[2]=="0")

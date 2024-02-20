@@ -1,6 +1,6 @@
 #include "cdisloc.h"
 #include "affinemat.h"
-
+#include "colormsg.h"
 
 #ifndef __linux
 #define M_PI 3.1415926539
@@ -84,12 +84,16 @@ const str send("end");
 
                if(DB) cout<<cmd[index]<<endl;
 
+               if(cmd[index]=="angle"){
+                   angle=cmd[index++][1];
+                   Script::replaceVars(ptr_uvar,axispos);
+               continue;
+               }
 
                if(cmd[index]=="atom"){
                    addAtomName(cmd[index++][1]);
                continue;
                }
-
 
                if(cmd[index]=="atoms"){
                const int kvsize=cmd[index].numOfKeyValues();
@@ -101,13 +105,11 @@ const str send("end");
                continue;
                }
 
-
                if(cmd[index]=="axis"){
                    axis=cmd[index++][1];
                    Script::replaceVars(ptr_uvar,axis);
                continue;
                }
-
 
                if(cmd[index]=="mindist"){
                    //axis=cmd[index][1];
@@ -116,10 +118,7 @@ const str send("end");
                continue;
                }
 
-
                if(cmd[index]=="mode"){
-                   //axis=cmd[index][1];
-                   //Script::replaceVars(ptr_uvar,fileNameIn);
                    mode=cmd[index++][1];
                continue;
                }
@@ -130,6 +129,14 @@ const str send("end");
                    Script::replaceVars(ptr_uvar,axispos);
                continue;
                }
+
+               if(cmd[index]=="projh"){
+                   projh=cmd[index++][1];
+                   Script::replaceVars(ptr_uvar,axispos);
+               continue;
+               }
+
+
 
 
                if(cmd[index]=="rangeA"){
@@ -182,6 +189,10 @@ void Cdisloc::calc()
 {
         if(mode=="loop")
             insertLoop();
+        else
+            if(mode=="rot")
+                rotateLoop();
+
 
 
         if(!saveopt.empty()){
@@ -233,6 +244,8 @@ cpos  pz{std::stod(tpos[2])};
 
 //radius ranging
 vector<string> tradius{split<string>(rangeR," ")};
+            if(tradius.size()!=3) {errMsg("rangeR: wrong number of params"); throw Edisstatus::ERR_NOFPARAMS;}
+
 cpos  rmin {std::stod(tradius[0])};
 cpos  rstep{std::stod(tradius[1])};
 cpos  rmax {std::stod(tradius[2])};
@@ -322,6 +335,96 @@ csize disSize=nOfrsteps*nOfasteps;
         grain->atoms.insert(grain->atoms.begin(),dislocAtoms.begin(),dislocAtoms.end());
 
 }
+//-----------------------------------------------------------------------------
+void Cdisloc::rotateLoop()
+{
+//axis params
+vector<string> taxis{split<string>(axis," ")};
+cpos  A{std::stod(taxis[0])};
+cpos  B{std::stod(taxis[1])};
+cpos  C{std::stod(taxis[2])};
+
+
+//position params
+vector<string> tpos{split<string>(axispos," ")};
+cpos  px{std::stod(tpos[0])};
+cpos  py{std::stod(tpos[1])};
+cpos  pz{std::stod(tpos[2])};
+
+
+//radius ranging
+vector<string> tradius{split<string>(rangeR," ")};
+            if(tradius.size()!=2) {errMsg("rangeR: wrong number of params (should be 2)"); throw Edisstatus::ERR_NOFPARAMS;}
+
+cpos  rmin {std::stod(tradius[0])};
+cpos  rmax {std::stod(tradius[1])};
+
+cpos angle_=std::stod(angle);
+cpos projh_=std::stod(projh);
+
+
+StVector point;
+//position pointPlaneDistance(StAxis &axis,StVector &point);
+const StAxis axis(A,B,C,px,py,pz);
+position d,ph;
+
+cpos sa=std::sin(angle_*M_PI/180);
+StRotationMatrix rotMat(axis,sa);
+
+
+
+                if(scatter.empty()){
+                    for(auto &atom: grain->atoms){
+                        point.x=atom.x;
+                        point.y=atom.y;
+                        point.z=atom.z;
+
+                        d=pointPlaneDistance(axis,point);
+
+                        if(rmin<d && d<rmax){
+                            ph=projHeight(axis,point);
+                            if(ph<projh_){
+                                point=rotMat*point;
+                                atom.x=point.x;
+                                atom.y=point.y;
+                                atom.z=point.z;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                std::default_random_engine generator (std::chrono::system_clock::now().time_since_epoch().count());
+                std::uniform_real_distribution<double> udistr(-1,1);
+
+                //scatter params
+                vector<string> tscatt{split<string>(scatter," ")};
+                cpos  tx {std::stod(tscatt[1])};
+                cpos  ty {std::stod(tscatt[2])};
+                cpos  tz {std::stod(tscatt[3])};
+
+                        //std::sqrt(rdistr(generatorRadius));
+                        for(auto &atom: grain->atoms){
+                            point.x=atom.x;
+                            point.y=atom.y;
+                            point.z=atom.z;
+
+                            d=pointPlaneDistance(axis,point);
+
+                            if(rmin<d && d<rmax){
+                                ph=projHeight(axis,point);
+                                if(ph<projh_){
+                                    point=rotMat*point;
+                                    atom.x=point.x+tx*udistr(generator);
+                                    atom.y=point.y+ty*udistr(generator);
+                                    atom.z=point.z+tz*udistr(generator);
+                                }
+                            }
+                        }
+                }
+
+
+}
 
 //-----------------------------------------------------------------------------
 
@@ -361,7 +464,7 @@ bool valid;
                 }
 
                 if(valid)
-                    dislocAtoms.emplace_back(tmpAtoms[i]);
+                    dislocAtoms.emplace_back(*ptrA);
 
              }
 }

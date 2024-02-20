@@ -60,3 +60,28 @@ cpos norm=sqrt(1/sumSq);
             uy*=norm;
             uz*=norm;
 }
+//-----------------------------------------------------------------------------
+StVector crossProduct(StVector &a, StVector &b)
+{
+cpos cx=(a.y*b.z-a.z*b.y);
+cpos cy=(a.z*b.x-a.x*b.z);
+cpos cz=(a.x*b.y-a.y*b.x);
+
+return StVector(cx,cy,cz);
+}
+//-----------------------------------------------------------------------------
+position projHeight(const StAxis &axis, const StVector &b)
+{
+cpos aDotb=std::abs(axis.a*(axis.xo-b.x)+axis.b*(axis.yo-b.y)+axis.c*(axis.zo-b.z));
+return aDotb/axis.getModule();
+}
+//-----------------------------------------------------------------------------
+position pointPlaneDistance(const StAxis &axis, const StVector &point)
+{
+StVector a(point.x-axis.xo,point.y-axis.yo,point.z-axis.zo);
+StVector v(axis.a,axis.b,axis.c);
+StVector a_x_v{crossProduct(a,v)};
+
+return a_x_v.getModule()/v.getModule();
+}
+

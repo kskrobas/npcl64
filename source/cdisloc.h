@@ -16,12 +16,15 @@ private:
     void clearData();
 
     void insertLoop();
+    void rotateLoop();
     void validateDisloc(NanoGrain::vatoms &dislocAtoms);
 
 public:
+    enum Edisstatus{OK, ERR_NOFPARAMS};
 
 vector<NanoGrain::StAtomType> atomTypes;
 string axis,axispos,rangeR,rangeA;
+string angle,projh;
 string mindist,scatter,mode;
 string saveopt;
 

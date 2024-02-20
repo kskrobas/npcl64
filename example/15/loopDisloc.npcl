@@ -1,0 +1,31 @@
+/>
+creation date:  02-20-2024
+
+loop dislocation model within Al crystal
+
+</
+
+grain
+
+    atom Al
+    struct fcc
+    geometry cube
+    
+    lp 4.04
+    radius 5lp
+
+end    
+
+
+disloc
+		atom  Al
+		mode rot
+		axis        1  1   1
+		position  0  0  0
+		rangeR    16 22
+		angle 5
+		projh   4		
+		scatter  xyz  0.0125  0.0125  0.0125
+	
+		save atomsDisloc02.xyz
+end

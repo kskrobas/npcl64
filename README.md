@@ -97,6 +97,12 @@ Laue diffraction mode
 
 ##################################################################
 
+loop dislocations example
+
+![disloop](images/pic00.png)
+
+
+##################################################################
 
 Notepad++ npcl script
 ![npclHigh](images/highNpcl.png)

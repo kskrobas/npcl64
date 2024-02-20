@@ -34,6 +34,7 @@
 
 #include "scriptanalyser.h"
 #include "elements.h"
+#include "affinemat.h"
 
 #include <random>
 #include <chrono>
@@ -172,56 +173,6 @@ public:
 
     bool isValid(const position &x, const position &y, const position &z);
 } ;
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-struct StVector{
-position x,y,z;
-
-
-      StVector operator+(const StVector & op) const
-      {
-       StVector res;
-
-                res.x=this->x+op.x;
-                res.y=this->y+op.y;
-                res.z=this->z+op.z;
-
-       return res;
-      }
-
-      StVector operator-(const StVector & op) const
-      {
-       StVector res;
-
-                res.x=this->x-op.x;
-                res.y=this->y-op.y;
-                res.z=this->z-op.z;
-
-       return res;
-      }
-
-      StVector operator*(const double &val) const
-      {
-       StVector res;
-
-                res.x=this->x*val;
-                res.y=this->y*val;
-                res.z=this->z*val;
-
-       return res;
-      }
-
-
-      //int operator = (const StGrainNode &node);
-      //int operator +=(const StGrainNode &node);
-      StVector() {  }
-      StVector(cpos &x__, cpos &y__, cpos &z__):x(x__),y(y__),z(z__) { }
-
-
-      double getModule()const { return sqrt(x*x+y*y+z*z);}
-
-};
-
 
 //-----------------------------------------------------------------------------
 namespace NanoGrain{
