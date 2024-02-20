@@ -363,6 +363,17 @@ cpos angle_=std::stod(angle);
 cpos projh_=std::stod(projh);
 
 
+int atype=grain->atomTypes.size()-1;
+
+                if(  !atomTypes.empty()){
+                const string aname=atomTypes[0].name;
+
+                    if( grain->findAtomName(aname) < 0 ){
+                        grain->atomTypes.push_back(NanoGrain::StAtomType(aname));
+                        atype=grain->atomTypes.size()-1;
+                    }
+                }
+
 StVector point;
 //position pointPlaneDistance(StAxis &axis,StVector &point);
 const StAxis axis(A,B,C,px,py,pz);
@@ -388,6 +399,7 @@ StRotationMatrix rotMat(axis,sa);
                                 atom.x=point.x;
                                 atom.y=point.y;
                                 atom.z=point.z;
+                                atom.atype=atype;
                             }
                         }
                     }
@@ -418,6 +430,7 @@ StRotationMatrix rotMat(axis,sa);
                                     atom.x=point.x+tx*udistr(generator);
                                     atom.y=point.y+ty*udistr(generator);
                                     atom.z=point.z+tz*udistr(generator);
+                                    atom.atype=atype;
                                 }
                             }
                         }
