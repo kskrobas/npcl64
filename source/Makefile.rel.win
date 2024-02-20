@@ -9,7 +9,7 @@ target=$(bindir)/npcl
 obj=$(objdir)/cavepdh.o $(objdir)/cdiff.o $(objdir)/cgr.o $(objdir)/cpdh.o $(objdir)/elements.o $(objdir)/help.o  \
 	$(objdir)/main.o $(objdir)/nanograin.o $(objdir)/scriptanalyser.o  $(objdir)/cprogress.o $(objdir)/csupersphere.o \
 	$(objdir)/crandom.o $(objdir)/cmergepdh.o $(objdir)/colormsg.o  $(objdir)/createdir.o $(objdir)/parse_expr.o \
-	../fparser/fparser.o $(objdir)/info.o $(objdir)/crdh.o
+	../fparser/fparser.o $(objdir)/info.o $(objdir)/crdh.o $(objdir)/affinemat.o $(objdir)/cdisloc.o
 
 
 
@@ -45,38 +45,60 @@ $(target): $(obj)
 	@echo
 	
 	 
-$(objdir)/cmergepdh.o: cmergepdh.cpp cmergepdh.h
-	$(cpp) -c $< $(cppflags)  -o $@
+
 	
 $(objdir)/cavepdh.o: cavepdh.cpp cavepdh.h
 	$(cpp) -c $< $(cppflags)  -o $@
 	
+$(objdir)/createdir.o: createdir.cpp createdir.h
+	$(cpp) -c $< $(cppflags)  -o $@		
+	
+
+
+$(objdir)/colormsg.o: colormsg.cpp colormsg.h
+	$(cpp) -c -DTCOLOR -DUC $< $(cppflags)  -o $@	
+		
+$(objdir)/crandom.o: crandom.cpp crandom.h
+	$(cpp) -c $< $(cppflags)  -o $@	
+	
 $(objdir)/cdiff.o: cdiff.cpp cdiff.h	
 	$(cpp) -c $< $(cppflags)  -o $@
+	
+$(objdir)/cdisloc.o:cdisloc.cpp cdisloc.h
+	$(cpp) -c $< $(cppflags)  -o $@		
+	
+$(objdir)/elements.o: elements.cpp elements.h
+	$(cpp) -c $< $(cppflags)  -o $@		
 
 $(objdir)/cgr.o: cgr.cpp cgr.h	
 	$(cpp) -c $< $(cppflags)  -o $@
-
-$(objdir)/cpdh.o: cpdh.cpp cpdh.h
-	$(cpp) -c $< $(cppflags)  -o $@
-	
-$(objdir)/elements.o: elements.cpp elements.h
-	$(cpp) -c $< $(cppflags)  -o $@	
 	
 $(objdir)/help.o: help.cpp help.h	
-	$(cpp) -c $< $(cppflags)  -o $@
-	
-$(objdir)/info.o: info.cpp info.h	
 	$(cpp) -c $< $(cppflags)  -o $@	
 	
+$(objdir)/info.o: info.cpp info.h	
+	$(cpp) -c $< $(cppflags)  -o $@		
+	
+$(objdir)/cmergepdh.o: cmergepdh.cpp cmergepdh.h
+	$(cpp) -c $< $(cppflags)  -o $@	
+
 $(objdir)/main.o: main.cpp	
 	$(cpp) -c $< $(cppflags)  -o $@
 
 $(objdir)/nanograin.o: nanograin.cpp nanograin.h
 	$(cpp) -c $< $(cppflags)  -o $@	
 	
-$(objdir)/crdh.o: crdh.cpp crdh.h
+$(objdir)/parse_expr.o: parse_expr.cpp parse_expr.h
 	$(cpp) -c $< $(cppflags)  -o $@	
+	
+$(objdir)/cprogress.o: cprogress.cpp cprogress.h	
+	$(cpp) -c -DTCOLOR -DUC $< $(cppflags)  -o $@		
+	
+$(objdir)/cpdh.o: cpdh.cpp cpdh.h
+	$(cpp) -c $< $(cppflags)  -o $@
+		
+$(objdir)/crdh.o: crdh.cpp crdh.h
+	$(cpp) -c $< $(cppflags)  -o $@
 
 $(objdir)/csupersphere.o: csupersphere.cpp nanograin.h
 	$(cpp) -c $< $(cppflags) -o $@
@@ -86,21 +108,6 @@ $(objdir)/scriptanalyser.o: scriptanalyser.cpp scriptanalyser.h
 	
 $(objdir)/showprogress.o: showprogress.cpp showprogress.h	
 	$(cpp) -c $< $(cppflags)  -o $@
-	
-$(objdir)/createdir.o: createdir.cpp createdir.h
-	$(cpp) -c $< $(cppflags)  -o $@		
-	
-$(objdir)/cprogress.o: cprogress.cpp cprogress.h	
-	$(cpp) -c -DTCOLOR -DUC $< $(cppflags)  -o $@	
-
-$(objdir)/colormsg.o: colormsg.cpp colormsg.h
-	$(cpp) -c -DTCOLOR -DUC $< $(cppflags)  -o $@	
-		
-$(objdir)/crandom.o: crandom.cpp crandom.h
-	$(cpp) -c $< $(cppflags)  -o $@
-
-$(objdir)/parse_expr.o: parse_expr.cpp parse_expr.h
-	$(cpp) -c $< $(cppflags)  -o $@	
 	
 ../fparser/fparser.o: ../fparser/fparser.cc	
 	$(cpp) -c $< $(cppflags)  -o $@

@@ -97,7 +97,7 @@ Laue diffraction mode
 
 ##################################################################
 
-loop dislocations example
+loop dislocations example/15
 
 ![disloop](images/pic00.png)
 
