@@ -28,7 +28,7 @@ end
 pdh
 	bin 1024
 	threads 4
-	plot u 1:2 w imp lw 2 lc 'blue'
+	#plot u 1:2 w imp lw 2 lc 'blue'
 	
 	#save model.pdhs
 end
@@ -49,7 +49,7 @@ diff
 	### I(2th)
 	#plot u 1:3 w l lw 2 lc 'red'
 	
-	#save semodel.diff
+	save semodel.diff
 	
 end
 
@@ -58,7 +58,7 @@ end
 gr
 	wf lorch
 	range 0 0.125 50
-	plot  w l lw 2  lc 'green'
+	#plot  w l lw 2  lc 'green'
 	
 	threads 2
 	

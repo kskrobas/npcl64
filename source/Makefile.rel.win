@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-objdir=objrel
+objdir=objrelwin
 bindir=../bin
 cpp=g++
 
@@ -47,14 +47,17 @@ $(target): $(obj)
 	 
 
 	
+	 
+$(objdir)/affinemat.o:affinemat.cpp affinemat.h
+	$(cpp) -c $< $(cppflags)  -o $@
+		
+	
 $(objdir)/cavepdh.o: cavepdh.cpp cavepdh.h
 	$(cpp) -c $< $(cppflags)  -o $@
 	
 $(objdir)/createdir.o: createdir.cpp createdir.h
 	$(cpp) -c $< $(cppflags)  -o $@		
 	
-
-
 $(objdir)/colormsg.o: colormsg.cpp colormsg.h
 	$(cpp) -c -DTCOLOR -DUC $< $(cppflags)  -o $@	
 		
