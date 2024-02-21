@@ -582,7 +582,7 @@ bool radiusOrside=false;
 
 
                      //rotation angle
-                     if(regex_match(cmdline,std::regex("angle("+sRE_NUMBER+"){1}"))){
+                     if(regex_match(cmdline,std::regex("angle("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){1}"))){
                          testVariables(&cmdline);
                          appKeyValues(gb_cmdlist,cmdline);
                      continue;

@@ -253,7 +253,7 @@ const str send("end");
                     continue;
                     }
 
-					#ifdef __linux__
+
                     if(cmd[index]=="save"){
                     string fileName(cmd[index++][1]);
                         Script::replaceVars(ptr_uvar,fileName);
@@ -261,6 +261,7 @@ const str send("end");
                     continue;
                     }
 
+                    #ifdef __linux__
                     if(cmd[index]=="saveFigure"){
                     string fileName(cmd[index][1]);
                             Script::replaceVars(ptr_uvar,fileName);

@@ -86,7 +86,7 @@ const str send("end");
 
                if(cmd[index]=="angle"){
                    angle=cmd[index++][1];
-                   Script::replaceVars(ptr_uvar,axispos);
+                   Script::replaceVars(ptr_uvar,angle);
                continue;
                }
 
@@ -132,7 +132,7 @@ const str send("end");
 
                if(cmd[index]=="projh"){
                    projh=cmd[index++][1];
-                   Script::replaceVars(ptr_uvar,axispos);
+                   Script::replaceVars(ptr_uvar,projh);
                continue;
                }
 
@@ -141,14 +141,14 @@ const str send("end");
 
                if(cmd[index]=="rangeA"){
                    rangeA=cmd[index++][1];
-                   Script::replaceVars(ptr_uvar,fileNameIn);
+                   Script::replaceVars(ptr_uvar,rangeA);
                continue;
                }
 
 
                if(cmd[index]=="rangeR"){
                    rangeR=cmd[index++][1];
-                   Script::replaceVars(ptr_uvar,fileNameIn);
+                   Script::replaceVars(ptr_uvar,rangeR);
                continue;
                }
 
@@ -399,7 +399,7 @@ StRotationMatrix rotMat(axis,sa);
                                 atom.x=point.x;
                                 atom.y=point.y;
                                 atom.z=point.z;
-                                atom.atype=atype;
+                                //atom.atype=atype;
                             }
                         }
                     }
@@ -430,7 +430,7 @@ StRotationMatrix rotMat(axis,sa);
                                     atom.x=point.x+tx*udistr(generator);
                                     atom.y=point.y+ty*udistr(generator);
                                     atom.z=point.z+tz*udistr(generator);
-                                    atom.atype=atype;
+                                    //atom.atype=atype;
                                 }
                             }
                         }
