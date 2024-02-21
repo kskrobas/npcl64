@@ -2,6 +2,7 @@ README~
 ./bin/npcl*
 ./source/objrel/*.o
 ./source/objdeb/*.o
+./source/objrelwin/*.o
 ./source/omp.h
 bin
 .gitignore~
