@@ -328,10 +328,12 @@ void Cgr::calc()
 
             #ifdef  __linux__
             if(!plotPrm.empty())     plotFigure();
-            if(!figFileName.empty()) saveFigure(figFileName);
+            if(!figFileName.empty()) saveFigure(figFileName);			
             #else
+				cout<<endl;
             infoMsg("plotting, saving to png not implemented for non-Linux OS");
             #endif
+			
 
 }
 //=============================================================================

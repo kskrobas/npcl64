@@ -65,8 +65,12 @@ private:
 #ifdef __linux__
     void plotFigure();
     void saveFigure(const std::string &fileName);
-
     void plotData(FILE *plotHandle);
+	
+	std::string plotPrm;
+    std::string figFileName;
+    std::string figWidth,figHeight;
+	
 #endif
 
 public:
@@ -80,14 +84,6 @@ public:
     bool diffTime,printPrm,norm;
 
     dataGr dataX,dataY;
-
-
-#ifdef __linux__
-    std::string plotPrm;
-    std::string figFileName;
-    std::string figWidth,figHeight;
-#endif
-
 
     bool parseCommands(vcmdlist &cmd,size_t &index, stdumap *uvar__);
     void calc();
