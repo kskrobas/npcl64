@@ -40,8 +40,8 @@ cpos oneMinCos=1-cosTheta;
         buildRotationAxis(axis_);
 
         ///rotation matrix elements
-        m11=cosTheta+sqr(ux)*oneMinCos; m12=ux*uy*oneMinCos-uz*sinTheta; m13=ux*uz*oneMinCos+uy*sinTheta;
-        m21=uy*ux*oneMinCos+uz*sinTheta; m22=cosTheta+sqr(uy)*oneMinCos; m23=uy*uz*oneMinCos-ux*sinTheta;
+        m11=cosTheta+sqr(ux)*oneMinCos;  m12=ux*uy*oneMinCos-uz*sinTheta; m13=ux*uz*oneMinCos+uy*sinTheta;
+        m21=uy*ux*oneMinCos+uz*sinTheta; m22=cosTheta+sqr(uy)*oneMinCos;  m23=uy*uz*oneMinCos-ux*sinTheta;
         m31=uz*ux*oneMinCos-uy*sinTheta; m32=uz*uy*oneMinCos+ux*sinTheta; m33=cosTheta+sqr(uz)*oneMinCos;
 
         on=true;
@@ -103,4 +103,20 @@ StVector a_x_v{crossProduct(a,v)};
 
 return a_x_v.getModule()/v.getModule();
 }
+//-----------------------------------------------------------------------------
 
+
+////  D=Ax(BxC)
+/// {-a_2 b_2 c_1 - a_3 b_3 c_1 + a_2 b_1 c_2 + a_3 b_1 c_3,
+/// a_1 b_2 c_1 - a_1 b_1 c_2 - a_3 b_3 c_2 + a_3 b_2 c_3,
+/// a_1 b_3 c_1 + a_2 b_3 c_2 - a_1 b_1 c_3 - a_2 b_2 c_3}
+StVector crossProductTriple(StVector &a, StVector &b, StVector &c)
+{
+cpos d_1= -a._2*b._2*c._1 - a._3*b._3*c._1 + a._2*b._1*c._2 + a._3*b._1*c._3;
+cpos d_2=  a._1*b._2*c._1 - a._1*b._1*c._2 - a._3*b._3*c._2 + a._3*b._2*c._3;
+cpos d_3=  a._1*b._3*c._1 + a._2*b._3*c._2 - a._1*b._1*c._3 - a._2*b._2*c._3;
+
+return StVector(d_1,d_2,d_3);
+}
+
+//-----------------------------------------------------------------------------

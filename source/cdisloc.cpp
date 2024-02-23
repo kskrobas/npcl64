@@ -380,7 +380,7 @@ cpos  rmax {std::stod(tradius[1])};
 cpos angle_=std::stod(angle);
 cpos projh_=std::stod(projh);
 
-
+/*
 int atype=grain->atomTypes.size()-1;
 
                 if(  !atomTypes.empty()){
@@ -390,10 +390,9 @@ int atype=grain->atomTypes.size()-1;
                         grain->atomTypes.push_back(NanoGrain::StAtomType(aname));
                         atype=grain->atomTypes.size()-1;
                     }
-                }
+                }*/
 
 StVector point;
-//position pointPlaneDistance(StAxis &axis,StVector &point);
 const StAxis axis(A,B,C,px,py,pz);
 position d,ph;
 
@@ -413,17 +412,19 @@ StRotationMatrix rotMat(axis,sa);
                         if(rmin<d && d<rmax){
                             ph=projHeight(axis,point);
                             if(ph<projh_){
+                                point.x-=axis.xo;
+                                point.y-=axis.yo;
+                                point.z-=axis.zo;
                                 point=rotMat*point;
-                                atom.x=point.x;
-                                atom.y=point.y;
-                                atom.z=point.z;
+                                atom.x=point.x+axis.xo;
+                                atom.y=point.y+axis.yo;
+                                atom.z=point.z+axis.zo;
                                 //atom.atype=atype;
                             }
                         }
                     }
                 }
-                else
-                {
+                else{
                 std::default_random_engine generator (std::chrono::system_clock::now().time_since_epoch().count());
                 std::uniform_real_distribution<double> udistr(-1,1);
 
@@ -452,6 +453,83 @@ StRotationMatrix rotMat(axis,sa);
                                 }
                             }
                         }
+                }
+
+
+}
+//-----------------------------------------------------------------------------
+void Cdisloc::spinLoop()
+{
+//axis params
+vector<string> taxis{split<string>(axis," ")};
+cpos  A{std::stod(taxis[0])};
+cpos  B{std::stod(taxis[1])};
+cpos  C{std::stod(taxis[2])};
+
+//position params
+vector<string> tpos{split<string>(axispos," ")};
+cpos  px{std::stod(tpos[0])};
+cpos  py{std::stod(tpos[1])};
+cpos  pz{std::stod(tpos[2])};
+
+//radius ranging
+vector<string> tradius{split<string>(rangeR," ")};
+            if(tradius.size()!=2) {errMsg("rangeR: wrong number of params (should be 2)"); throw Edisstatus::ERR_NOFPARAMS;}
+
+cpos  rmin {std::stod(tradius[0])};
+cpos  rmax {std::stod(tradius[1])};
+cpos  rave {0.5*(rmin+rmax)};
+cpos  dr   {rmax-rave};
+
+cpos angle_{std::stod(angle)};
+//cpos projh_{std::stod(projh)};
+
+StVector vec_a;
+//const StAxis axis(A,B,C,px,py,pz);
+StVector vec_b(A,B,C);
+position d,ph;
+
+cpos sa=std::sin(angle_*M_PI/180);
+//StRotationMatrix rotMat(axis,sa);
+
+                for(auto &atom: grain->atoms){
+                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
+                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
+                cpos imodC=rave/vec_c.getModule();
+                          vec_c*=imodC;
+
+                StVector vec_dr=vec_c-vec_a;
+
+
+                        if(vec_dr.getModule()<dr){
+                        StAxis spinAxis( crossProduct(vec_c,vec_b));
+                        StRotationMatrix rotMat(spinAxis,sa);
+                        //point=rotMat*point;
+                        //atom.x=point.x;
+                        //atom.y=point.y;
+                        //atom.z=point.z;
+
+
+
+
+
+                        }
+
+
+
+
+                    //d=pointPlaneDistance(axis,point);
+                    /*
+                    if(rmin<d && d<rmax){
+                        ph=projHeight(axis,point);
+                        if(ph<projh_){
+                            point=rotMat*point;
+                            atom.x=point.x;
+                            atom.y=point.y;
+                            atom.z=point.z;
+                            //atom.atype=atype;
+                        }
+                    }*/
                 }
 
 

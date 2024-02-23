@@ -35,6 +35,7 @@ private:
 
     void insertLoop();
     void rotateLoop();
+    void spinLoop();
     void validateDisloc(NanoGrain::vatoms &dislocAtoms);
 
 public:

@@ -617,7 +617,7 @@ bool radiusOrside=false;
 
 
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("mode[[:s:]]+(loop|rot)"))){
+                     if(regex_match(cmdline,std::regex("mode[[:s:]]+(loop|rot|spin)"))){
                          testVariables(&cmdline);
                          appKeyValues(gb_cmdlist,cmdline);
                      continue;

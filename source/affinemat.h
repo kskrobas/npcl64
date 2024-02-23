@@ -28,7 +28,14 @@ typedef const position cpos;
 //-----------------------------------------------------------------------------
 
 struct StVector{
-position x,y,z;
+    union{
+    position x, _1;};
+
+    union{
+    position y, _2;};
+
+    union{
+    position z, _3;};
 
 
       StVector operator+(const StVector & op) const
@@ -64,6 +71,14 @@ position x,y,z;
        return res;
       }
 
+      StVector  operator*=(const double &val)
+      {
+                x*=val;
+                y*=val;
+                z*=val;
+       return *this;
+      }
+
 
       //int operator = (const StGrainNode &node);
       //int operator +=(const StGrainNode &node);
@@ -91,6 +106,12 @@ double tmax,tmin;
 
     StAxis(cpos &x, cpos &y, cpos &z){
         a=x;b=y;c=z;
+    }
+
+    StAxis(StVector v){
+        a=v.x;
+        b=v.y;
+        c=v.z;
     }
 
     double getModule() const {return sqrt(a*a+b*b+c*c);}
@@ -130,6 +151,7 @@ private:
 
 
 StVector crossProduct(StVector &a,StVector &b);
+StVector crossProductTriple(StVector &a, StVector &b, StVector &c);
 position projHeight(const StAxis &a, const StVector &b);
 position pointPlaneDistance(const StAxis &axis,const StVector &point);
 
