@@ -18,6 +18,15 @@
  */
  
 #include "affinemat.h"
+#include <iostream>
+#include <iomanip>
+
+#ifdef DEBUG
+#define DB true
+#else
+#define DB false
+#endif
+
 
 inline cpos sqr(cpos &x){return x*x;}
 
@@ -56,7 +65,19 @@ position bx,by,bz;
                 by=m21*a.x+m22*a.y+m23*a.z;
                 bz=m31*a.x+m32*a.y+m33*a.z;
 
-return StVector(bx,by,bz);
+                return StVector(bx,by,bz);
+}
+
+void StRotationMatrix::showMatrix()
+{
+            std::cout<<"[ ";
+            for(int i=0;i<3;i++){
+                for(int j=0;j<3;j++)
+                    std::cout<<" "<<std::setw(9)<<mm[i][j];
+
+                if(i<2) std::cout<<std::endl<<"  ";
+                else std::cout<<"   ]";
+            }
 }
 
 //-----------------------------------------------------------------------------
@@ -73,6 +94,15 @@ void StRotationMatrix::buildRotationAxis(const StAxis &axis_)
 void StRotationMatrix::normUxyz()
 {
 cpos sumSq=sqr(ux)+sqr(uy)+sqr(uz);
+            if(DB){
+                if(sumSq<1e-9){
+                    std::cerr<<__FILE__<<":"<<__LINE__<<"   ERROR: axis length <1e-9 "<<std::endl;
+                    ux=1;
+                    uy=uz=0;
+                    return;
+                }
+            }
+
 cpos norm=sqrt(1/sumSq);
 
             ux*=norm;

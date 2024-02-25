@@ -1,0 +1,35 @@
+grain
+    #disloc plane 1 1 1 0 5 10 1000	
+    struct uc
+    
+    ucp
+		vx 1  0  0
+		vy 0  1  0
+		vz 0  0  1
+		
+		C 0   0    0
+		C  0.5 0.5 0.5
+	end
+	
+	replicate 20   20   20  +/-
+
+    
+    #save atoms.xyz
+end    
+
+
+disloc
+		atom  Si
+		mode spin
+		axis       1 1 1
+		position    5  5  0
+		rangeR    2 15
+		angle 10
+		#projh 2
+		
+		save atom111-10.xyz
+
+		#scatter  xyz  0.05  0.05 0.05
+		
+end
+	

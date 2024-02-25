@@ -207,9 +207,19 @@ void Cdisloc::calc()
 {
         if(mode=="loop")
             insertLoop();
-        else
-            if(mode=="rot")
+        else{
+            if(mode=="rot"){
+                if(axis.empty() || axispos.empty() || rangeR.empty() || angle.empty() || projh.empty()){
+                    errMsg(" some instructions not defined");
+                throw ERR_NOFPARAMS;
+                }
                 rotateLoop();
+            }
+            if(mode=="spin"){
+                spinLoop();
+
+            }
+        }
 
 
 
@@ -399,7 +409,9 @@ position d,ph;
 cpos sa=std::sin(angle_*M_PI/180);
 StRotationMatrix rotMat(axis,sa);
 
-
+#ifdef DB
+size_t nOfrot=0;
+#endif
 
                 if(scatter.empty()){
                     for(auto &atom: grain->atoms){
@@ -420,6 +432,10 @@ StRotationMatrix rotMat(axis,sa);
                                 atom.y=point.y+axis.yo;
                                 atom.z=point.z+axis.zo;
                                 //atom.atype=atype;
+
+                                #ifdef DB
+                                nOfrot++;
+                                #endif
                             }
                         }
                     }
@@ -445,15 +461,28 @@ StRotationMatrix rotMat(axis,sa);
                             if(rmin<d && d<rmax){
                                 ph=projHeight(axis,point);
                                 if(ph<projh_){
+                                    point.x-=axis.xo;
+                                    point.y-=axis.yo;
+                                    point.z-=axis.zo;
                                     point=rotMat*point;
-                                    atom.x=point.x+tx*udistr(generator);
-                                    atom.y=point.y+ty*udistr(generator);
-                                    atom.z=point.z+tz*udistr(generator);
+                                    atom.x=point.x+axis.xo+tx*udistr(generator);
+                                    atom.y=point.y+axis.yo+ty*udistr(generator);
+                                    atom.z=point.z+axis.zo+tz*udistr(generator);
+
+                                    #ifdef DB
+                                    nOfrot++;
+                                    #endif
+
                                     //atom.atype=atype;
                                 }
                             }
                         }
                 }
+
+
+                #ifdef DB
+                infoMsg("number of rotated atoms: "+std::to_string(nOfrot));
+                #endif
 
 
 }
@@ -487,49 +516,56 @@ cpos angle_{std::stod(angle)};
 StVector vec_a;
 //const StAxis axis(A,B,C,px,py,pz);
 StVector vec_b(A,B,C);
+StVector point;
 position d,ph;
 
 cpos sa=std::sin(angle_*M_PI/180);
 //StRotationMatrix rotMat(axis,sa);
 
+
+int atype=grain->atomTypes.size()-1;
+
+                if(  !atomTypes.empty()){
+                const string aname=atomTypes[0].name;
+
+                    if( grain->findAtomName(aname) < 0 ){
+                        grain->atomTypes.push_back(NanoGrain::StAtomType(aname));
+                        atype=grain->atomTypes.size()-1;
+                    }
+                }
+
+
+//int ia=0;
+//std::default_random_engine generator (std::chrono::system_clock::now().time_since_epoch().count());
+//std::uniform_real_distribution<double> udistr(-0.1,0.1);
+
+
                 for(auto &atom: grain->atoms){
+                        //ia++;
                 StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
                 StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
                 cpos imodC=rave/vec_c.getModule();
                           vec_c*=imodC;
 
-                StVector vec_dr=vec_c-vec_a;
-
+                StVector vec_dr=vec_a-vec_c;
 
                         if(vec_dr.getModule()<dr){
-                        StAxis spinAxis( crossProduct(vec_c,vec_b));
+
+                        StAxis spinAxis( crossProduct(vec_b,vec_c));
+                        //position sa=udistr(generator);
                         StRotationMatrix rotMat(spinAxis,sa);
-                        //point=rotMat*point;
-                        //atom.x=point.x;
-                        //atom.y=point.y;
-                        //atom.z=point.z;
 
+                                //if(ia>160 && ia<170) {
+                                 //   rotMat.showMatrix(); cout<<endl;}
 
-
-
+                                vec_dr=rotMat*vec_dr;
+                                atom.x=vec_c.x+vec_dr.x+px;
+                                atom.y=vec_c.y+vec_dr.y+py;
+                                atom.z=vec_c.z+vec_dr.z+pz;
+                                atom.atype=1;
 
                         }
 
-
-
-
-                    //d=pointPlaneDistance(axis,point);
-                    /*
-                    if(rmin<d && d<rmax){
-                        ph=projHeight(axis,point);
-                        if(ph<projh_){
-                            point=rotMat*point;
-                            atom.x=point.x;
-                            atom.y=point.y;
-                            atom.z=point.z;
-                            //atom.atype=atype;
-                        }
-                    }*/
                 }
 
 

@@ -142,6 +142,7 @@ bool on=false;
     StRotationMatrix(const StAxis &axis_,cpos &sinA){
         buildMatrix(axis_,sinA);
     }
+    void showMatrix();
 
 private:
     void buildRotationAxis(const StAxis &axis_);
