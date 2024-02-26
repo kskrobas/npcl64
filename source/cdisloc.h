@@ -35,7 +35,7 @@ private:
 
     void insertLoop();
     void rotateLoop();
-    void spinLoop();
+    void rpyLoop();
     void validateDisloc(NanoGrain::vatoms &dislocAtoms);
 
 public:
@@ -46,6 +46,7 @@ string axis,axispos,rangeR,rangeA;
 string angle,projh;
 string mindist,scatter,mode;
 string saveopt;
+vector<string> vrpy;
 
 string fileNameIn,fileNameHeader;
 vector<string> fileNameOut;

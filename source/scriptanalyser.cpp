@@ -591,9 +591,9 @@ bool radiusOrside=false;
 
 
                      //atom types
-                     if(regex_match(cmdline,std::regex("atom(s)?[[:s:]]+\\w+"))){
+                     if(regex_match(cmdline,std::regex("atom[[:s:]]+\\w+"))){
                              testDuplicate(gb_cmdlist,"atom");
-                             testDuplicate(gb_cmdlist,"atoms");
+                             //testDuplicate(gb_cmdlist,"atoms");
                              appKeyValues(gb_cmdlist,cmdline);
                      continue;
                      }
@@ -617,7 +617,7 @@ bool radiusOrside=false;
 
 
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("mode[[:s:]]+(loop|rot|spin)"))){
+                     if(regex_match(cmdline,std::regex("mode[[:s:]]+(loop|rot|rpy)"))){
                          testVariables(&cmdline);
                          appKeyValues(gb_cmdlist,cmdline);
                      continue;
@@ -639,6 +639,14 @@ bool radiusOrside=false;
                                  throw Script::Result::ERR_VAL_0;
 
                             gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
+                     continue;
+                     }
+
+
+                     // rpy
+                     if(regex_match(cmdline,std::regex("(roll|pitch|yaw)("+sRE_NUMBER+"|[[:s:]]+"+sVAR+")"))){
+                         testVariables(&cmdline);
+                         appKeyValues(gb_cmdlist,cmdline);
                      continue;
                      }
 

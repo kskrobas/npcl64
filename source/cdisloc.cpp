@@ -81,9 +81,12 @@ void Cdisloc::clearData()
     mindist.clear();
     scatter.clear();
     mode="loop";
+    vrpy.clear();
 
     fileNameIn.clear();
     fileNameOut.clear();
+
+    vrpy.reserve(3);
 
 }
 
@@ -155,12 +158,20 @@ const str send("end");
                }
 
 
-
-
                if(cmd[index]=="rangeA"){
                    rangeA=cmd[index++][1];
                    Script::replaceVars(ptr_uvar,rangeA);
                continue;
+               }
+
+
+               if(cmd[index]=="roll" || cmd[index]=="pitch" || cmd[index]=="yaw"){
+               std::string keyvalue{cmd[index][0]+" "+cmd[index][1]};
+                    Script::replaceVars(ptr_uvar,keyvalue);
+                    vrpy.push_back(keyvalue);
+
+                    index++;
+                continue;
                }
 
 
@@ -215,8 +226,8 @@ void Cdisloc::calc()
                 }
                 rotateLoop();
             }
-            if(mode=="spin"){
-                spinLoop();
+            if(mode=="rpy"){
+                rpyLoop();
 
             }
         }
@@ -487,7 +498,7 @@ size_t nOfrot=0;
 
 }
 //-----------------------------------------------------------------------------
-void Cdisloc::spinLoop()
+void Cdisloc::rpyLoop()
 {
 //axis params
 vector<string> taxis{split<string>(axis," ")};
@@ -510,63 +521,96 @@ cpos  rmax {std::stod(tradius[1])};
 cpos  rave {0.5*(rmin+rmax)};
 cpos  dr   {rmax-rave};
 
-cpos angle_{std::stod(angle)};
-//cpos projh_{std::stod(projh)};
-
 StVector vec_a;
-//const StAxis axis(A,B,C,px,py,pz);
 StVector vec_b(A,B,C);
 StVector point;
 position d,ph;
 
-cpos sa=std::sin(angle_*M_PI/180);
-//StRotationMatrix rotMat(axis,sa);
+
+                if(  !atomTypes.empty()){
+                const string aname=atomTypes[0].name;
+                    if( grain->findAtomName(aname) < 0 )
+                        grain->atomTypes.push_back(NanoGrain::StAtomType(aname));                                            
+                }
 
 
 int atype=grain->atomTypes.size()-1;
 
-                if(  !atomTypes.empty()){
-                const string aname=atomTypes[0].name;
+                for(auto &rpy: vrpy){
+                vector<string> rpyToks(split<string>(rpy," "));
 
-                    if( grain->findAtomName(aname) < 0 ){
-                        grain->atomTypes.push_back(NanoGrain::StAtomType(aname));
-                        atype=grain->atomTypes.size()-1;
-                    }
-                }
+                        if(rpyToks[0]=="roll"){
+                        cpos roll=std::stod(rpyToks[1]);
+                        cpos sa=std::sin(roll*M_PI/180);
 
+                                for(auto &atom: grain->atoms){
+                                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
+                                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
+                                cpos imodC=rave/vec_c.getModule();
+                                          vec_c*=imodC;
+                                StVector vec_dr=vec_a-vec_c;
 
-//int ia=0;
-//std::default_random_engine generator (std::chrono::system_clock::now().time_since_epoch().count());
-//std::uniform_real_distribution<double> udistr(-0.1,0.1);
+                                        if(vec_dr.getModule()<dr){
+                                        StAxis rollAxis( crossProduct(vec_b,vec_c));
+                                        StRotationMatrix rotMat(rollAxis,sa);
 
-
-                for(auto &atom: grain->atoms){
-                        //ia++;
-                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
-                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
-                cpos imodC=rave/vec_c.getModule();
-                          vec_c*=imodC;
-
-                StVector vec_dr=vec_a-vec_c;
-
-                        if(vec_dr.getModule()<dr){
-
-                        StAxis spinAxis( crossProduct(vec_b,vec_c));
-                        //position sa=udistr(generator);
-                        StRotationMatrix rotMat(spinAxis,sa);
-
-                                //if(ia>160 && ia<170) {
-                                 //   rotMat.showMatrix(); cout<<endl;}
-
-                                vec_dr=rotMat*vec_dr;
-                                atom.x=vec_c.x+vec_dr.x+px;
-                                atom.y=vec_c.y+vec_dr.y+py;
-                                atom.z=vec_c.z+vec_dr.z+pz;
-                                atom.atype=1;
-
+                                                vec_dr=rotMat*vec_dr;
+                                                atom.x=vec_c.x+vec_dr.x+px;
+                                                atom.y=vec_c.y+vec_dr.y+py;
+                                                atom.z=vec_c.z+vec_dr.z+pz;
+                                                atom.atype=1;
+                                        }
+                                }
                         }
 
-                }
+                        if(rpyToks[0]=="pitch"){
+                        cpos pitch=std::stod(rpyToks[1]);
+                        cpos sa=std::sin(pitch*M_PI/180);
+
+                                for(auto &atom: grain->atoms){
+                                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
+                                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
+                                cpos imodC=rave/vec_c.getModule();
+                                          vec_c*=imodC;
+                                StVector vec_dr=vec_a-vec_c;
+
+                                        if(vec_dr.getModule()<dr){
+                                        StAxis pichAxis=vec_c;
+                                        StRotationMatrix rotMat(pichAxis,sa);
+
+                                                vec_dr=rotMat*vec_dr;
+                                                atom.x=vec_c.x+vec_dr.x+px;
+                                                atom.y=vec_c.y+vec_dr.y+py;
+                                                atom.z=vec_c.z+vec_dr.z+pz;
+                                                atom.atype=1;
+                                        }
+                                }
+                        }
+
+                        if(rpyToks[0]=="yaw"){
+                        cpos yaw=std::stod(rpyToks[1]);
+                        cpos sa=std::sin(yaw*M_PI/180);
+
+                                for(auto &atom: grain->atoms){
+                                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
+                                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
+                                cpos imodC=rave/vec_c.getModule();
+                                          vec_c*=imodC;
+                                StVector vec_dr=vec_a-vec_c;
+
+                                        if(vec_dr.getModule()<dr){
+                                        StAxis yawAxis=vec_b;
+                                        StRotationMatrix rotMat(yawAxis,sa);
+
+                                                vec_dr=rotMat*vec_dr;
+                                                atom.x=vec_c.x+vec_dr.x+px;
+                                                atom.y=vec_c.y+vec_dr.y+py;
+                                                atom.z=vec_c.z+vec_dr.z+pz;
+                                                atom.atype=1;
+                                        }
+                                }
+                        }
+                }///end for
 
 
 }

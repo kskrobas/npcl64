@@ -22,8 +22,8 @@ disloc
 		atom  Si
 		mode spin
 		axis       1 1 1
-		position    5  5  0
-		rangeR    2 15
+		position    0 0  0
+		rangeR    5 15
 		angle 10
 		#projh 2
 		
