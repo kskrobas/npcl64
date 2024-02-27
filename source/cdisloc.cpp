@@ -498,6 +498,36 @@ size_t nOfrot=0;
 
 }
 //-----------------------------------------------------------------------------
+StAxis froll(const StVector &b, const StVector &c)
+{
+return StAxis(crossProduct(b,c));
+}
+
+StAxis fpitch(const StVector &b, const StVector &c)
+{
+return StAxis(c);
+}
+
+StAxis fyaw(const StVector &b, const StVector &c)
+{
+return StAxis(b);
+}
+///         axes/vectos orientation, all vectors are coplanar  vec_c=vec_bx(vec_a x vec_b) ; vec_b is defined by user
+///
+///             ^ vec_b
+///             |
+///             |
+///             |    _ o _
+///             |    /| |\
+///             |   /     \ vec_dr
+///             |  /vec_a  \
+///             | /         \
+///             |------------*------>vec_c
+///
+///
+///
+///
+//-----------------------------------------------------------------------------
 void Cdisloc::rpyLoop()
 {
 //axis params
@@ -521,10 +551,16 @@ cpos  rmax {std::stod(tradius[1])};
 cpos  rave {0.5*(rmin+rmax)};
 cpos  dr   {rmax-rave};
 
-StVector vec_a;
+//angle ranging
+vector<string> tangle{split<string>(rangeA," ")};
+//cpos  camin {std::cos(std::stod(tangle[0]))};
+//cpos  camax {std::cos(std::stod(tangle[2]))};
+
+StVector vec_a,vec_c,vec_dr;
 StVector vec_b(A,B,C);
 StVector point;
-position d,ph;
+position imodC;
+position ca,cb;
 
 
                 if(  !atomTypes.empty()){
@@ -535,83 +571,49 @@ position d,ph;
 
 
 int atype=grain->atomTypes.size()-1;
+StAxis (*frpy)(const StVector &, const StVector &);
+
 
                 for(auto &rpy: vrpy){
                 vector<string> rpyToks(split<string>(rpy," "));
+                cpos sa=std::sin(std::stod(rpyToks[1])*M_PI/180);
 
-                        if(rpyToks[0]=="roll"){
-                        cpos roll=std::stod(rpyToks[1]);
-                        cpos sa=std::sin(roll*M_PI/180);
-
-                                for(auto &atom: grain->atoms){
-                                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
-                                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
-                                cpos imodC=rave/vec_c.getModule();
-                                          vec_c*=imodC;
-                                StVector vec_dr=vec_a-vec_c;
-
-                                        if(vec_dr.getModule()<dr){
-                                        StAxis rollAxis( crossProduct(vec_b,vec_c));
-                                        StRotationMatrix rotMat(rollAxis,sa);
-
-                                                vec_dr=rotMat*vec_dr;
-                                                atom.x=vec_c.x+vec_dr.x+px;
-                                                atom.y=vec_c.y+vec_dr.y+py;
-                                                atom.z=vec_c.z+vec_dr.z+pz;
-                                                atom.atype=1;
-                                        }
-                                }
+                        if(rpyToks[0]=="roll")
+                            frpy=&froll;
+                        else{
+                            if(rpyToks[0]=="pitch")
+                                frpy=&fpitch;
+                            else
+                                frpy=&fyaw;
                         }
 
-                        if(rpyToks[0]=="pitch"){
-                        cpos pitch=std::stod(rpyToks[1]);
-                        cpos sa=std::sin(pitch*M_PI/180);
+                        for(auto &atom: grain->atoms){
 
-                                for(auto &atom: grain->atoms){
-                                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
-                                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
-                                cpos imodC=rave/vec_c.getModule();
-                                          vec_c*=imodC;
-                                StVector vec_dr=vec_a-vec_c;
+                                vec_a=StVector(atom.x-px,atom.y-py,atom.z-pz);
+                                vec_c=crossProductTriple(vec_b,vec_a,vec_b);
+                                imodC=rave/vec_c.getModule();
 
-                                        if(vec_dr.getModule()<dr){
-                                        StAxis pichAxis=vec_c;
-                                        StRotationMatrix rotMat(pichAxis,sa);
+                                vec_c*=imodC;
+                                vec_dr=vec_a-vec_c;
 
-                                                vec_dr=rotMat*vec_dr;
-                                                atom.x=vec_c.x+vec_dr.x+px;
-                                                atom.y=vec_c.y+vec_dr.y+py;
-                                                atom.z=vec_c.z+vec_dr.z+pz;
-                                                atom.atype=1;
-                                        }
-                                }
-                        }
+                                ca=cosa(vec_dr,vec_c);
+                                cb=cosa(vec_dr,vec_b);
+                                //det=tripleProduct(vec_b,vec_dr,vec_c);
 
-                        if(rpyToks[0]=="yaw"){
-                        cpos yaw=std::stod(rpyToks[1]);
-                        cpos sa=std::sin(yaw*M_PI/180);
 
-                                for(auto &atom: grain->atoms){
-                                StVector vec_a(atom.x-px,atom.y-py,atom.z-pz);
-                                StVector vec_c{crossProductTriple(vec_b,vec_a,vec_b)};
-                                cpos imodC=rave/vec_c.getModule();
-                                          vec_c*=imodC;
-                                StVector vec_dr=vec_a-vec_c;
+                                if(vec_dr.getModule()<dr && cb>0){
+                                StRotationMatrix rotMat(frpy(vec_b,vec_c),sa);
 
-                                        if(vec_dr.getModule()<dr){
-                                        StAxis yawAxis=vec_b;
-                                        StRotationMatrix rotMat(yawAxis,sa);
+                                        vec_dr=rotMat*vec_dr;
+                                        atom.x=vec_c.x+vec_dr.x+px;
+                                        atom.y=vec_c.y+vec_dr.y+py;
+                                        atom.z=vec_c.z+vec_dr.z+pz;
+                                        atom.atype=atype;
 
-                                                vec_dr=rotMat*vec_dr;
-                                                atom.x=vec_c.x+vec_dr.x+px;
-                                                atom.y=vec_c.y+vec_dr.y+py;
-                                                atom.z=vec_c.z+vec_dr.z+pz;
-                                                atom.atype=1;
-                                        }
+                                        //cout<<cb<<endl;
                                 }
                         }
                 }///end for
-
 
 }
 

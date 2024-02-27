@@ -110,7 +110,7 @@ cpos norm=sqrt(1/sumSq);
             uz*=norm;
 }
 //-----------------------------------------------------------------------------
-StVector crossProduct(StVector &a, StVector &b)
+StVector crossProduct(const StVector &a, const StVector &b)
 {
 cpos cx=(a.y*b.z-a.z*b.y);
 cpos cy=(a.z*b.x-a.x*b.z);
@@ -150,3 +150,14 @@ return StVector(d_1,d_2,d_3);
 }
 
 //-----------------------------------------------------------------------------
+
+cpos cosa(const StVector &a, const StVector &b)
+{
+cpos sum=a.x*b.x+a.y*b.y+a.z*b.z;
+return sum/(a.getModule()*b.getModule());
+}
+
+cpos tripleProduct(StVector &a, StVector &b, StVector &c)
+{
+return a.x*(b.y*c.z-b.z*c.y)+a.y*(b.z*c.x-b.x*c.z)+a.z*(b.x*c.y-b.y*c.x);
+}
