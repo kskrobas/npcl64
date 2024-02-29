@@ -560,7 +560,7 @@ StVector vec_a,vec_c,vec_dr;
 StVector vec_b(A,B,C);
 StVector point;
 position imodC;
-position ca,cb;
+position ca,cb,det;
 
 
                 if(  !atomTypes.empty()){
@@ -601,7 +601,7 @@ StAxis (*frpy)(const StVector &, const StVector &);
                                 //det=tripleProduct(vec_b,vec_dr,vec_c);
 
 
-                                if(vec_dr.getModule()<dr && cb>0){
+                                if(vec_dr.getModule()<dr && cb>-0.6 && ca>0.55){
                                 StRotationMatrix rotMat(frpy(vec_b,vec_c),sa);
 
                                         vec_dr=rotMat*vec_dr;
