@@ -39,10 +39,10 @@ private:
     void validateDisloc(NanoGrain::vatoms &dislocAtoms);
 
 public:
-    enum Edisstatus{OK, ERR_NOFPARAMS};
+    enum Edisstatus{OK, ERR_NOFPARAMS,ERR_AROLLRANGE};
 
 vector<NanoGrain::StAtomType> atomTypes;
-string axis,axispos,rangeR,rangeA;
+string axis,axispos,rangeR,rangeA,rangeRoll;
 string angle,projh;
 string mindist,scatter,mode;
 string saveopt;

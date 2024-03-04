@@ -642,6 +642,15 @@ bool radiusOrside=false;
                      continue;
                      }
 
+                     //----------------------------
+                     if(regex_match(cmdline,std::regex("rangeRoll("+sRE_NUMBER+"){2}"))){
+                     vector<string> tokens(split<string> (cmdline," "));
+
+                            gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
+                     continue;
+                     }
+
+                     //----------------------------
 
                      // rpy
                      if(regex_match(cmdline,std::regex("(roll|pitch|yaw)("+sRE_NUMBER+"|[[:s:]]+"+sVAR+")"))){
@@ -1880,16 +1889,20 @@ const size_t currPos=ptr_uvar->size();
                     if(cmdline.find("/>")!=string::npos){
                         while(cmdline.rfind("</")==string::npos && !script.eof() ){
                             std::getline(script,cmdline);
-                            if(DB){ cout<<cline<<": "<<cmdline<<endl;}
+                            if(DB){ cout<<"#"<<cline<<": "<<cmdline<<endl;}
                             rtrim(cmdline);
                             cline++;
                         }
+
+                        if(cmdline.rfind("</")!=string::npos)
+                        continue;
+
 
                         if(script.eof()){
                             errMsg(" missing </, block comment brackets are not balanced");
                             throw Script::Result::ERR_EOF;
                         }
-                    continue;
+
                     }
 
                     //-

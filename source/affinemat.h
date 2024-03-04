@@ -87,6 +87,7 @@ struct StVector{
 
 
       double getModule()const { return sqrt(x*x+y*y+z*z);}
+      bool isZero() const { return   (x==0) && (y==0) && (z==0); }
 
 };
 

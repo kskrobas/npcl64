@@ -145,6 +145,7 @@ StVector crossProductTriple(StVector &a, StVector &b, StVector &c)
 cpos d_1= -a._2*b._2*c._1 - a._3*b._3*c._1 + a._2*b._1*c._2 + a._3*b._1*c._3;
 cpos d_2=  a._1*b._2*c._1 - a._1*b._1*c._2 - a._3*b._3*c._2 + a._3*b._2*c._3;
 cpos d_3=  a._1*b._3*c._1 + a._2*b._3*c._2 - a._1*b._1*c._3 - a._2*b._2*c._3;
+        //std::cout<<"cpt " << d_1<<", "<<d_2<<", "<<d_3<<std::endl;
 
 return StVector(d_1,d_2,d_3);
 }

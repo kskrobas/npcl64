@@ -78,6 +78,7 @@ void Cdisloc::clearData()
     axispos.clear();
     rangeR.clear();
     rangeA.clear();
+    rangeRoll.clear();
     mindist.clear();
     scatter.clear();
     mode="loop";
@@ -90,7 +91,7 @@ void Cdisloc::clearData()
 
 }
 
-
+//-----------------------------------------------------------------------------
 
 
 bool Cdisloc::parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__)
@@ -164,6 +165,12 @@ const str send("end");
                continue;
                }
 
+               if(cmd[index]=="rangeRoll"){
+                   rangeRoll=cmd[index++][1];
+                   Script::replaceVars(ptr_uvar,rangeA);
+               continue;
+               }
+
 
                if(cmd[index]=="roll" || cmd[index]=="pitch" || cmd[index]=="yaw"){
                std::string keyvalue{cmd[index][0]+" "+cmd[index][1]};
@@ -228,7 +235,6 @@ void Cdisloc::calc()
             }
             if(mode=="rpy"){
                 rpyLoop();
-
             }
         }
 
@@ -528,6 +534,55 @@ return StAxis(b);
 ///
 ///
 //-----------------------------------------------------------------------------
+class acceptAtom
+{
+public:
+    virtual ~acceptAtom() {  }
+    virtual bool accept(StVector & r, StVector &a, StVector &b)=0;
+
+    position rmin, rmax;
+
+
+
+};
+
+
+class testRadii: public acceptAtom
+{
+public:
+    bool accept(StVector & r, StVector &a, StVector &b ){
+        return r.getModule()<rmax;
+    }
+
+
+};
+
+
+class testRadiiAngle: public acceptAtom
+{
+
+public:
+    position angleMin,angleMax;
+
+
+    bool accept(StVector & r, StVector &a, StVector &b){
+
+            if (r.getModule()>rmax) return false;
+
+    cpos  ca{cosa(r,a)};
+    cpos  cb{cosa(r,b)};
+    cpos angle{std::atan2(ca,cb)*180/M_PI};
+
+    return ( angleMin<angle ) && (angle<angleMax);
+    }
+
+};
+
+
+
+
+
+//-----------------------------------------------------------------------------
 void Cdisloc::rpyLoop()
 {
 //axis params
@@ -552,14 +607,15 @@ cpos  rave {0.5*(rmin+rmax)};
 cpos  dr   {rmax-rave};
 
 //angle ranging
-vector<string> tangle{split<string>(rangeA," ")};
+//vector<string> tangle{split<string>(rangeA," ")};
 //cpos  camin {std::cos(std::stod(tangle[0]))};
 //cpos  camax {std::cos(std::stod(tangle[2]))};
 
 StVector vec_a,vec_c,vec_dr;
 StVector vec_b(A,B,C);
+cpos imod_vb=1.0/vec_b.getModule();
 StVector point;
-position imodC;
+position imodC,modA;
 position ca,cb,det;
 
 
@@ -572,11 +628,34 @@ position ca,cb,det;
 
 int atype=grain->atomTypes.size()-1;
 StAxis (*frpy)(const StVector &, const StVector &);
+position cos_vavb,proj_b;
+
+acceptAtom *testAtom;
+
+                if(rangeRoll.empty())
+                    testAtom=new testRadii();
+                else{
+                vector<string> ratoks{split<string>(rangeRoll," \t")};
+
+                    testAtom=new testRadiiAngle();
+                    testAtom->rmin=std::stod(ratoks[0]);
+                    testAtom->rmax=std::stod(ratoks[1]);
+
+                    if(testAtom->rmin<-180 || testAtom->rmax>180){
+                        errMsg(" wrong values of  roll angle range");
+                        delete testAtom;
+                    throw Edisstatus::ERR_AROLLRANGE;
+                    }
+                }
+
+
+                testAtom->rmax=dr;
 
 
                 for(auto &rpy: vrpy){
                 vector<string> rpyToks(split<string>(rpy," "));
                 cpos sa=std::sin(std::stod(rpyToks[1])*M_PI/180);
+                position vec_c_mod;
 
                         if(rpyToks[0]=="roll")
                             frpy=&froll;
@@ -590,18 +669,27 @@ StAxis (*frpy)(const StVector &, const StVector &);
                         for(auto &atom: grain->atoms){
 
                                 vec_a=StVector(atom.x-px,atom.y-py,atom.z-pz);
+                                cos_vavb=std::fabs(cosa(vec_a,vec_b));
+                                modA=vec_a.getModule();
+
+                                if(  modA>rmax || modA<rmin ||
+                                     cos_vavb>1-1e-6) { continue; }
+
+
                                 vec_c=crossProductTriple(vec_b,vec_a,vec_b);
                                 imodC=rave/vec_c.getModule();
 
                                 vec_c*=imodC;
                                 vec_dr=vec_a-vec_c;
 
-                                ca=cosa(vec_dr,vec_c);
-                                cb=cosa(vec_dr,vec_b);
-                                //det=tripleProduct(vec_b,vec_dr,vec_c);
+                                //ca=cosa(vec_c,vec_dr);
+                                //cb=cosa(vec_b,vec_dr);
+
+                                //cout<<ca<<" : "<<cb<<"  "<<vec_a.getModule()<<" "<<atan2(cb,ca)*180/M_PI<<endl;
+                                //&& cb>-0.6 && ca>0.55  vec_dr.getModule()<dr
 
 
-                                if(vec_dr.getModule()<dr && cb>-0.6 && ca>0.55){
+                                if( testAtom->accept(vec_dr,vec_b,vec_c) ){
                                 StRotationMatrix rotMat(frpy(vec_b,vec_c),sa);
 
                                         vec_dr=rotMat*vec_dr;
@@ -615,6 +703,8 @@ StAxis (*frpy)(const StVector &, const StVector &);
                         }
                 }///end for
 
+
+                delete testAtom;
 }
 
 //-----------------------------------------------------------------------------
