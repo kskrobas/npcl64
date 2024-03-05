@@ -30,7 +30,6 @@
 #include "createdir.h"
 #include "crandom.h"
 #include "colormsg.h"
-#include "affinemat.h"
 #include "parse_expr.h"
 
 #ifndef __linux

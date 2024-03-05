@@ -57,7 +57,7 @@ cpos oneMinCos=1-cosTheta;
 }
 
 //-----------------------------------------------------------------------------
-StVector StRotationMatrix::operator*(const StVector &a)
+StVector StRotationMatrix::operator *(const StVector &a)
 {
 position bx,by,bz;
 
@@ -65,7 +65,7 @@ position bx,by,bz;
                 by=m21*a.x+m22*a.y+m23*a.z;
                 bz=m31*a.x+m32*a.y+m33*a.z;
 
-                return StVector(bx,by,bz);
+return StVector(bx,by,bz);
 }
 
 void StRotationMatrix::showMatrix()

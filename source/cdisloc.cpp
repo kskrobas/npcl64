@@ -17,6 +17,7 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "cdisloc.h"
+#include "crandom.h"
 #include "affinemat.h"
 #include "colormsg.h"
 
@@ -381,6 +382,9 @@ csize disSize=nOfrsteps*nOfasteps;
 
 }
 //-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
 void Cdisloc::rotateLoop()
 {
 //axis params
@@ -574,12 +578,29 @@ public:
     cpos angle{std::atan2(ca,cb)*180/M_PI};
 
     return ( angleMin<angle ) && (angle<angleMax);
+    //return true;
     }
 
 };
 
+//-----------------------------------------------------------------------------
+//SVector sumVec vec_dr=rotMat*vec_dr;
 
+void rotAtomNoRnd(StRotationMatrix &rm, StVector &a, StVector &rndShift)
+{
+        a=rm*a;
+}
 
+void rotAtomRndShift(StRotationMatrix &rm, StVector &a, StVector &rndShift)
+{
+static std::default_random_engine generator (std::chrono::system_clock::now().time_since_epoch().count());
+static std::uniform_real_distribution<double> udistr(-1,1);
+
+        a=rm*a;
+        a.x+=rndShift.x*udistr(generator);
+        a.y+=rndShift.y*udistr(generator);
+        a.z+=rndShift.z*udistr(generator);
+}
 
 
 //-----------------------------------------------------------------------------
@@ -596,6 +617,7 @@ vector<string> tpos{split<string>(axispos," ")};
 cpos  px{std::stod(tpos[0])};
 cpos  py{std::stod(tpos[1])};
 cpos  pz{std::stod(tpos[2])};
+StVector axisPos(px,py,pz);
 
 //radius ranging
 vector<string> tradius{split<string>(rangeR," ")};
@@ -606,42 +628,31 @@ cpos  rmax {std::stod(tradius[1])};
 cpos  rave {0.5*(rmin+rmax)};
 cpos  dr   {rmax-rave};
 
-//angle ranging
-//vector<string> tangle{split<string>(rangeA," ")};
-//cpos  camin {std::cos(std::stod(tangle[0]))};
-//cpos  camax {std::cos(std::stod(tangle[2]))};
 
+//
 StVector vec_a,vec_c,vec_dr;
 StVector vec_b(A,B,C);
-cpos imod_vb=1.0/vec_b.getModule();
 StVector point;
-position imodC,modA;
-position ca,cb,det;
-
-
-                if(  !atomTypes.empty()){
-                const string aname=atomTypes[0].name;
-                    if( grain->findAtomName(aname) < 0 )
-                        grain->atomTypes.push_back(NanoGrain::StAtomType(aname));                                            
-                }
-
-
-int atype=grain->atomTypes.size()-1;
 StAxis (*frpy)(const StVector &, const StVector &);
-position cos_vavb,proj_b;
+position imodC,modA;
+position cos_vavb;
 
 acceptAtom *testAtom;
+
+                ///////////////////////////////////////
 
                 if(rangeRoll.empty())
                     testAtom=new testRadii();
                 else{
+                    testAtom=new testRadiiAngle();
+
+                testRadiiAngle *tra{dynamic_cast<testRadiiAngle *>(testAtom)};
                 vector<string> ratoks{split<string>(rangeRoll," \t")};
 
-                    testAtom=new testRadiiAngle();
-                    testAtom->rmin=std::stod(ratoks[0]);
-                    testAtom->rmax=std::stod(ratoks[1]);
+                    tra->angleMin=std::stod(ratoks[0]);
+                    tra->angleMax=std::stod(ratoks[1]);
 
-                    if(testAtom->rmin<-180 || testAtom->rmax>180){
+                    if(tra->angleMin<-180 || tra->angleMax>180){
                         errMsg(" wrong values of  roll angle range");
                         delete testAtom;
                     throw Edisstatus::ERR_AROLLRANGE;
@@ -651,11 +662,42 @@ acceptAtom *testAtom;
 
                 testAtom->rmax=dr;
 
+                ///////////////////////////////////////
+
+                if(  !atomTypes.empty()){
+                const string aname=atomTypes[0].name;
+                    if( grain->findAtomName(aname) < 0 )
+                        grain->atomTypes.push_back(NanoGrain::StAtomType(aname));
+                }
+
+
+const size_t atype=grain->atomTypes.size()-1;
+
+                ///////////////////////////////////////
+
+void  (*fRotRndShift)(StRotationMatrix &rm, StVector &a, StVector &rndShift);
+StVector rndShift;
+
+                if(scatter.empty()){
+                    fRotRndShift=&rotAtomNoRnd;
+                    rndShift.x=rndShift.y=rndShift.z=0;
+                }
+                else{
+                vector<string> tscatt{split<string>(scatter," ")};
+                cpos  tx {std::stod(tscatt[1])};
+                cpos  ty {std::stod(tscatt[2])};
+                cpos  tz {std::stod(tscatt[3])};
+
+                    fRotRndShift=&rotAtomRndShift;
+                    rndShift=StVector(tx,ty,tz);
+                }
+
+
+                ///////////////////////////////////////
 
                 for(auto &rpy: vrpy){
                 vector<string> rpyToks(split<string>(rpy," "));
                 cpos sa=std::sin(std::stod(rpyToks[1])*M_PI/180);
-                position vec_c_mod;
 
                         if(rpyToks[0]=="roll")
                             frpy=&froll;
@@ -667,8 +709,7 @@ acceptAtom *testAtom;
                         }
 
                         for(auto &atom: grain->atoms){
-
-                                vec_a=StVector(atom.x-px,atom.y-py,atom.z-pz);
+                                vec_a=atom.Pos()+axisPos;
                                 cos_vavb=std::fabs(cosa(vec_a,vec_b));
                                 modA=vec_a.getModule();
 
@@ -682,23 +723,17 @@ acceptAtom *testAtom;
                                 vec_c*=imodC;
                                 vec_dr=vec_a-vec_c;
 
-                                //ca=cosa(vec_c,vec_dr);
-                                //cb=cosa(vec_b,vec_dr);
-
-                                //cout<<ca<<" : "<<cb<<"  "<<vec_a.getModule()<<" "<<atan2(cb,ca)*180/M_PI<<endl;
-                                //&& cb>-0.6 && ca>0.55  vec_dr.getModule()<dr
-
-
                                 if( testAtom->accept(vec_dr,vec_b,vec_c) ){
                                 StRotationMatrix rotMat(frpy(vec_b,vec_c),sa);
 
-                                        vec_dr=rotMat*vec_dr;
+                                        //vec_dr=rotMat*vec_dr;
+                                        fRotRndShift(rotMat,vec_dr,rndShift);
+
                                         atom.x=vec_c.x+vec_dr.x+px;
                                         atom.y=vec_c.y+vec_dr.y+py;
                                         atom.z=vec_c.z+vec_dr.z+pz;
-                                        atom.atype=atype;
 
-                                        //cout<<cb<<endl;
+                                        atom.atype=atype;
                                 }
                         }
                 }///end for

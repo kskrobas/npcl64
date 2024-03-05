@@ -48,6 +48,15 @@ public:
     virtual ~Crandom();
 };
 //.........................................................................................
+class CrandomIgnore: public Crandom
+{
+private:
+
+public:
+    double randNumber(){ return 0;}
+};
+
+//.........................................................................................
 class CrandomUni: public Crandom
 {
 private:

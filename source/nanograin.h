@@ -209,6 +209,28 @@ vector<size_t> neighID;  /// ID of neigneighborhood atoms
             r2*=p*p;
         }
 
+        void operator+=(const StVector &v)
+        {
+            x+=v.x;
+            y+=v.y;
+            z+=v.z;
+        }
+
+        /*
+        StVector operator+(const StVector &v)
+        {
+        return StVector(x+v.x,y+v.y,z+v.z);
+        }*/
+
+        StVector Pos()
+        {
+        return StVector(x,y,z);
+        }
+
+        void operator=(const StVector &v)
+        {
+            x=v.x;y=v.y;z=v.z;
+        }
 
         void setId(){ id=idIterator; idIterator++; }
 
