@@ -82,7 +82,7 @@ void Cdisloc::clearData()
     rangeRoll.clear();
     mindist.clear();
     scatter.clear();
-    mode="loop";
+    mode.clear();
     vrpy.clear();
 
     fileNameIn.clear();
