@@ -135,13 +135,13 @@ position theta;
 bool on=false;
 
     void buildMatrix(const StAxis &axis_);
-    void buildMatrix(const StAxis &axis_,cpos &sinA);
+    void buildMatrix(const StAxis &axis_,cpos &sinA, cpos &cosA);
     StVector operator*(const StVector &v);
 //StAtom operator*=(S);
 
     StRotationMatrix(){ ux=uy=uz=theta=0;}
-    StRotationMatrix(const StAxis &axis_,cpos &sinA){
-        buildMatrix(axis_,sinA);
+    StRotationMatrix(const StAxis &axis_,cpos &sinA, cpos &cosA){
+        buildMatrix(axis_,sinA,cosA);
     }
     void showMatrix();
 

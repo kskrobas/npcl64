@@ -1617,7 +1617,8 @@ const int N{std::stoi(toks[6])};
 StAxis axis(-B,A,0);
 cpos mian=std::sqrt(A*A+B*B+C*C);
 cpos sa=std::sqrt(A*A+B*B)/mian;
-StRotationMatrix rotMat(axis,sa);
+cpos ca=C/mian;
+StRotationMatrix rotMat(axis,sa,ca);
 
 vatoms planeAtoms;
 

@@ -643,7 +643,7 @@ bool radiusOrside=false;
                      }
 
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("rangeRoll("+sRE_NUMBER+"){2}"))){
+                     if(regex_match(cmdline,std::regex("rangeRoll("+sRE_NUMBER+"){2}([[:s:]]+[pn])?"))){
                      vector<string> tokens(split<string> (cmdline," "));
 
                             gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));

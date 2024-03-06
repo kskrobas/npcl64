@@ -40,10 +40,10 @@ void StRotationMatrix::buildMatrix(const StAxis &axis_)
 ///https://en.wikipedia.org/wiki/Rotation_matrix
 ///
 
-void StRotationMatrix::buildMatrix(const StAxis &axis_, cpos &sinA)
+void StRotationMatrix::buildMatrix(const StAxis &axis_, cpos &sinA, cpos &cosA)
 {
 cpos sinTheta=sinA;//sqrt(1-sqrCoord(cosTheta));
-cpos cosTheta=std::sqrt(1-sqr(sinTheta));
+cpos cosTheta=cosA;
 cpos oneMinCos=1-cosTheta;
 
         buildRotationAxis(axis_);

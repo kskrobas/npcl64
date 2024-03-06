@@ -313,7 +313,8 @@ cpos  amax {std::stod(tangle[2])};
 StAxis axis(-B,A,0);
 cpos mian=std::sqrt(A*A+B*B+C*C);
 cpos sa=std::sqrt(A*A+B*B)/mian;
-StRotationMatrix rotMat(axis,sa);
+cpos ca=C/mian;
+StRotationMatrix rotMat(axis,sa,ca);
 
 string aname=atomTypes[0].name;
 int atype;
@@ -428,7 +429,8 @@ const StAxis axis(A,B,C,px,py,pz);
 position d,ph;
 
 cpos sa=std::sin(angle_*M_PI/180);
-StRotationMatrix rotMat(axis,sa);
+cpos ca=std::cos(angle_*M_PI/180);
+StRotationMatrix rotMat(axis,sa,ca);
 
 #ifdef DB
 size_t nOfrot=0;
@@ -566,7 +568,7 @@ class testRadiiAngle: public acceptAtom
 {
 
 public:
-    position angleMin,angleMax;
+    position angleMin,angleMax,pn=1;
 
 
     bool accept(StVector & r, StVector &a, StVector &b){
@@ -574,7 +576,7 @@ public:
             if (r.getModule()>rmax) return false;
 
     cpos  ca{cosa(r,a)};
-    cpos  cb{cosa(r,b)};
+    cpos  cb{pn*cosa(r,b)};
     cpos angle{std::atan2(ca,cb)*180/M_PI};
 
     return ( angleMin<angle ) && (angle<angleMax);
@@ -657,6 +659,10 @@ acceptAtom *testAtom;
                         delete testAtom;
                     throw Edisstatus::ERR_AROLLRANGE;
                     }
+
+                    if(ratoks.size()==3){ //pn option
+                        tra->pn=(ratoks[2]=="p") ? 1 : -1;
+                    }
                 }
 
 
@@ -694,10 +700,15 @@ StVector rndShift;
 
 
                 ///////////////////////////////////////
+                ///
+                ///
+
+position ca,cb;
 
                 for(auto &rpy: vrpy){
                 vector<string> rpyToks(split<string>(rpy," "));
                 cpos sa=std::sin(std::stod(rpyToks[1])*M_PI/180);
+                cpos ca=std::cos(std::stod(rpyToks[1])*M_PI/180);
 
                         if(rpyToks[0]=="roll")
                             frpy=&froll;
@@ -708,8 +719,8 @@ StVector rndShift;
                                 frpy=&fyaw;
                         }
 
-                        for(auto &atom: grain->atoms){
-                                vec_a=atom.Pos()+axisPos;
+                        for(auto &atom: grain->atoms){                                
+                                vec_a=atom.Pos()-axisPos;
                                 cos_vavb=std::fabs(cosa(vec_a,vec_b));
                                 modA=vec_a.getModule();
 
@@ -723,8 +734,12 @@ StVector rndShift;
                                 vec_c*=imodC;
                                 vec_dr=vec_a-vec_c;
 
+                                //ca=cosa(vec_dr,vec_c);
+                                //cb=cosa(vec_dr,vec_b);
+
                                 if( testAtom->accept(vec_dr,vec_b,vec_c) ){
-                                StRotationMatrix rotMat(frpy(vec_b,vec_c),sa);
+                                //if(vec_dr.getModule()<dr  ){
+                                StRotationMatrix rotMat(frpy(vec_b,vec_c),sa,ca);
 
                                         //vec_dr=rotMat*vec_dr;
                                         fRotRndShift(rotMat,vec_dr,rndShift);
