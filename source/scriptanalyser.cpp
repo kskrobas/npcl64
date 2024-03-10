@@ -19,7 +19,6 @@
 
 
 #include "scriptanalyser.h"
-
 #include "colormsg.h"
 
 #include <regex>
@@ -608,6 +607,7 @@ bool radiusOrside=false;
                      continue;
                      }
 
+                     //----------------------------
 
                      if(regex_match(cmdline,std::regex("mindist("+sPRE_NUMBER+"){1}"))){
                          testVariables(&cmdline);
@@ -617,7 +617,7 @@ bool radiusOrside=false;
 
 
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("mode[[:s:]]+(loop|rot|rpy)"))){
+                     if(regex_match(cmdline,std::regex("mode[[:s:]]+(loop|rot|rpy|cyl)"))){
                          testVariables(&cmdline);
                          appKeyValues(gb_cmdlist,cmdline);
                      continue;

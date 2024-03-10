@@ -162,3 +162,12 @@ cpos tripleProduct(StVector &a, StVector &b, StVector &c)
 {
 return a.x*(b.y*c.z-b.z*c.y)+a.y*(b.z*c.x-b.x*c.z)+a.z*(b.x*c.y-b.y*c.x);
 }
+//-----------------------------------------------------------------------------
+position pointAxisDistance(const StAxis &axis, const StVector &point)
+{
+StVector r{point.x-axis.xo, point.y-axis.yo, point.z-axis.zo};
+/// h= |AxR|/|A|
+///
+
+return crossProduct(axis.getABC(),r).getModule()/axis.getModule();
+}

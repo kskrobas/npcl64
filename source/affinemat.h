@@ -116,6 +116,7 @@ double tmax,tmin;
     }
 
     double getModule() const {return sqrt(a*a+b*b+c*c);}
+    StVector getABC()  const {return StVector(a,b,c);}
 
 };
 
@@ -157,6 +158,7 @@ StVector crossProduct(const StVector &a, const StVector &b);
 StVector crossProductTriple(StVector &a, StVector &b, StVector &c);
 cpos     tripleProduct(StVector &a, StVector &b, StVector &c);
 position projHeight(const StAxis &a, const StVector &b);
+position pointAxisDistance(const StAxis &axis,const StVector &point);
 position pointPlaneDistance(const StAxis &axis,const StVector &point);
 
 
