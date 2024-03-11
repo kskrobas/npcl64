@@ -157,7 +157,7 @@ cpos cosa(const StVector &a, const StVector &b);
 StVector crossProduct(const StVector &a, const StVector &b);
 StVector crossProductTriple(StVector &a, StVector &b, StVector &c);
 cpos     tripleProduct(StVector &a, StVector &b, StVector &c);
-position projHeight(const StAxis &a, const StVector &b);
+position projLength(const StAxis &a, const StVector &b);
 position pointAxisDistance(const StAxis &axis,const StVector &point);
 position pointPlaneDistance(const StAxis &axis,const StVector &point);
 

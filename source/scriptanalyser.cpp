@@ -632,7 +632,7 @@ bool radiusOrside=false;
                      }
 
                      //----------------------------
-                     if(regex_match(cmdline,std::regex("range(A|R)("+sPRE_NUMBER+"){2,3}"))){
+                     if(regex_match(cmdline,std::regex("range(A|R)("+sRE_NUMBER+"){2,3}"))){
                      vector<string> tokens(split<string> (cmdline," "));
 
                              if(tokens[2]=="0")

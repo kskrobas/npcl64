@@ -99,10 +99,11 @@ Laue diffraction mode
 
 loop dislocations example/15
 
-![disloop](images/pic00.png)
-
+![disloop0](images/pic00.png)
+![disloop1](images/example/17/disloc.png)
 
 ##################################################################
 
 Notepad++ npcl script
 ![npclHigh](images/highNpcl.png)
+

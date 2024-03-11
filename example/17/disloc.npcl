@@ -1,0 +1,44 @@
+/>
+creation date:  03-11-2024
+
+create dislocation network for (aritificial) bcc lattice
+
+</
+
+grain
+    struct uc
+    
+    ucp
+		vx 1   0   0
+		vy 0   1   0
+		vz 0   0   1
+		
+		C  0   0   0
+		C  0.5 0.5 0.5
+	end
+	
+	replicate 20  20  20 +/-
+    
+    #save atoms.lmp
+end    
+
+
+
+
+disloc		
+		mode cyl
+		
+		axis             1  1  1
+		position      0  0   0
+		
+		rangeR        0   15
+							
+		rangeA    5   20
+		projh  15
+		
+		save atomsDis.lmp
+end
+
+
+
+

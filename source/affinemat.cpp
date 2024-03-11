@@ -119,10 +119,19 @@ cpos cz=(a.x*b.y-a.y*b.x);
 return StVector(cx,cy,cz);
 }
 //-----------------------------------------------------------------------------
-position projHeight(const StAxis &axis, const StVector &b)
+position projLength(const StAxis &axis, const StVector &b)
 {
-cpos aDotb=std::abs(axis.a*(axis.xo-b.x)+axis.b*(axis.yo-b.y)+axis.c*(axis.zo-b.z));
+cpos aDotb=(axis.a*(axis.xo-b.x)+axis.b*(axis.yo-b.y)+axis.c*(axis.zo-b.z));
 return aDotb/axis.getModule();
+}
+//-----------------------------------------------------------------------------
+position pointAxisDistance(const StAxis &axis, const StVector &point)
+{
+//StVector r{point.x-axis.xo, point.y-axis.yo, point.z-axis.zo};
+/// h= |AxR|/|A|
+///
+
+return crossProduct(axis.getABC(),point).getModule()/axis.getModule();
 }
 //-----------------------------------------------------------------------------
 position pointPlaneDistance(const StAxis &axis, const StVector &point)
@@ -162,12 +171,4 @@ cpos tripleProduct(StVector &a, StVector &b, StVector &c)
 {
 return a.x*(b.y*c.z-b.z*c.y)+a.y*(b.z*c.x-b.x*c.z)+a.z*(b.x*c.y-b.y*c.x);
 }
-//-----------------------------------------------------------------------------
-position pointAxisDistance(const StAxis &axis, const StVector &point)
-{
-StVector r{point.x-axis.xo, point.y-axis.yo, point.z-axis.zo};
-/// h= |AxR|/|A|
-///
 
-return crossProduct(axis.getABC(),r).getModule()/axis.getModule();
-}
