@@ -20,6 +20,7 @@
 #include "crandom.h"
 #include "affinemat.h"
 #include "colormsg.h"
+#include <functional>
 
 #ifndef __linux
 #define M_PI 3.1415926539
@@ -814,10 +815,12 @@ cpos bo=ao*2*projh_-amin;
 
 
 void  (*fRotRndShift)(StRotationMatrix &rm, StVector &a, StVector &rndShift);
+std::function<void(StRotationMatrix &rm, StVector &a, StVector &rndShift)> fRndShift;
 StVector rndShift;
 
                 if(scatter.empty()){
                     fRotRndShift=&rotAtomNoRnd;
+                    //fRndShift=rotAtomNoRnd;
                     rndShift.x=rndShift.y=rndShift.z=0;
                 }
                 else{
