@@ -22,7 +22,7 @@ disloc
 		mode rot
 		axis        1  1   1
 		position  0  0  0
-		rangeR    16 22
+		rangeR    0 22
 		angle 5
 		projh   4		
 		scatter  xyz  0.0125  0.0125  0.0125

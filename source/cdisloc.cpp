@@ -504,9 +504,9 @@ size_t nOfrot=0;
                                     atom.y=point.y+axis.yo+ty*udistr(generator);
                                     atom.z=point.z+axis.zo+tz*udistr(generator);
 
-                                    #ifdef DB
+                                    if( DB)
                                     nOfrot++;
-                                    #endif
+
 
                                     //atom.atype=atype;
                                 }
@@ -515,10 +515,8 @@ size_t nOfrot=0;
                 }
 
 
-                #ifdef DB
-                infoMsg("number of rotated atoms: "+std::to_string(nOfrot));
-                #endif
-
+                if(DB)
+                    infoMsg("number of rotated atoms: "+std::to_string(nOfrot));
 
 }
 //-----------------------------------------------------------------------------
@@ -857,10 +855,11 @@ cpos deg2rad=M_PI/180;
                         ph=projLength(mainAxis,atom.Pos());
 
                         if(std::fabs(ph)<projh_){
-                        alpha=deg2rad*(ao*ph+bo);
-                        sa=std::sin(alpha);
-                        ca=std::cos(alpha);
-                        StRotationMatrix rotMat(mainAxis,sa,ca);
+                            alpha=deg2rad*(ao*ph+bo);
+                            sa=std::sin(alpha);
+                            ca=std::cos(alpha);
+
+                            StRotationMatrix rotMat(mainAxis,sa,ca);
 
                             fRotRndShift(rotMat,vec_r,rndShift);
 

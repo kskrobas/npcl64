@@ -1,3 +1,13 @@
+/>
+creation date: 03-05-2024
+last update date: 03-19-2024
+
+DESCRIPTION:
+	create dislocations using "rpy" mode. The roll/pitch/yaw control rotation against 3 axis
+	
+</	
+
+
 grain
     #disloc plane 1 1 1 0 5 10 1000	
     struct uc
@@ -12,20 +22,18 @@ grain
 	end
 	
 	replicate 20   20   20  +/-
-
-    
-    #save atoms.xyz
+      
 end    
 
 
-disloc
-		atom  Si
-		mode spin
+disloc		
+		mode rpy
+		roll  8
+		pitch 9
+		yaw 10
 		axis       1 1 1
 		position    0 0  0
 		rangeR    5 15
-		angle 10
-		#projh 2
 		
 		save atom111-10.xyz
 

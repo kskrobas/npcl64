@@ -100,7 +100,7 @@ Laue diffraction mode
 loop dislocations example/15
 
 ![disloop0](images/pic00.png)
-![disloop1](images/example/17/disloc.png)
+![disloop1](example/17/disloc.png)
 
 ##################################################################
 
