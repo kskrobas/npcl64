@@ -1,5 +1,5 @@
 <NotepadPlus>
-    <UserLang name="lammps" ext="sim" udlVersion="2.1">
+    <UserLang name="lammps" ext="mdlmp" udlVersion="2.1">
         <Settings>
             <Global caseIgnored="no" allowFoldOfComments="no" foldCompact="no" forcePureLC="0" decimalSeparator="0" />
             <Prefix Keywords1="no" Keywords2="yes" Keywords3="no" Keywords4="no" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
@@ -25,9 +25,9 @@
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
             <Keywords name="Keywords1">&quot;run&quot; &quot;fix&quot; &quot;unfix&quot;</Keywords>
-            <Keywords name="Keywords2">&quot;clear&quot; &quot;units&quot; &quot; boundary&quot; &quot;velocity&quot; &quot;neighbor&quot; &quot;neigh_modify&quot; &quot;displace_atoms&quot; &quot;atom_style&quot; &quot;pair&quot; &quot;thermo&quot; &quot;time&quot; &quot;dump&quot; &quot;undump&quot; &quot;group&quot; &quot;region&quot; &quot;min_style&quot; &quot;minimize&quot; &quot;kspace_style&quot; &quot;compute&quot; &quot;print&quot; &quot;replicate&quot; &quot;set&quot; &quot;delete_atoms&quot; &quot;change_box&quot;</Keywords>
+            <Keywords name="Keywords2">&quot;clear&quot; &quot;units&quot; &quot; boundary&quot; &quot;velocity&quot; &quot;neighbor&quot; &quot;neigh_modify&quot; &quot;displace_atoms&quot; &quot;atom_style&quot; &quot;pair&quot; &quot;thermo&quot; &quot;time&quot; &quot;dump&quot; &quot;undump&quot; &quot;group&quot; &quot;region&quot; &quot;min_style&quot; &quot;minimize&quot; &quot;kspace_style&quot; &quot;compute&quot; &quot;print&quot; &quot;replicate&quot; &quot;set&quot; &quot;delete_atoms&quot; &quot;change_box&quot; &quot;reset_timestep&quot;</Keywords>
             <Keywords name="Keywords3">&quot;shell&quot;</Keywords>
-            <Keywords name="Keywords4">&quot;read_data&quot; &quot;write_data&quot; &quot;variable&quot;</Keywords>
+            <Keywords name="Keywords4">&quot;read_data&quot; &quot;write_data&quot; &quot;variable&quot; &quot;log&quot;</Keywords>
             <Keywords name="Keywords5">&quot;all&quot; &quot;random&quot; &quot;box&quot; &quot;bin&quot; &quot;delay&quot; &quot;every&quot; &quot;nvt&quot; &quot;npt&quot; &quot;temp&quot; &quot;aniso&quot; &quot;sphere&quot; &quot;addatoms&quot; &quot;deposit&quot; &quot;tersoff&quot; &quot;airebo&quot; &quot;create&quot; &quot;mom&quot; &quot;yes&quot; &quot;fire&quot; &quot;custom&quot; &quot;movie&quot; &quot;xyz&quot; &quot;element&quot; &quot;equal&quot; &quot;rot&quot; &quot;step&quot; &quot;etotal&quot; &quot;press&quot; &quot;eam&quot; &quot;atomic&quot; &quot;metal&quot; &quot;p&quot; &quot;ewald&quot; &quot;type&quot; &quot;charge&quot; &quot;acolor&quot; &quot;adiam&quot; &quot;vol&quot; &quot;sum&quot; &quot;kim&quot; &quot;peratom&quot; &quot;scale&quot;</Keywords>
             <Keywords name="Keywords6">&quot;C&quot; &quot;H&quot; &quot;Ni&quot; &quot;Fe&quot; &quot;Si&quot; &quot;U&quot; &quot;O&quot;</Keywords>
             <Keywords name="Keywords7">&quot;x&quot; &quot;y&quot; &quot;z&quot;</Keywords>

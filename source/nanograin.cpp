@@ -31,6 +31,7 @@
 #include "crandom.h"
 #include "colormsg.h"
 #include "parse_expr.h"
+#include "cprogress.h"
 
 #ifndef __linux
 #define M_PI 3.1415926539
@@ -62,6 +63,13 @@ typedef const double cdouble;
 
 size_t NanoGrain::StAtom::idIterator=0;
 list<size_t> NanoGrain::StNanoGrain::savedNumOfAtoms;
+
+
+//-----------------------------------------------------------------------------
+void gotoEOL(fstream &file)
+{
+        while(file.get()!='\n'  &&  !file.eof()) ;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -2577,12 +2585,14 @@ fstream fin(fileNameIn,ios::in);
 
 int nOfatoms,nOftypes;
 string sline;
+
             try{
                     fin.exceptions(ifstream::failbit | ifstream::badbit | ifstream::eofbit);
 
                     //ignore 2 lines
-                    while(fin.get()!='\n') ;
-                    while(fin.get()!='\n') ;
+                    gotoEOL(fin);
+                    gotoEOL(fin);
+
 
                     //read number of atoms
                     std::getline(fin,sline);
@@ -2629,9 +2639,9 @@ string sline;
                                 }
                             }
 
-                            if (!testExists) {
-                                errMsg("unrecognized type of atom ");
-                            }
+                            if (!testExists)
+                                infoMsg("unrecognized type of atom ");
+
 
                     }while(countTypes<nOftypes);
 
@@ -2642,7 +2652,7 @@ string sline;
                     }while(sline.find("Atoms")==string::npos );
 
                     // ignore empty line
-                    while(fin.get()!='\n') ;
+                    gotoEOL(fin);
 
 
                     // READ atom positions
@@ -2651,24 +2661,44 @@ string sline;
 
             position x,y,z;
             string nofa;
-            int atype,id;
+            int id;
 
                     fin.exceptions(ifstream::failbit | ifstream::badbit);
 
-                    for(int row=0 ;row<nOfatoms;row++){
-                        fin>>nofa>>id>>x>>y>>z;
-                        atoms.emplace_back(StAtom(x,y,z,id-1));
+
+                    if(nOfatoms<1e6){
+                        for(int row=0 ;row<nOfatoms;row++){
+                            fin>>nofa>>id>>x>>y>>z;
+                            gotoEOL(fin);
+
+                            atoms.emplace_back(StAtom(x,y,z,id-1));
+                        }
+                    }
+                    else{
+                    CProgress progress;
+                            progress.title=(string(" lmp file reading "));
+                            progress.start(nOfatoms);
+
+                            for(int row=0 ;row<nOfatoms;row++,progress++){
+                                fin>>nofa>>id>>x>>y>>z;
+                                gotoEOL(fin);
+
+                                atoms.emplace_back(StAtom(x,y,z,id-1));
+                            }
+
+                            progress.stop();
+                            cerr<<endl;
                     }
 
                     atoms.shrink_to_fit();
 
             }
-            catch(std::ifstream::failure e){
+            catch(std::ifstream::failure &e){
                 cerr<<" exception during file procesing, e.what(): "<<e.what()<<endl;
                 fin.close();
                 throw Status::ERR_FIN_EXC;
             }
-            catch(Status e){
+            catch(Status &e){
                 fin.close();
                 throw e;
             }

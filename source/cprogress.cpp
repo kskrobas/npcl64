@@ -320,13 +320,13 @@ void CProgress::stop()
         pthread.join();
 
 
-	if(!printShown){
+    //if(!printShown){
     	cout<<"\r"<<setw(80)<<setfill(' '); ///clear whole line
     	cout<<"\rX"<<title<<std::fixed<<setprecision(1)<<setw(5)<<100<<"%";
     	cout.flush();
-	}
-	else
-		printShown=true;
+    //}
+    //else
+        //printShown=true;
 }
 //-----------------------------------------------------------------------------
 void CProgress::next()

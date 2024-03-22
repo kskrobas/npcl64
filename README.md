@@ -16,6 +16,7 @@
  */
  
 # npcl64
+DOI: 10.5281/zenodo.10853303
 The npcl is a software application designed for the creation of nanocrystal models and the computation of diffraction spectra. It comes with a command line interface, with simple diagram plotting based on gnuplot. The code is based on standard C++ libraries (17 and higher); however, it was exclusively tested on Linux. Parallel computing employs the OpenMP library to facilitate computations. 
 
 The 'npcl' meets the POSIX standard, but it's only fully tested in Linux-like and 'cygwin' environments.
@@ -69,7 +70,7 @@ Installation instructions for Linux like machines:
     $ make -f Makefile.rel install
     
 7. set the variable NPCLPATH, e.g.:
-    $ export NPCLPATH=/home/<user/bin
+    $ export NPCLPATH=/home/<user>/bin
     
     and copy to it  the scFact.sft   file
     
@@ -78,10 +79,10 @@ Installation instructions for Linux like machines:
 8. start using 
    
     
-
-
 Other:
-* syntax highlighting for notepad++, see ./n++/npcl.xml
+* syntax highlighting for notepad++
+    npcl   :  ./n++/npcl.xml
+    LAMMPS :  ./n++/lammps.xml
 
 #################################################################
 
@@ -97,7 +98,7 @@ Laue diffraction mode
 
 ##################################################################
 
-loop dislocations example/15
+loop dislocations example/15 (visualization by Ovito https://www.ovito.org/)
 
 ![disloop0](images/pic00.png)
 ![disloop1](example/17/disloc.png)
