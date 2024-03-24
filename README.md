@@ -15,8 +15,10 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-# npcl64
-DOI: 10.5281/zenodo.10853303
+# npcl
+
+Release 03-22-2024 DOI: 10.5281/zenodo.10853303
+
 The npcl is a software application designed for the creation of nanocrystal models and the computation of diffraction spectra. It comes with a command line interface, with simple diagram plotting based on gnuplot. The code is based on standard C++ libraries (17 and higher); however, it was exclusively tested on Linux. Parallel computing employs the OpenMP library to facilitate computations. 
 
 The 'npcl' meets the POSIX standard, but it's only fully tested in Linux-like and 'cygwin' environments.
@@ -46,13 +48,21 @@ Installation instructions for Linux like machines:
     Finally, the npcl64 folder should look like this:
         
     bin
+
     example
+
     fparser
+
     images
+
     n++
+
     source
+
     README.md
+
     scFact.sft
+
 
 
     

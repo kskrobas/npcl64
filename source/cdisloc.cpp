@@ -713,8 +713,6 @@ StVector rndShift;
                 ///
                 ///
 
-position ca,cb;
-
                 for(auto &rpy: vrpy){
                 vector<string> rpyToks(split<string>(rpy," "));
                 cpos sa=std::sin(std::stod(rpyToks[1])*M_PI/180);
@@ -789,14 +787,14 @@ vector<string> tradius{split<string>(rangeR," ")};
 cpos  rmin {std::stod(tradius[0])};
 cpos  rmax {std::stod(tradius[1])};
 cpos  rave {0.5*(rmin+rmax)};
-cpos  dr   {rmax-rave};
+//cpos  dr   {rmax-rave};
 
 //
 StVector vec_a,vec_c,vec_dr,vec_r;
 StVector vec_b(A,B,C);
 
 StAxis mainAxis(A,B,C,px,py,pz);
-StAxis (*frpy)(const StVector &, const StVector &);
+//StAxis (*frpy)(const StVector &, const StVector &);
 
 //cpos angle_=std::stod(angle);
 cpos projh_=std::stod(projh);

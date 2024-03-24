@@ -116,6 +116,8 @@ const str send("end");
 
             while(cmd[index]!=send){
 
+                if(DB) cout<<cmd[index]<<endl;
+
 
                 if( cmd[index].isKey("difftime")){
                     diffTime=true;
@@ -145,8 +147,7 @@ const str send("end");
                 }
 
                 if(cmd[index]=="lambda"){
-                    for(size_t i=1;i<cmd[index].numOfKeyValues();i++)
-                        lambda+=cmd[index][i]+" ";
+                    lambda=cmd[index][1];
                     index++;
                 continue;
                 }

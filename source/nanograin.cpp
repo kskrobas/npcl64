@@ -2626,21 +2626,25 @@ string sline;
                         countTypes++;
 
                         // searchin a key for a given value
-                        bool testExists= false;
 
-                            // Traverse the map
-                            for (auto& mass : Elements::mass) {
-                                if (mass.second == tokens[1]) {
 
-                                    // type name push
-                                    atomTypes.push_back(mass.first);
-                                    testExists=true;
-                                    break;
+
+                            if(atomTypes.empty()){
+                            bool testExists= false;
+                                // Traverse the map
+                                for (auto& mass : Elements::mass) {
+                                    if (mass.second == tokens[1]) {
+
+                                        // type name push
+                                        atomTypes.push_back(mass.first);
+                                        testExists=true;
+                                        break;
+                                    }
                                 }
-                            }
 
-                            if (!testExists)
-                                infoMsg("unrecognized type of atom ");
+                                if (!testExists)
+                                    infoMsg("unrecognized type of atom "+std::string(tokens[1]));
+                            }
 
 
                     }while(countTypes<nOftypes);

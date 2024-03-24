@@ -1601,7 +1601,8 @@ vcmdlist gb_cmdlist;
                     //-- wavelength
                     if(regex_match(cmdline,std::regex("lambda[[:s:]]+(Ag|Co|Cr|Cu|Fe|Mo|W|"+sPRE_NUMBER_1+")"))){
                             testDuplicate(gb_cmdlist,"lambda");
-                            appKeyValues(gb_cmdlist,cmdline);
+                            //appKeyValues(gb_cmdlist,cmdline);
+                            gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
                     continue;
                     }
 
