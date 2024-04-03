@@ -1071,9 +1071,9 @@ bool radiusOrside=false;
                     continue;
                     }
 
-                    if(regex_match(cmdline,std::regex("threads[[:s:]]+[0-9]+"))){
-                            testDuplicate(gb_cmdlist,"threads");
-                            appKeyValues(gb_cmdlist,cmdline);
+                    if(regex_match(cmdline,regex("saveopt[[:s:]]+lmp[[:s:]]+(tric|margin)"))){
+                            testVariables(&cmdline);
+                            appKeyValues(*ptr_cl,cmdline);
                     continue;
                     }
 
@@ -1090,6 +1090,7 @@ bool radiusOrside=false;
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }
+
 
 
                     if(regex_match(cmdline,std::regex("ucp"))){

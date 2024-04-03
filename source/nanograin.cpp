@@ -89,9 +89,18 @@ return abcexpr;
 
 void NanoGrain::StNanoGrain::resetPrms()
 {
+    /*
+        if(callbackSetThreads!=nullptr){
+            (this->*callbackSetThreads)(threads);
+            //((NanoGrain::StNanoGrain*)this)->NanoGrain::StNanoGrain::callbackSetThreads
+        }
+        else
+            threads="2";
+            */
+
+        threads= (mthreads.empty()) ? "2" : mthreads;
 
 
-        threads="2";
         radius.clear();
         scaleFactors.clear();
         clp.clear();
@@ -2415,6 +2424,10 @@ StMinMax minmax;
         file<<"    "<<minmax.ymin-mY<<"    "<<minmax.ymax+mY<<"    ylo yhi"<<endl;
         file<<"    "<<minmax.zmin-mZ<<"    "<<minmax.zmax+mZ<<"    zlo zhi"<<endl;
 
+        if(saveopt.lmpTric)
+            file<<"    0  0  0  xy  xz  yz"<<endl;
+
+
         //------------------------
         file<<"Masses"<<endl<<endl;
 
@@ -3107,6 +3120,11 @@ const str send("end");
 
                         if(key=="if"){
                             saveopt.lwh.push_back(value);
+                        continue;
+                        }
+
+                        if(key=="lmp"){
+                            saveopt.lmpTric=true;
                         continue;
                         }
 

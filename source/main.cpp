@@ -86,6 +86,7 @@ private:
         std::vector<string> argv;
 
         bool quiet=false;
+        std::string mthreads;
 
         void mthelp()
         {
@@ -94,6 +95,15 @@ private:
             
             cout<<endl;           
         }
+
+        void setThreads(std::string &threads__){
+            threads__=mthreads;
+        }
+
+        void ppp();
+
+        void (ClMainTask::*ptrPPP)();
+        void (ClMainTask::*ptrCalc)(std::string &);
 
 public:
 
@@ -106,6 +116,18 @@ public:
             diff.pdh=&pdh;
             gr.diff=&diff;
             mergepdh.pdh=&pdh;
+
+            //typedef void (NanoGrain::StNanoGrain::*stptr)(std::string &);  // pointer to pointer to
+            //ptrF  ptr=&NanoGrain::StNanoGrain::callbackSetThreads;
+            //typedef void (ClMainTask::*ptrFunc)(std::string &) ;
+            ///ptrPPP=&ClMainTask::ppp;
+            //void (Cpdh::*ptrCalc)();
+            //void (ClMainTask::*ptrCalc)(std::string &);
+            //ptrCalc=&this->setThreads;
+            ///ptrCalc=&(ClMainTask::setThreads);
+            //grain.callbackSetThreads=reinterpret_cast<ptrNanoGrain>(ptr);
+            //grain.callbackSetThreads=reinterpret_cast<stptr>(ptrCalc);
+
         }
 
         int retvalue;
@@ -441,7 +463,6 @@ public:
                             auto from   =std::stoi(cmdlist[cmdIndex][2]);
                             auto strRep =cmdlist[cmdIndex][3];
 
-
                                     if(from<0)
                                         from+=strVal.length();
 
@@ -463,11 +484,11 @@ public:
 
                              ////
                             if(cmdlist[cmdIndex]=="threads") {
-                                grain.threads=cmdlist[cmdIndex][1];
-                                pdh.threads=cmdlist[cmdIndex][1];
-                                diff.threads=cmdlist[cmdIndex][1];
-                                gr.threads=cmdlist[cmdIndex][1];
-
+                                mthreads=cmdlist[cmdIndex][1];
+                                grain.mthreads=mthreads;
+                                pdh.mthreads=mthreads;
+                                diff.mthreads=mthreads;
+                                gr.mthreads=mthreads;
                             continue;
                             }
 

@@ -146,7 +146,7 @@ public:
     bool fastsinc,norm,polarization,u2dendl;
     std::string range,lambda,dw,ki;
 
-    std::string threads;
+    std::string threads,mthreads;
     std::string noise;
     std::string fileNameIn,fileSft;
     vector<std::string> fileNameOut;
@@ -167,7 +167,7 @@ public:
     void presetData()
     {
 
-        threads="1";
+        threads= (mthreads.empty()) ? "2" : mthreads;
 
         if(scfactors)
         delete [] scfactors;

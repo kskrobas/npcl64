@@ -786,7 +786,7 @@ vector<string> tradius{split<string>(rangeR," ")};
 
 cpos  rmin {std::stod(tradius[0])};
 cpos  rmax {std::stod(tradius[1])};
-cpos  rave {0.5*(rmin+rmax)};
+//cpos  rave {0.5*(rmin+rmax)};
 //cpos  dr   {rmax-rave};
 
 //

@@ -78,7 +78,7 @@ public:
     Cgr();
 
     std::string range,wf,comment;
-    std::string threads;
+    std::string threads,mthreads;
     std::string correctionFactor;    
     vector<std::string> fileNameOut;
     bool diffTime,printPrm,norm;
@@ -89,10 +89,10 @@ public:
     void calc();
     void presetData()
     {
+        threads= (mthreads.empty()) ? "2" : mthreads;
         range="0 0.125";
         wf="box";
-        comment.clear();
-        threads="1";
+        comment.clear();        
         correctionFactor="1";
 
 

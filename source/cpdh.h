@@ -114,7 +114,7 @@ public:
     std::string figWidth,figHeight;
 #endif
 
-    std::string threads;
+    std::string threads,mthreads;
     std::string bin;
 
     enum EBinMode{SINGLE,DOUBLE};
@@ -135,7 +135,7 @@ public:
      void clearData(){
          bin="0.03125";
          binMode=SINGLE;
-         threads="1";
+         threads= (mthreads.empty()) ? "2" : mthreads;
          fileName="";
          fileNameIn.clear();
          range.clear();

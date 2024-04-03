@@ -411,7 +411,7 @@ std::string fileNameIn,fileNameHeader;
 vector<string> fileNameOut;
 std::string lmpstyle,comment;
 std::string rmatoms;
-std::string threads;
+std::string threads,mthreads;
 std::string rename;
 std::string margins;
 std::string catomType;
@@ -420,6 +420,7 @@ vatoms atoms;
 bool disperse,hcpsl,numOfAtomsTest;//,testSNA;
 static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
+void (StNanoGrain::*callbackSetThreads)(std::string &threads);
     //************************************************
 
     struct StUnitCell{
@@ -444,9 +445,10 @@ CSuperSphere *ssShape=nullptr;
         size_t min,max;
         vector<string> lwh;
         bool   fileSaved;
+        bool   lmpTric;
 
         StSaveOpt(){ }
-        void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;}
+        void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;lmpTric=false;}
 
     } saveopt;
     //************************************************
