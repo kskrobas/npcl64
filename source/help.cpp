@@ -102,6 +102,7 @@ print("open - read atoms from *.xyz. Number of atom types is not limited");
 print("printPrm - print current parametrs or status");
 print("radius (<value>|var)(lp)? - radius in Angs; if 'lp' is given the multiplicity of lp is taken");
 print("radius (uniform|normal|lognormal) <arg0> <arg1> - radius based on respective distribution, see above 'lp'");
+print("rename <oldName> <newName> <prob> - rename atoms with probability ");
 print("replicate <value>{3} (+/-)?- replicate unit cell along x, y, z axis");
 print("side  <value> - size of LAMMPS box side");
 print("remove <intvalue - numOfbonds> <value - lenOfbonds> (<value - probability 0..100>)? - remove selected atoms");
@@ -110,6 +111,7 @@ print("save <file name> - ASCII file formats: *.ndl, *.xyz, *.dat. Multisaving i
 print("saveHeader (fileName|var) - save header only");
 print("saveopt (min|max) <value> - save file if number of atoms greater|less than <value>");
 print("saveopt (if [HWL][<>][HWL]) - save file if Height/Width/Lenght size is greater|less than other dimension");
+print("saveopt lmp tric - save file in lammps format including tilt parameters");
 print("struct (sc|bcc|fcc|hcp|zb|zb110|uo2|nife|uc) - select Bravis lattice or zb(110) or hcp or uo2 or uc");
 print("ucp - start subblock of unit cell parameters. See below for description");
 print("voids <from> <to> - remove atoms according to uniform distributin given by <from> <to> parametrs");
@@ -118,10 +120,6 @@ print("* The custom hcp sequence is an expresion which consists of number of lay
 print("* ABC sequences may be nested. The nested sequences are separated by brackets '('  and ')' . Arbitrary nesting is allowed. Expression allows for variables");
 print("* Examples: 3(ABC)=> ABCABCABC; 2(A3(BC))=>  ABCBCBCABCBCBC;  AB2(C3(AB))=> AB2(CABABAB)=>ABCABABABCABABAB; var=2 ->  ${var}(abc)=>2(abc)");
 cout<<endl;
-
-
-
-
 
 
 cout<<"\t\t3)pdh block: "<<endl;
@@ -137,8 +135,6 @@ print("threads <value> - number of threads engaged during computation");
 print("");
 print("* the \'bin\' and \'rangeN\' statement must not use within same pdh block");
 cout<<endl;
-
-
 
 
 cout<<"\t\t4)diff block: "<<endl;
@@ -201,6 +197,18 @@ cout<<endl;
 cout<<"\t\t8)ucp block:"<<endl;
 print("v[xyz] <value>{3} - define translation vectors along x or y or z axis (always 3 vectors must be defined)");
 print("<atomName> <value>{3} - define atom name and atom positions of unit cell (at least one atom must be given)");
+cout<<endl;
+
+
+cout<<"\t\t9)disloc block:"<<endl;
+print("mode (rot|cyl|loop) - select type of dislocation");
+print("axis <value>{3} - vector perpendicular to plane(s) of dislocated atomic positions");
+print("position <value>{3} - position of axis center");
+print("rangeR <value>{2,3} - the range of radius values");
+print("rangeA <value>{2,3} - the range of rotation angle  values");
+print("projh <value> -  cylinder height or max. projection length of vector between axis' center and atom");
+print("save <fileName> - save file (same as  grain block 'save' instruction)");
+print("scatter xyz  <value>{3} - random scattering of dislocated atoms");
 cout<<endl;
 
 

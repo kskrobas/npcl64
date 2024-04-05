@@ -1911,9 +1911,10 @@ double rvalue;
                     for(auto &atom: atoms){
                     auto itr=std::find(vfromTo.begin(),vfromTo.end(),atom.atype);
 
-                        if(itr==vfromTo.end()) continue;
+                        if(itr==vfromTo.end())
+                            continue;
 
-                    rvalue=distribution(generator);
+                        rvalue=distribution(generator);
 
                         if(rvalue<itr->prob)
                             atom.atype=itr->to;

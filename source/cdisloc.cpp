@@ -840,6 +840,9 @@ StVector rndShift;
 
 const size_t atype=grain->atomTypes.size()-1;
 
+auto getType=(atomTypes.empty()) ? [](const NanoGrain::StAtom & atom, const size_t &at) { return atom.atype; }
+                                 : [](const NanoGrain::StAtom & atom, const size_t &at) { return at;};
+
                 ///////////////////////////////////////
 position d,ph,alpha,sa,ca;
 cpos deg2rad=M_PI/180;
@@ -865,12 +868,10 @@ cpos deg2rad=M_PI/180;
                             atom.y=vec_r.y+py;
                             atom.z=vec_r.z+pz;
 
-                            atom.atype=atype;
-
+                            atom.atype=getType(atom,atype);
                         }
                     }
                 }
-
 
 }
 
