@@ -9,6 +9,14 @@
 inline double sqrd (const position &x)  {return x*x;}
 
 using namespace std;
+
+
+#if DEBUG
+#define DB 1
+#else
+#define	DB 0
+#endif
+
 //===================================================================================
 
 Crdh::Crdh()
@@ -161,11 +169,16 @@ double r,dr2;
                 for(size_t ia=0;ia<numOfAtoms && rdhAtom<numOfRdhAtoms;ia++,progress++){
                     if(atoms[ia].rdh){
 
+                        if(DB){
+                            cerr<<endl<<__FILE__<<":"<<__LINE__<<" ia: "<<ia<<endl;
+                            cerr<<atoms[ia]<<endl;
+                        }
+
                         for(k=0;k<ia;k++){
                             dr2=calcR2(&atoms[ia],&atoms[k]);
 
                             if(rmin2<=dr2 && dr2<=rmax2){
-                                r=std::sqrt(dr2)-rmin;
+                                r=std::sqrt(dr2);
                                 bin=static_cast<size_t>(r/rstep);
                                     dataYnn[rdhAtom][bin]++;
                             }
@@ -175,7 +188,7 @@ double r,dr2;
                             dr2=calcR2(&atoms[ia],&atoms[k]);
 
                             if(rmin2<=dr2 && dr2<=rmax2){
-                                r=std::sqrt(dr2)-rmin;
+                                r=std::sqrt(dr2);
                                 bin=static_cast<size_t>(r/rstep);
                                     dataYnn[rdhAtom][bin]++;
                             }
@@ -183,6 +196,8 @@ double r,dr2;
                         rdhAtom++;
                     }
                 }
+
+                progress.stop();
 
         /// optimalization off
         //for(size_t i=0;i<numOfAtoms;i++){

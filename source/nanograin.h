@@ -234,11 +234,13 @@ vector<size_t> neighID;  /// ID of neigneighborhood atoms
 
         void setId(){ id=idIterator; idIterator++; }
 
-        static void resetId(){idIterator=0;}		
+        static void resetId(){idIterator=0;}
+
+        friend ostream & operator<<(ostream &,const NanoGrain::StAtom &a);
 };
 
 
-
+ostream & operator<<(ostream &,const NanoGrain::StAtom &a);
 typedef vector<StAtom> vatoms;
 
 //---------------------------------------------------------------------------

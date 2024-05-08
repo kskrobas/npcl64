@@ -73,6 +73,12 @@ void gotoEOL(fstream &file)
 
 //-----------------------------------------------------------------------------
 
+
+ostream & NanoGrain::operator<<(ostream &o,const NanoGrain::StAtom &a)
+{
+    o<<a.id<<"\t"<<a.atype<<"\t"<<a.x<<"\t"<<a.y<<"\t"<<a.z;
+}
+
 //-----------------------------------------------------------------------------
 string parseABC(const string &expression)
 {
@@ -630,10 +636,10 @@ vector<string> hcpParams(split<string>(hcpABC," "));
                 if(shape=="cubic")
                     if(shapeParams.size()==1) ssShape=new CCubic(p,R);
                     else ssShape=new CCubic(p,R,std::stod(shapeParams[1]),std::stod(shapeParams[2]),std::stod(shapeParams[3]));
-                else
+                else{
                     if(shape=="oct")
                         ssShape=new COctahedral(p,R);
-                    else
+                    else{
                         if(shape=="dod")
                             ssShape=new CDodecahedral(p,R);
                         else {//poly
@@ -651,8 +657,10 @@ vector<string> hcpParams(split<string>(hcpABC," "));
                             if(shapeParams.size()==1) ssShape=new CPolyhedral(p,R,a,b);
                             else ssShape=new CPolyhedral(p,R,a,b,std::stod(shapeParams[3]),std::stod(shapeParams[4]),std::stod(shapeParams[5]));
                         }
+                    }
+                }
 
-                    fbuildHcpShape=&StNanoGrain::buildHcpSuperSphere;
+                fbuildHcpShape=&StNanoGrain::buildHcpSuperSphere;
             }
 
 
@@ -739,9 +747,7 @@ cpos fradius=getRadius(fclp);
 cpos ucv=fclp*fclp*fclp; // unit cell volume
 cpos maxLp=(cpos) (floor(fradius/fclp));
 cpos pSTART=-maxLp*fclp;
-cpos pSTOP=-pSTART;
 position X,Y,Z,Xh,Yh,Zh;
-position X2h,Y2h;
 const size_t atomNameA=0;
 cpos csize=fradius*2+fclp;
 size_t   appSize=(size_t) cube(csize)/ucv;
@@ -1645,7 +1651,7 @@ std::uniform_real_distribution<double> rdistr(rmin*rmin,rmax*rmax);
 std::default_random_engine generatorAngle (std::chrono::system_clock::now().time_since_epoch().count());
 std::uniform_real_distribution<double> adistr(0,2*M_PI);
 
-double sqR,Ang,x,y,z;
+double sqR,Ang;
 std::string aname("C");
 size_t atype;
 StVector v;
