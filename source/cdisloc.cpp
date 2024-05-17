@@ -283,7 +283,8 @@ void Cdisloc::calc()
 
 //-----------------------------------------------------------------------------
 
-
+/// modelling Frank dislocation loop
+///  Gary Was, Fundamentals of Radiation Materials Science ,  Mettals and Alloys   p. 305
 void Cdisloc::insertLoop()
 {
 //axis params

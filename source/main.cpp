@@ -24,6 +24,7 @@
 #include <chrono>
 #include <thread>
 #include <future>
+#include <iomanip>
 
 #include <omp.h>
 #include <stdlib.h>
@@ -82,6 +83,7 @@ private:
         Cmergepdh mergepdh;
 
         int argc,options;
+        int loopCurrIter,loopTotIters;
         size_t cmdlistSize;
         std::vector<string> argv;
 
@@ -116,6 +118,9 @@ public:
             diff.pdh=&pdh;
             gr.diff=&diff;
             mergepdh.pdh=&pdh;
+
+            loopCurrIter=-1;
+            loopTotIters=-1;
 
             //typedef void (NanoGrain::StNanoGrain::*stptr)(std::string &);  // pointer to pointer to
             //ptrF  ptr=&NanoGrain::StNanoGrain::callbackSetThreads;
@@ -566,11 +571,16 @@ public:
                                             cout<<it->getValue();
                                         else{
                                             cout<<" ERROR, unknown keyvalue "<<cmdlist[cmdIndex][i];
-                                            throw Script::ERR_UNK_VAR;
+                                        throw Script::ERR_UNK_VAR;
                                         }
                                     }
                                     else{
-                                        cout<<cmdlist[cmdIndex][i];
+                                        if(cmdlist[cmdIndex][i]=="__progress"){
+                                        const float prcProgress=(100.f*(float) loopCurrIter/loopTotIters);
+                                            cout<<loopCurrIter<<"/"<<loopTotIters<<" "<<setprecision(3)<<prcProgress<<"\%";
+                                        }
+                                        else
+                                            cout<<cmdlist[cmdIndex][i];
                                     }
                                 }
 
@@ -635,6 +645,10 @@ public:
         size_t forCmdIndex=0;
 
                 for(int it=iBeg;it<=iEnd;it+=iter){
+
+                    loopCurrIter=it;
+                    loopTotIters=iEnd;
+
                     auto locIterVar=std::find(uvars.begin(),uvars.end(),forTokens[0]);
                     locIterVar->getValue()=std::to_string(it);
 
@@ -707,7 +721,16 @@ public:
                 return false;
                 }
                 ///////////////////////////////////////////////////////////////////////////
+                /// \brief from
+                ///
 
+        int loopIter=0;
+        int numOfFiles=0;
+                for(auto &schar: fList)
+                    if(schar=='\n')
+                        numOfFiles++;
+
+                ///////////////////////////////////////////////////////////////////////////
         std::size_t from=0,to;
         string fileName;
         const size_t currPos=uvars.size();
@@ -717,6 +740,12 @@ public:
 
                 // do operations for each file
                 do{
+
+                    loopIter++;
+                    loopCurrIter=loopIter;
+                    loopTotIters=numOfFiles;
+
+
                     to=fList.find_first_of('\n',from);
 
                     if (to==string::npos) break;

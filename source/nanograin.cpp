@@ -2515,9 +2515,14 @@ void NanoGrain::StNanoGrain::openFile()
             return;
             }
 
-
             if(fileNameIn.find(".lmp")!=string::npos){
                 openLMPFile();
+                sortAtomsByName();
+            return;
+            }
+
+            if(fileNameIn.find(".ndl")!=string::npos){
+                openNDLFile();
                 sortAtomsByName();
             return;
             }
@@ -2643,28 +2648,25 @@ string sline;
                         std::getline(fin,sline);
                         tokens=split<string>(sline," \t");
                         if(tokens.empty()) continue;
+
                         countTypes++;
 
-                        // searchin a key for a given value
-
-
-
-                            if(atomTypes.empty()){
-                            bool testExists= false;
-                                // Traverse the map
-                                for (auto& mass : Elements::mass) {
-                                    if (mass.second == tokens[1]) {
-
-                                        // type name push
-                                        atomTypes.push_back(mass.first);
-                                        testExists=true;
-                                        break;
-                                    }
+                        // searchin a key (atom name) for a given value (atom mass) of monotype lattice
+                        if(atomTypes.empty()){
+                        bool testExists= false;
+                            // Traverse the map
+                            for (auto& mass : Elements::mass) {
+                                if (mass.second == tokens[1]) {
+                                    // type name push
+                                    atomTypes.push_back(mass.first);
+                                    testExists=true;
+                                    break;
                                 }
-
-                                if (!testExists)
-                                    infoMsg("unrecognized type of atom "+std::string(tokens[1]));
                             }
+
+                            if (!testExists)
+                                infoMsg("unrecognized type of atom "+std::string(tokens[1]));
+                        }
 
 
                     }while(countTypes<nOftypes);
@@ -2728,6 +2730,79 @@ string sline;
             }
 
             fin.close();
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::openNDLFile()
+{
+fstream fin(fileNameIn,ios::in);
+
+            if(!fin){
+                cerr<<"couldn't open file for reading"<<endl;
+                fin.close();
+            throw Status::ERR_FOPEN;
+            }
+
+int nOfatoms,nOftypes;
+string sline;
+
+            try{
+                    fin.exceptions(ifstream::failbit | ifstream::badbit | ifstream::eofbit);
+
+                    while(fin.peek()=='#'){
+
+                        std::getline(fin,sline);
+                    vector<string> toks{split<string>(sline," \t\r")};
+
+                        if(toks[0].find("#sizeRC")!=string::npos){
+                            nOfatoms=std::stoi(toks[1]);
+                        continue;
+                        }
+
+                        if(toks[0].find("#atoms")!=string::npos){
+                            for(size_t i=1;i<toks.size();i++){
+                                if(findAtomName(toks[i])<0)
+                                   atomTypes.push_back(StAtomType(toks[i]));
+                            }                        
+                        }
+
+                    }
+
+                    atoms.clear();
+                    atoms.reserve(nOfatoms);
+
+            position x,y,z;
+            string aname;
+            int atype;
+
+                    fin.exceptions(ifstream::failbit | ifstream::badbit);
+
+                    for(int i=0;i<nOfatoms;i++){
+                        fin>>aname>>x>>y>>z;
+
+                        if( (atype=findAtomName(aname)) <0){
+                            atomTypes.push_back(StAtomType(aname));
+                            atype=atomTypes.size()-1;
+                            warnMsg("possible wrong file format");
+                        }
+
+                        atoms.emplace_back(StAtom(x,y,z,atype));
+                    }
+
+                    atoms.shrink_to_fit();
+
+            }
+            catch(std::ifstream::failure &e){
+                cerr<<" exception during file procesing, e.what(): "<<e.what()<<endl;
+                fin.close();
+                throw Status::ERR_FIN_EXC;
+            }
+            catch(Status &e){
+                fin.close();
+                throw e;
+            }
+
+            fin.close();
+
 }
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::sortAtomsByName()
@@ -2936,9 +3011,6 @@ const str send("end");
                             Script::replaceVars(ptr_uvar,varValue);
                             shapePrm2D+=" "+varValue;
                         }
-
-                        if(DB){ cout<<__FILE__<<":"<<__LINE__<<"  "<<shapePrm<<endl;}
-
                     }
 
                     index++;
@@ -3072,13 +3144,11 @@ const str send("end");
 
                 if(cmd[index]=="rename"){
                     rename=cmd[index].getValue();
-
                     Script::replaceVars(ptr_uvar,rename);
 
                     index++;
                 continue;
                 }
-
 
                 if(cmd[index]=="rescale"){
                     scaleFactors=cmd[index][1];

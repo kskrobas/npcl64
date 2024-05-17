@@ -376,6 +376,7 @@ std::stringstream atomsRemoved;
         void openFile();
         void openXYZFile();
         void openLMPFile();
+        void openNDLFile();
         void sortAtomsByName();
 
 
