@@ -44,26 +44,10 @@ Installation instructions for Linux like machines:
 
    $ ln -s <path_to_fparser> .
    
-    (remember about dot at the end of instruction)
+    (NOTE: remember about the DOT at the end of instruction)
     Finally, the npcl64 folder should look like this:
         
-    bin
-
-    example
-
-    fparser
-
-    images
-
-    n++
-
-    source
-
-    README.md
-
-    scFact.sft
-
-
+    ![npclFolder](images/npclFolder.png)
 
     
 4. Go to the source folder and type:
