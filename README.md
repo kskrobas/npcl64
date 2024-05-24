@@ -53,7 +53,7 @@ Installation instructions for Linux like machines:
 4. Go to the source folder and type:
     make -f Makefile.rel
     
-5. Ready to use the 'npcl' program is placed at the ./npcl64/bin folder
+5. After compilation, ready to use the 'npcl' program is placed at the ./npcl64/bin folder
 6. Installation: 
     For global installation type:
     

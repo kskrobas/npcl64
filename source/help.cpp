@@ -56,7 +56,7 @@ print("for <iterVar>=${var}(:${var}):${var} - as above but range is given by var
 print("for <iterVar> in <shell listing command> - loop for files returned by a shell listing command");
 print("grain - start of grain block");
 print("pdh - start of pdh block");
-print("print (string|${var}|__progress) - print any number of values or strings or loop progress");
+print("print (string|${var}|__progress|\"string\") - print any number of values or strings or loop progress");
 print("strRep ${var} <position> <rep. string> - replace a part of string ${var} at position <position> with new value <rep. string>");
 print("system command - execute a command by the operating system");
 print("threads <value> - global set number of threads for each block");
@@ -64,7 +64,7 @@ print("<numericalVariable>=<math expression> - definition of a numerical(double)
 print("<stringVariable>=\"string of characters\" - definition of a string type variable");
 print("${<math/string variable>} - call the math/string variable");
 print("# or \% - one line comment");
-print("/>  </ - respectively begin/end of block/multiline comment");
+print("/> multiline text </ - respectively begin/end of block/multiline comment");
 cout<<endl;
 
 

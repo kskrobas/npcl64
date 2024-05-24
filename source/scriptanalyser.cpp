@@ -2068,7 +2068,7 @@ const size_t currPos=ptr_uvar->size();
 
 
                     /// print
-                    if(regex_match(cmdline,std::regex("print([[:s:]]+[[:print:]]+)+"))){
+                    if(regex_match(cmdline,std::regex("print([[:s:]]+\\w+|[[:s:]]+\".*\")+"))){
                     //vector<string> tokens(split<string>(cmdline," "));                                                
                             appKeyValues(*ptr_cl,cmdline);
                     continue;

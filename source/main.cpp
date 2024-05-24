@@ -571,7 +571,7 @@ public:
                                             cout<<it->getValue();
                                         else{
                                             cout<<" ERROR, unknown keyvalue "<<cmdlist[cmdIndex][i];
-                                        throw Script::ERR_UNK_VAR;
+                                        //throw Script::ERR_UNK_VAR;
                                         }
                                     }
                                     else{
@@ -579,8 +579,29 @@ public:
                                         const float prcProgress=(100.f*(float) loopCurrIter/loopTotIters);
                                             cout<<loopCurrIter<<"/"<<loopTotIters<<" "<<setprecision(3)<<prcProgress<<"\%";
                                         }
-                                        else
-                                            cout<<cmdlist[cmdIndex][i];
+                                        else{
+                                            for(auto &ch : cmdlist[cmdIndex][i]){
+                                                if(ch!='\"') cout<<ch;
+                                                if(ch=='$'){
+                                                string varTofind(cmdlist[cmdIndex][i]);
+
+                                                        /// wyluskuje rdzen nazwy, czyli wartosc pomierdzy {...}
+                                                        varTofind.erase(varTofind.begin(),varTofind.begin()+2);
+                                                        varTofind.erase(varTofind.end()-1,varTofind.end());
+
+                                                auto it=std::find(uvars.begin(),uvars.end(),varTofind);
+
+                                                    if(it!=uvars.end())
+                                                        cout<<it->getValue();
+                                                    else{
+                                                        cout<<" ERROR, unknown keyvalue "<<cmdlist[cmdIndex][i];
+                                                    //throw Script::ERR_UNK_VAR;
+                                                    }
+                                                }
+
+                                            }
+
+                                        }
                                     }
                                 }
 
