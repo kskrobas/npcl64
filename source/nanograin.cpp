@@ -795,7 +795,9 @@ const size_t sizeBase=uc.atoms.size();
 size_t n;
 StVector vi,vj,vk;
 position X,Y,Z;
-
+CrandomUni randUniDistr(0,1);
+position prob;
+//new CrandomUni(a,b) :
 
             atoms.reserve(pm*repX*pm*repY*pm*repZ*sizeBase);
 
@@ -815,9 +817,6 @@ position X,Y,Z;
             atomTypes.shrink_to_fit();
             //-------------------------------------------
 
-
-
-
             for(int k=ks;k<repZ;k++){
                 vk=uc.vtrans[2]*k;
 
@@ -832,7 +831,9 @@ position X,Y,Z;
                             Y=vi.y+uc.atoms[n].y;
                             Z=vi.z+uc.atoms[n].z;
 
-                            atoms.push_back(StAtom(X,Y,Z,uc.atoms[n].id));
+                            prob=randUniDistr.randNumber();
+                            if(prob>uc.atoms[n].rmProb)
+                                atoms.push_back(StAtom(X,Y,Z,uc.atoms[n].id));
                         }
                     }
                 }
@@ -3231,8 +3232,6 @@ const str send("end");
                 continue;
                 }
 
-
-
                 if(cmd[index]=="threads"){
                     threads=cmd[index++][1];
                 continue;
@@ -3246,7 +3245,6 @@ const str send("end");
                     index++;
                 continue;
                 }
-
 
                 if(cmd[index]=="ucp"){
 
@@ -3281,10 +3279,12 @@ const str send("end");
                         uc.atoms.back().y=std::stod(keyValues.getValue(2));
                         uc.atoms.back().z=std::stod(keyValues.getValue(3));
                         auto rdhKV=(keyValues.numOfKeyValues()-4);
-                        uc.atoms.back().rdh=(bool)rdhKV;
-                        uc.rdhAtoms+=rdhKV;
-
-
+                            if(rdhKV<2){ // * atoms
+                                uc.atoms.back().rdh=(bool)rdhKV;
+                                uc.rdhAtoms+=rdhKV; }
+                            else{ // rm atoms
+                                uc.atoms.back().rmProb=std::stod(keyValues.getValue(5));
+                            }
                     }while(true);
 
                     index++;

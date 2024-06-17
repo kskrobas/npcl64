@@ -28,6 +28,7 @@
 #define PRE_NUMBER_0 "[[:s:]]+[0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?"
 #define PRE_NUMBER_1 "[[:s:]]*[0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?"
 #define PRE_NUMBER_2 "[[:s:]]*[0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?[[:s:]]*"
+#define PROB_NUMBER "[[:s:]]+(0|1[.]?|0[.][0-9]*)"
 #define UINT_NUMBER  "[[:s:]]+[0-9]+"
 #define VAR          "\\$\\{\\w+\\}"
 
@@ -36,6 +37,7 @@ const std::string sRE_NUMBER_1(RE_NUMBER_1);    //real number
 const std::string sPRE_NUMBER(PRE_NUMBER_0); //positive, real number
 const std::string sPRE_NUMBER_1(PRE_NUMBER_1); //positive, real number
 const std::string sPRE_NUMBER_2(PRE_NUMBER_2); //positive, real number
+const std::string sPROB_NUMBER(PROB_NUMBER);  //positive number for probabilty purposes from (0...1) range
 const std::string sUINT_NUMBER(UINT_NUMBER);
 const std::string sVAR(VAR);
 
@@ -469,6 +471,13 @@ vcmdlist uc_cmdlist;
                 }
 
                 if(regex_match(cmdline,std::regex("[A-Z][[:w:]]*("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:space:]]+[\\*])?"))){
+                    appKeyValues(uc_cmdlist,cmdline);
+                    atoms++;
+                continue;
+                }
+
+                if(regex_match(cmdline,std::regex("[A-Z][[:w:]]*("+
+                                sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:s:]]+rm"+sPROB_NUMBER+")?"))){
                     appKeyValues(uc_cmdlist,cmdline);
                     atoms++;
                 continue;
@@ -2068,7 +2077,11 @@ const size_t currPos=ptr_uvar->size();
 
 
                     /// print
-                    if(regex_match(cmdline,std::regex("print([[:s:]]+\\w+|[[:s:]]+\".*\")+"))){
+                    /// //if(regex_match(cmdline,std::regex("print([[:s:]]+\\w+|[[:s:]]+\".*\")+"))){
+                    /// //[[:alnum:]]+  [[:s:]]+[_[:alnum:]]+|
+                    if(regex_match(cmdline,std::regex("print([[:s:]]+\\$\\{\\w+\\}"
+                                                           "|[[:s:]]+[_[:alnum:]]+"
+                                                           "|[[:s:]]+\".*\")+"))){
                     //vector<string> tokens(split<string>(cmdline," "));                                                
                             appKeyValues(*ptr_cl,cmdline);
                     continue;

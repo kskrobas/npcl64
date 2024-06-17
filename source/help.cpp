@@ -37,7 +37,7 @@ void help()
 cout<<setfill('*')<<setw(80)<<'*'<<endl;
 
 cout<<"usage:"<<endl;
-cout<<"npcl <script file>"<<endl;
+cout<<"npcl <script file> (-v var_name=var_value)*"<<endl;
 
 cout<<" This is a list of acceptable commands/statements:"<<endl<<endl;
 
@@ -210,6 +210,7 @@ print("projh <value> -  cylinder height or max. projection length of vector betw
 print("save <fileName> - save file (same as  grain block 'save' instruction)");
 print("scatter xyz  <value>{3} - random scattering of dislocated atoms");
 cout<<endl;
+
 
 
 cout<<setfill('*')<<setw(80)<<'*'<<endl;

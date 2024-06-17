@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 objdir=objrel
 bindir=../bin
-cpp=g++
+cpp=g++-12
 
 cppflags=-fopenmp -std=c++17 -O3 -march=native -m64 -fPIC -pipe -Wno-unused-result -Wno-format-security -Wno-return-type
 cpplibs=-L../fparser -lpthread -lfparser

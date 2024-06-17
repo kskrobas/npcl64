@@ -430,7 +430,7 @@ void (StNanoGrain::*callbackSetThreads)(std::string &threads);
         vector<StVector> vtrans;
         size_t rdhAtoms;
 
-            struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false;
+            struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false; double rmProb=0;
                                 StUcAtom() { }
                                 StUcAtom(const string &name__):name(name__){ }
                                 bool operator()(const string &a){ return a==name;}
