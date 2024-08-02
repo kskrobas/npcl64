@@ -439,7 +439,7 @@ int vx,vy,vz,atoms;
     vx=vy=vz=atoms=0;
 
 vcmdlist uc_cmdlist;
-            uc_cmdlist.reserve(5);
+            uc_cmdlist.reserve(10);
 
             while(!script.eof()){
                 std::getline(script,cmdline);
@@ -495,18 +495,98 @@ vcmdlist uc_cmdlist;
 
 
             if(vx!=1  || vy!=1  || vz!=1){
-               errMsg("wrong number of translation vectors");
+               errMsg("uc requires definition of 3 translation vectors");
             throw Script::Result::ERR_TRVUC;
             }
 
             if(atoms<1){
-               errMsg("wrong number of base atoms");
+               errMsg("at least one atom within unit cell should be defined");
             throw Script::Result::ERR_NAUC;
             }
 
 
             //inserting the current list to the main list
             for(auto &kv: uc_cmdlist)
+                    ptr_cl->emplace_back(kv);
+
+
+}
+
+
+//-----------------------------------------------------------------------------
+void tricBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
+{
+int vx,vy,vz,atoms;
+    vx=vy=vz=atoms=0;
+
+vcmdlist tric_cmdlist;
+            tric_cmdlist.reserve(10);
+
+            while(!script.eof()){
+                std::getline(script,cmdline);
+                cline++;
+
+                if(DB){ cout<<cline<<": "<<cmdline<<endl;}
+
+                trim(cmdline);
+
+                //-- empty line
+                if(cmdline.empty()) continue;
+                //--
+
+                //-- comments
+                if(cmdline[0]=='#' || cmdline[0]=='%') continue;
+                //--
+
+                // replace tabs by spaces
+                 std::replace(std::begin(cmdline),std::end(cmdline),'\t',' ');
+
+
+                 if(regex_match(cmdline,std::regex("(alpha|beta|gamma)("+sRE_NUMBER+"|[[:s:]]+"+sVAR+")"))){
+                         testDuplicate(tric_cmdlist,cmdline.substr(0,cmdline.find_first_of(" ")));
+                         appKeyValues(tric_cmdlist,cmdline);
+                 continue;
+                 }
+
+
+                 if(regex_match(cmdline,std::regex("lp[abc]("+sPRE_NUMBER+"|[[:s:]]+"+sVAR+")"))){
+                         testDuplicate(tric_cmdlist,cmdline.substr(0,3));
+                         appKeyValues(tric_cmdlist,cmdline);
+                 continue;
+                 }
+
+
+                if(regex_match(cmdline,std::regex("[A-Z][[:w:]]*("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:space:]]+[\\*])?"))){
+                    appKeyValues(tric_cmdlist,cmdline);
+                    atoms++;
+                continue;
+                }
+
+                if(regex_match(cmdline,std::regex("[A-Z][[:w:]]*("+
+                                sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:s:]]+rm"+sPROB_NUMBER+")?"))){
+                    appKeyValues(tric_cmdlist,cmdline);
+                    atoms++;
+                continue;
+                }
+
+                //the end of block
+                if(regex_match(cmdline,std::regex("end"))){
+                break;
+                }
+
+            throw Script::Result::MIS_UNK_ERR;
+            }
+
+
+
+            if(atoms<1){
+               errMsg("at least one atom within tric cell should be defined");
+            throw Script::Result::ERR_NAUC;
+            }
+
+
+            //inserting the current list to the main list
+            for(auto &kv: tric_cmdlist)
                     ptr_cl->emplace_back(kv);
 
 
@@ -740,6 +820,7 @@ bool radiusOrside=false;
 
 
                     //grain
+
                     if(regex_match(cmdline,std::regex("atom[[:s:]]+\\w+"))){
                             testDuplicate(gb_cmdlist,"atom");
                             testDuplicate(gb_cmdlist,"atoms");
@@ -951,7 +1032,6 @@ bool radiusOrside=false;
                     }
 
 
-
                     if(regex_match(cmdline,std::regex("lp[[:s:]]+(uniform|normal|lognormal)"+sPRE_NUMBER+sPRE_NUMBER))){
                             testDuplicate(gb_cmdlist,"lp");
                             gb_cmdlist.emplace_back(ClKeyValues(strpair("lp",cmdline.substr(3))));
@@ -1027,7 +1107,6 @@ bool radiusOrside=false;
 
 
                    if(regex_match(cmdline,std::regex("rename([[:s:]]+[[:print:]]+[[:s:]]+[[:print:]]+("+sPRE_NUMBER+"|"+sVAR+"))"))){
-
                             gb_cmdlist.emplace_back(ClKeyValues(strpair("rename",cmdline.substr(6))));
                    continue;
                    }
@@ -1087,7 +1166,7 @@ bool radiusOrside=false;
                     }
 
 
-                    if(regex_match(cmdline,std::regex("struct[[:s:]]+(sc|bcc|fcc|hcp|zb|uo2|zb110|feni|uc)"))){
+                    if(regex_match(cmdline,std::regex("struct[[:s:]]+(sc|bcc|fcc|hcp|zb|uo2|zb110|feni|uc|tric)"))){
                             testDuplicate(gb_cmdlist,"struct");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
@@ -1100,6 +1179,13 @@ bool radiusOrside=false;
                     continue;
                     }
 
+
+                    if(regex_match(cmdline,std::regex("tricp"))){
+                        appKeyValues(gb_cmdlist,cmdline);
+                        tricBlock(script,&gb_cmdlist,cmdline,options,cline);
+                        appKeyValues(gb_cmdlist,"end");
+                    continue;
+                    }
 
 
                     if(regex_match(cmdline,std::regex("ucp"))){

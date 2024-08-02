@@ -46,6 +46,7 @@
 #define DB false
 #endif
 
+#define FLINE __FILE__<<__LINE__
 
 
 //-----------------------------------------------------------------------------
@@ -115,6 +116,7 @@ void NanoGrain::StNanoGrain::resetPrms()
         uc.clear();
         replicate.clear();
         rename.clear();
+        tric.reset();
 
 
         atomTypes.clear();
@@ -790,6 +792,7 @@ const int repZ=std::stoi(replicate[2]);
             else
                 { is=js=ks=0;    pm=1;     }
 
+
 const size_t sizeBase=uc.atoms.size();
 
 size_t n;
@@ -846,6 +849,58 @@ position prob;
 
             if(atomTypes.size()>1)
                 sortAtomsByName();
+
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::buildFromTric()
+{
+
+StVector a,b,c;
+
+cpos deg2rad=M_PI/180;
+cpos alpha=std::stod(tric.alpha)*deg2rad;
+cpos beta =std::stod(tric.beta)*deg2rad;
+cpos gamma=std::stod(tric.gamma)*deg2rad;
+
+cpos A=std::stod(tric.lpa);
+cpos B=std::stod(tric.lpb);
+cpos C=std::stod(tric.lpc);
+
+
+                ///
+                ///// https://docs.lammps.org/Howto_triclinic.html
+                ///
+
+                a.x=A;
+                a.y=0;
+                a.z=0;
+
+                b.x=B*cos(gamma);
+                b.y=B*sin(gamma);
+                b.z=0;
+
+                c.x=C*cos(beta);
+                c.y=C*(cos(alpha)-cos(beta)*cos(gamma))/sin(gamma);
+                c.z=std::sqrt(C*C-sqr(c.x)-sqr(c.y));
+
+                tric.xy=(b.x);
+                tric.xz=(c.x);
+                tric.yz=(c.y);
+
+
+                /////////////////////////////////////////////////////
+
+
+                uc.vtrans.resize(3);
+                uc.vtrans[0]=std::move(a);
+                uc.vtrans[1]=std::move(b);
+                uc.vtrans[2]=std::move(c);
+
+                uc.rdhAtoms=tric.rdhAtoms;
+                uc.atoms=std::move(tric.atoms);
+
+
+                buildFromUC();
 
 }
 //-----------------------------------------------------------------------------
@@ -1084,11 +1139,7 @@ void NanoGrain::StNanoGrain::buildHcpBaseRhm()
             //b.x= hcpa*wj;  b.y=hcpa*wi;  b.z=0;
     
             b.y=0;         b.x= -hcpa;     b.z=0;
-            a.y= hcpa*wj;  a.x= hcpa*wi;  a.z=0;
-            
-            
-            
-            
+            a.y= hcpa*wj;  a.x= hcpa*wi;  a.z=0;                                                
             c=a+b;
 
             baseAtomsHcp.clear();
@@ -1432,37 +1483,37 @@ vector<string> shapeParams(split<string>(shapePrm," "));
 const double p=shapePrmValue(shapeParams[0]);
 const double R=minmax.getMinPos()*1.05;
 
-    if(shape=="cubic")
-        if(shapeParams.size()==1) ssShape=new CCubic(p,R);
-        else ssShape=new CCubic(p,R,std::stod(shapeParams[1]),std::stod(shapeParams[2]),std::stod(shapeParams[3]));
-    else
-        if(shape=="oct")
-            ssShape=new COctahedral(p,R);
-        else
-            if(shape=="dod")
-                ssShape=new CDodecahedral(p,R);
-            else {//poly
-            const double a=shapePrmValue(shapeParams[1]);
-            const double b=shapePrmValue(shapeParams[2]);
+            if(shape=="cubic")
+                if(shapeParams.size()==1) ssShape=new CCubic(p,R);
+                else ssShape=new CCubic(p,R,std::stod(shapeParams[1]),std::stod(shapeParams[2]),std::stod(shapeParams[3]));
+            else
+                if(shape=="oct")
+                    ssShape=new COctahedral(p,R);
+                else
+                    if(shape=="dod")
+                        ssShape=new CDodecahedral(p,R);
+                    else {//poly
+                    const double a=shapePrmValue(shapeParams[1]);
+                    const double b=shapePrmValue(shapeParams[2]);
 
 
-                if(shapeParams.size()==1) ssShape=new CPolyhedral(p,R,a,b);
-                else ssShape=new CPolyhedral(p,R,a,b,std::stod(shapeParams[3]),std::stod(shapeParams[4]),std::stod(shapeParams[5]));
-            }
+                        if(shapeParams.size()==1) ssShape=new CPolyhedral(p,R,a,b);
+                        else ssShape=new CPolyhedral(p,R,a,b,std::stod(shapeParams[3]),std::stod(shapeParams[4]),std::stod(shapeParams[5]));
+                    }
 
 
 vatoms tmpAtoms(std::move(atoms));
 
-        atoms.clear();
-        atoms.reserve(tmpAtoms.size());
+                atoms.clear();
+                atoms.reserve(tmpAtoms.size());
 
-        for(auto & atom : tmpAtoms){
-            if(ssShape->isValid(atom.x,atom.y,atom.z)){
-                atoms.emplace_back(atom);
-            }
-        }
+                for(auto & atom : tmpAtoms){
+                    if(ssShape->isValid(atom.x,atom.y,atom.z)){
+                        atoms.emplace_back(atom);
+                    }
+                }
 
-        atoms.shrink_to_fit();
+                atoms.shrink_to_fit();
 
 }
 //-----------------------------------------------------------------------------
@@ -1701,36 +1752,38 @@ void NanoGrain::StNanoGrain::build()
     if(structure.find("uc")!=str::npos)
         buildFromUC();
     else
-        if(structure.find("sc")!=str::npos)
-                    sc();
-                else
-                    if(structure.find("bcc")!=str::npos)
-                        bcc();
+        if(structure.find("tric")!=str::npos)
+            buildFromTric();
+        else
+            if(structure.find("sc")!=str::npos)
+                        sc();
                     else
-                        if(structure.find("fcc")!=str::npos)
-                            fcc();
+                        if(structure.find("bcc")!=str::npos)
+                            bcc();
                         else
-                            if(structure.find("zb110")!=str::npos)
-                                zb110();
+                            if(structure.find("fcc")!=str::npos)
+                                fcc();
                             else
-                                if(structure.find("uo2")!=str::npos)
-                                    fcc(EFCCTYPE::UO2);
+                                if(structure.find("zb110")!=str::npos)
+                                    zb110();
                                 else
-                                    if(structure.find("feni")!=str::npos)
-                                        feni();
+                                    if(structure.find("uo2")!=str::npos)
+                                        fcc(EFCCTYPE::UO2);
                                     else
-                                        if(structure.find("zb")!=str::npos)
-                                            fcc(EFCCTYPE::ZB);
-                                        else{
-                                            hcp();
-                                        return;
-                                        }
+                                        if(structure.find("feni")!=str::npos)
+                                            feni();
+                                        else
+                                            if(structure.find("zb")!=str::npos)
+                                                fcc(EFCCTYPE::ZB);
+                                            else{
+                                                hcp();
+                                            return;
+                                            }
 
 
-    if(!shapePrm.empty())
-        if(shape!="cone")
-            buildSuperSphere();
-
+        if(!shapePrm.empty())
+            if(shape!="cone")
+                buildSuperSphere();
 
 }
 
@@ -2432,8 +2485,17 @@ StMinMax minmax;
         file<<"    "<<minmax.ymin-mY<<"    "<<minmax.ymax+mY<<"    ylo yhi"<<endl;
         file<<"    "<<minmax.zmin-mZ<<"    "<<minmax.zmax+mZ<<"    zlo zhi"<<endl;
 
-        if(saveopt.lmpTric)
-            file<<"    0  0  0  xy  xz  yz"<<endl;
+        if(saveopt.lmpTric){
+            if(structure.find("tric")!=str::npos){
+            const int repX=std::stoi(replicate[0]);
+            const int repY=std::stoi(replicate[1]);
+            const int repZ=std::stoi(replicate[2]);
+
+                file<<"    "<<tric.xy*repX<<"    "<<tric.xz*repY<<"    "<<tric.yz*repZ<<"   xy xz  yz"<<endl;
+            }
+            else
+                file<<"    0  0  0  xy  xz  yz"<<endl;
+        }
 
 
         //------------------------
@@ -2456,22 +2518,33 @@ mapConstIter massIter;
         }
         //------------------------
 
+size_t i;
+const size_t numOfatomsTot=atoms.size();
+const size_t at=atomTypes.size();
+const StAtom * ptr_atom=atoms.data();
 
         if(lmpstyle=="charge"){
-        size_t i;
-        const size_t numOfatomsTot=atoms.size();
-        const StAtom * ptr_atom=atoms.data();
 
             file<<" Atoms # charge"<<endl<<endl;
 
-            for(i=1;i<=numOfatomsTot;i++,ptr_atom++)
-                file<<setw(4)<<ptr_atom->id<<"  "<<  ptr_atom->atype+1 <<"  "<<  atomTypes[ptr_atom->atype].charge<<"  "
+
+            //cout<<FLINE<<endl;
+            //cout<<at<<endl;
+
+            for(i=1;i<=numOfatomsTot;i++,ptr_atom++){
+                //cout<<i<<",  ";
+                //if(ptr_atom->atype>=at){
+                //    errMsg("atype >=at");
+                //    break;
+                //}
+
+
+                file<<setw(6)<<i<<"  "<<( ptr_atom->atype+1 )<<"  "<<  atomTypes[ptr_atom->atype].charge<<"  "
                     <<ptr_atom->x<<" "<<ptr_atom->y<<" "<<ptr_atom->z<<endl;
+                //if(i%20==0) cout<<endl;
+            }
         }
         else{
-        size_t i;
-        const size_t numOfatomsTot=atoms.size();
-        const StAtom * ptr_atom=atoms.data();
 
             file<<" Atoms"<<endl<<endl;
 
@@ -2825,6 +2898,7 @@ const str send("end");
 
                 if(DB) cout<<cmd[index]<<endl;
 
+
                 if(cmd[index]=="atom"){
                     addAtomName(cmd[index++][1]);
                 continue;
@@ -2949,6 +3023,7 @@ const str send("end");
                     Script::replaceVars(ptr_uvar,clp);
                 continue;
                 }
+
 
 
                 if(cmd[index]=="lmpstyle"){
@@ -3246,6 +3321,74 @@ const str send("end");
                 continue;
                 }
 
+                if(cmd[index]=="tricp"){
+
+                    tric.atoms.reserve(1);
+
+                    do{
+                        index++;
+
+                        if(cmd[index]=="end")
+                        break;
+
+                    ClKeyValues keyValues(cmd[index]);
+
+                        Script::replaceVars(ptr_uvar,keyValues.getValue(1));
+
+                        if( ( std::string("lpa lpb lpc").find(cmd[index].getKey())) !=std::string::npos ){
+                        string lpabc(cmd[index][1]);
+
+                           Script::replaceVars(ptr_uvar,lpabc);
+                           switch(cmd[index].getKey()[2]){
+                           case 'a': tric.lpa=lpabc;break;
+                           case 'b': tric.lpb=lpabc;break;
+                           case 'c': tric.lpc=lpabc;break;
+                           }
+
+                        continue;
+                        }
+
+
+                        if( ( std::string("alpha beta gamma").find(cmd[index].getKey())) !=std::string::npos  ){
+                        string abg(cmd[index][1]);
+
+                            Script::replaceVars(ptr_uvar,abg);
+                            switch(cmd[index].getKey()[0]){
+                            case 'a': tric.alpha=abg;break;
+                            case 'b': tric.beta=abg;break;
+                            case 'g': tric.gamma=abg;break;
+                            }
+
+                        continue;
+                        }
+
+                        Script::replaceVars(ptr_uvar,keyValues.getValue(2));
+                        Script::replaceVars(ptr_uvar,keyValues.getValue(3));
+
+                        tric.atoms.push_back(StUcAtom());
+                        tric.atoms.back().name=cmd[index].getKey();
+                        tric.atoms.back().x=std::stod(keyValues.getValue(1));
+                        tric.atoms.back().y=std::stod(keyValues.getValue(2));
+                        tric.atoms.back().z=std::stod(keyValues.getValue(3));
+
+                        // rdh/random mode atoms
+                        auto rdhKV=(keyValues.numOfKeyValues()-4);
+                        if(rdhKV<2){ // * atoms
+                            tric.atoms.back().rdh=(bool)rdhKV;
+                            tric.rdhAtoms+=rdhKV; }
+                        else{ // rm atoms
+                            tric.atoms.back().rmProb=std::stod(keyValues.getValue(5));
+                        }
+                        //
+
+                    }while(true);
+
+                    index++;
+
+                continue;
+                }
+
+
                 if(cmd[index]=="ucp"){
 
                     uc.vtrans.resize(3);
@@ -3273,18 +3416,22 @@ const str send("end");
                         continue;
                         }
 
-                        uc.atoms.push_back(StUnitCell::StUcAtom());
+                        uc.atoms.push_back(StUcAtom());
                         uc.atoms.back().name=cmd[index].getKey();
                         uc.atoms.back().x=std::stod(keyValues.getValue(1));
                         uc.atoms.back().y=std::stod(keyValues.getValue(2));
                         uc.atoms.back().z=std::stod(keyValues.getValue(3));
+
+                        // rdh mode atoms
                         auto rdhKV=(keyValues.numOfKeyValues()-4);
-                            if(rdhKV<2){ // * atoms
-                                uc.atoms.back().rdh=(bool)rdhKV;
-                                uc.rdhAtoms+=rdhKV; }
-                            else{ // rm atoms
-                                uc.atoms.back().rmProb=std::stod(keyValues.getValue(5));
-                            }
+                        if(rdhKV<2){ // * atoms
+                            uc.atoms.back().rdh=(bool)rdhKV;
+                            uc.rdhAtoms+=rdhKV; }
+                        else{ // rm atoms
+                            uc.atoms.back().rmProb=std::stod(keyValues.getValue(5));
+                        }
+                        //
+
                     }while(true);
 
                     index++;
@@ -3305,10 +3452,11 @@ const str send("end");
 
             if(fileNameIn.empty()){
 
-                if(clp.empty() && uc.vtrans.empty() )           throw Status::ERR_LP;
+                if(clp.empty() && uc.vtrans.empty()
+                                     && tric.empty())           throw Status::ERR_LP;
                 if(radius.empty() && replicate.empty() )        throw Status::ERR_RADII;
-                if(shape.empty() && uc.vtrans.empty() )         throw Status::ERR_GEOM;
-                if(atomTypes.empty() && uc.vtrans.empty() )     throw Status::ERR_ATYPES;
+                if(shape.empty() && uc.vtrans.empty() && tric.empty() )         throw Status::ERR_GEOM;
+                if(atomTypes.empty() && uc.vtrans.empty() && tric.empty() )     throw Status::ERR_ATYPES;
 
                 build();
 

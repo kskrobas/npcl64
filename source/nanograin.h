@@ -340,6 +340,7 @@ std::stringstream atomsRemoved;
 
         void feni();
         void buildFromUC();
+        void buildFromTric();
 
 
         void buildHcpABC();
@@ -401,6 +402,16 @@ std::stringstream atomsRemoved;
                 {name=std::move(name__);dispfact=std::move(df__);}
         };
 
+        /// Unit Cell atoms
+        struct StUcAtom{
+        position x,y,z;
+        string name;size_t id;
+        bool rdh=false;
+        double rmProb=0;
+                StUcAtom() { }
+                StUcAtom(const string &name__):name(name__){ }
+                bool operator()(const string &a){ return a==name;}
+        };
 
 public:
 std::string side,radius,clp,structure,scaleFactors;
@@ -425,23 +436,28 @@ static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
 void (StNanoGrain::*callbackSetThreads)(std::string &threads);
     //************************************************
-
     struct StUnitCell{
         vector<StVector> vtrans;
-        size_t rdhAtoms;
-
-            struct StUcAtom{ position x,y,z; string name;size_t id; bool rdh=false; double rmProb=0;
-                                StUcAtom() { }
-                                StUcAtom(const string &name__):name(name__){ }
-                                bool operator()(const string &a){ return a==name;}
-                           };
-
+        size_t rdhAtoms;      
         vector<StUcAtom> atoms;
-
         void clear() {rdhAtoms=0;vtrans.clear(); atoms.clear();}
         bool empty() {return vtrans.empty();}
 
     } uc;
+
+    //************************************************
+    struct StTric{
+    string lpa,lpb,lpc;
+    string alpha,beta,gamma;
+    position xy, xz, yz;
+    size_t rdhAtoms;
+    vector<StUcAtom> atoms;
+
+            StTric(){reset(); }
+
+            void reset(){rdhAtoms=0;alpha=beta=gamma=std::string("90");  lpa.clear(); lpb.clear(); lpc.clear(); }
+            bool empty(){return lpa.empty() || lpb.empty() || lpc.empty(); }
+    } tric;
 
     //************************************************
     struct StSaveOpt{
@@ -454,6 +470,7 @@ void (StNanoGrain::*callbackSetThreads)(std::string &threads);
         void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;lmpTric=false;}
 
     } saveopt;
+
     //************************************************
 
 

@@ -24,6 +24,7 @@ void info()
 {
             cerr<<" date: "<<__DATE__<<endl;
             cerr<<" author: Kazimierz Skrobas, kskrobas@unipress.waw.pl"<<endl;
+            cerr<<" DOI: 10.5281/zenodo.10853303"<<endl;
             cerr<<" NPCLPATH: ";
 
             if(const char* env_p = std::getenv("NPCLPATH"))
