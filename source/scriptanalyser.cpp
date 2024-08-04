@@ -543,8 +543,22 @@ vcmdlist tric_cmdlist;
 
 
                  if(regex_match(cmdline,std::regex("(alpha|beta|gamma)("+sRE_NUMBER+"|[[:s:]]+"+sVAR+")"))){
-                         testDuplicate(tric_cmdlist,cmdline.substr(0,cmdline.find_first_of(" ")));
-                         appKeyValues(tric_cmdlist,cmdline);
+                 vector<string> abg(split<string>(cmdline," "));
+
+                             if(abg[0]=="gamma"){
+                             string sval(abg[1]);
+
+                                    if(sval[0]!='$'){
+                                    const double val=std::stod(sval);
+                                        if(val<1 || val>179){
+                                            errMsg("gamma should be within 1<gamma<179 range");
+                                        throw Script::Result::ERR_OUTOFRANGE;
+                                        }
+                                    }
+                             }
+
+                             testDuplicate(tric_cmdlist,abg[0]);
+                             appKeyValues(tric_cmdlist,cmdline);
                  continue;
                  }
 

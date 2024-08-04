@@ -272,6 +272,9 @@ struct StMinMax{
     position getMaxAbs();
     position getMinAbs();
     position getMinPos();
+    position getWidth() {return xmax-xmin;}
+    position getLength(){return ymax-ymin;}
+    position getHeight(){return zmax-zmin;}
 
 
 };

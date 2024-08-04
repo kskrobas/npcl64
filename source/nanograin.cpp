@@ -2433,11 +2433,11 @@ void NanoGrain::StNanoGrain::saveLammpsFile(const string &fileName)
 
 fstream file(fileName,ios::out);
 
-        if(!file){
-            cerr<<"couldn't open file for saving, atom positions will be lost"<<endl;
-            file.close();
-        throw Status::ERR_FOPEN;
-        }
+            if(!file){
+                cerr<<"couldn't open file for saving, atom positions will be lost"<<endl;
+                file.close();
+            throw Status::ERR_FOPEN;
+            }
 
 
 //cdouble clpH=std::stod(clp)*0.5;
@@ -2446,114 +2446,128 @@ double mX,mY,mZ;
 StMinMax minmax;
 
 
-        if(margins.empty()){
-            if(clp.empty()){
-                if(uc.vtrans.empty()){
-                    mX=mY=mZ=0;
+            if(margins.empty()){
+                if(clp.empty()){
+                    if(uc.vtrans.empty()){
+                        mX=mY=mZ=0;
+                    }
+                    else{
+                        mX=0.5*(uc.vtrans[0].x+uc.vtrans[1].x+uc.vtrans[2].x);
+                        mY=0.5*(uc.vtrans[0].y+uc.vtrans[1].y+uc.vtrans[2].y);
+                        mZ=0.5*(uc.vtrans[0].z+uc.vtrans[1].z+uc.vtrans[2].z);
+                    }
                 }
-                else{
-                    mX=0.5*(uc.vtrans[0].x+uc.vtrans[1].x+uc.vtrans[2].x);
-                    mY=0.5*(uc.vtrans[0].y+uc.vtrans[1].y+uc.vtrans[2].y);
-                    mZ=0.5*(uc.vtrans[0].z+uc.vtrans[1].z+uc.vtrans[2].z);
-                }
+                else
+                    mX=mY=mZ=0.5*std::stod(clp);
             }
-            else
-                mX=mY=mZ=0.5*std::stod(clp);
-        }
-        else{
-        vector<string> toks(split<string>(margins," "));
-            if(toks.size()==1)
-                mX=mY=mZ=std::stod(toks[0]);
             else{
-                mX=std::stod(toks[0]);
-                mY=std::stod(toks[1]);
-                mZ=std::stod(toks[2]);
+            vector<string> toks(split<string>(margins," "));
+                if(toks.size()==1)
+                    mX=mY=mZ=std::stod(toks[0]);
+                else{
+                    mX=std::stod(toks[0]);
+                    mY=std::stod(toks[1]);
+                    mZ=std::stod(toks[2]);
+                }
             }
-        }
 
 
 
-        minmax.searchForMinMax(atoms);
+            minmax.searchForMinMax(atoms);
 
-        file<<"# created by npcl"<<endl<<endl;
+            file<<"# created by npcl"<<endl<<endl;
 
-        //------------------------
-        file<<"\t"<<atoms.size()<<"\tatoms"<<endl;
-        file<<"\t"<<atomTypes.size()<<"\tatom types"<<endl;
+            //------------------------
+            file<<"\t"<<atoms.size()<<"\tatoms"<<endl;
+            file<<"\t"<<atomTypes.size()<<"\tatom types"<<endl;
 
-        file<<"    "<<minmax.xmin-mX<<"    "<<minmax.xmax+mX<<"    xlo xhi"<<endl;
-        file<<"    "<<minmax.ymin-mY<<"    "<<minmax.ymax+mY<<"    ylo yhi"<<endl;
-        file<<"    "<<minmax.zmin-mZ<<"    "<<minmax.zmax+mZ<<"    zlo zhi"<<endl;
 
-        if(saveopt.lmpTric){
-            if(structure.find("tric")!=str::npos){
-            const int repX=std::stoi(replicate[0]);
-            const int repY=std::stoi(replicate[1]);
-            const int repZ=std::stoi(replicate[2]);
 
-                file<<"    "<<tric.xy*repX<<"    "<<tric.xz*repY<<"    "<<tric.yz*repZ<<"   xy xz  yz"<<endl;
+            if(saveopt.lmpTric){
+                if(structure.find("tric")!=str::npos){
+                 #pragma message (" !!! definition of triclinic box is not implemented for xz, yz planes")
+                const int repY=std::stoi(replicate[1]);
+                const int repZ=std::stoi(replicate[2]);
+
+
+                cpos gamma=std::stod(tric.gamma)*M_PI/180;
+                cpos ctg=cos(gamma)/sin(gamma);
+                cpos sX=(2*mY+minmax.getLength())*ctg;
+
+
+
+                    /*cout<<"mX, mY, mZ "<<mX<<", "<<mY<<", "<<mZ<<endl;
+                    cout<<"minmax ";
+                    for(size_t i=0;i<6;i++){
+                        if(i%2==0) cout<<endl;
+                        cout<<minmax.xyzMinMax[i]<<" ";
+                    }
+                    cout<<endl;
+
+                    cout<<"sX "<<sX<<endl;
+                    */
+
+                    file<<"    "<<minmax.xmin-sX-mX   <<"    "<<minmax.xmax+mX<<"    xlo xhi"<<endl;
+                    file<<"    "<<minmax.ymin-mY    <<"    "<<minmax.ymax+mY <<"    ylo yhi"<<endl;
+                    file<<"    "<<minmax.zmin-mZ    <<"    "<<minmax.zmax+mZ <<"    zlo zhi"<<endl;
+
+
+                    file<<"    "<<sX<<"    "<<tric.xz*repY<<"    "<<tric.yz*repZ<<"   xy xz  yz"<<endl;
+                }
             }
-            else
-                file<<"    0  0  0  xy  xz  yz"<<endl;
-        }
+            else{
+                    file<<"    "<<minmax.xmin-mX<<"    "<<minmax.xmax+mX<<"    xlo xhi"<<endl;
+                    file<<"    "<<minmax.ymin-mY<<"    "<<minmax.ymax+mY<<"    ylo yhi"<<endl;
+                    file<<"    "<<minmax.zmin-mZ<<"    "<<minmax.zmax+mZ<<"    zlo zhi"<<endl;
+                    file<<"    0  0  0  xy  xz  yz"<<endl;
+            }
 
 
-        //------------------------
-        file<<"Masses"<<endl<<endl;
+
+            //------------------------
+            file<<"Masses"<<endl<<endl;
 
 mapConstIter massIter;
 
-        for( size_t i=0;i<atomTypes.size();i++){
+            for( size_t i=0;i<atomTypes.size();i++){
 
-            file<<"    "<<i+1<<"  ";
-            if( (massIter=Elements::mass.find(atomTypes[i].name))==Elements::mass.end()){
-                file<<"?";
-                warnMsg("unknown mass for "+atomTypes[i].name);
+                file<<"    "<<i+1<<"  ";
+                if( (massIter=Elements::mass.find(atomTypes[i].name))==Elements::mass.end()){
+                    file<<"?";
+                    warnMsg("unknown mass for "+atomTypes[i].name);
+                }
+                else
+                    file<<massIter->second;
+
+                file<<"  #  "<<atomTypes[i].name<<endl;
+
             }
-            else
-                file<<massIter->second;
-
-            file<<"  #  "<<atomTypes[i].name<<endl;
-
-        }
-        //------------------------
+            //------------------------
 
 size_t i;
 const size_t numOfatomsTot=atoms.size();
 const size_t at=atomTypes.size();
 const StAtom * ptr_atom=atoms.data();
 
-        if(lmpstyle=="charge"){
+            if(lmpstyle=="charge"){
 
-            file<<" Atoms # charge"<<endl<<endl;
+                file<<" Atoms # charge"<<endl<<endl;
 
-
-            //cout<<FLINE<<endl;
-            //cout<<at<<endl;
-
-            for(i=1;i<=numOfatomsTot;i++,ptr_atom++){
-                //cout<<i<<",  ";
-                //if(ptr_atom->atype>=at){
-                //    errMsg("atype >=at");
-                //    break;
-                //}
-
-
-                file<<setw(6)<<i<<"  "<<( ptr_atom->atype+1 )<<"  "<<  atomTypes[ptr_atom->atype].charge<<"  "
-                    <<ptr_atom->x<<" "<<ptr_atom->y<<" "<<ptr_atom->z<<endl;
-                //if(i%20==0) cout<<endl;
+                for(i=1;i<=numOfatomsTot;i++,ptr_atom++){
+                    file<<setw(6)<<i<<"  "<<( ptr_atom->atype+1 )<<"  "<<  atomTypes[ptr_atom->atype].charge<<"  "
+                        <<ptr_atom->x<<" "<<ptr_atom->y<<" "<<ptr_atom->z<<endl;
+                }
             }
-        }
-        else{
+            else{
 
-            file<<" Atoms"<<endl<<endl;
+                file<<" Atoms"<<endl<<endl;
 
-            for(i=1;i<=numOfatomsTot;i++,ptr_atom++)
-                file<<setw(6)<<i<<"  "<<  ptr_atom->atype+1 <<"  "<<ptr_atom->x<<" "<<ptr_atom->y<<" "<<ptr_atom->z<<endl;
-        }
+                for(i=1;i<=numOfatomsTot;i++,ptr_atom++)
+                    file<<setw(6)<<i<<"  "<<  ptr_atom->atype+1 <<"  "<<ptr_atom->x<<" "<<ptr_atom->y<<" "<<ptr_atom->z<<endl;
+            }
 
 
-        file.close();
+            file.close();
 
 }
 //-----------------------------------------------------------------------------
