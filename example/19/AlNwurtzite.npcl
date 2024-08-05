@@ -1,0 +1,68 @@
+/>
+creation date: 08-05-24
+
+build AlN wurzite structure by using triclinic unit cell parameters
+
+NOTE: LAMMPS triclinic box is not fully implemented, works for hexagon-based lattices only
+</
+
+
+
+lpa=3.1117
+lpb=3.1117
+lpc=4.9788
+
+
+Al1x=${lpa}/2
+Al1y=sqrt(3)*${lpb}/6
+Al1z=0
+
+
+Al2x=0
+Al2y=sqrt(3)*${lpb}/3
+Al2z=${lpc}/2
+
+
+N1x=${Al1x}
+N1y=${Al1y}
+N1z=${lpc}/4
+
+N2x=${Al2x}
+N2y=${Al2y}
+N2z=${lpc}*3/4
+
+
+
+grain
+    struct tric
+	
+
+    
+    tricp
+        lpa ${lpa}
+        lpb ${lpb}
+        lpc ${lpc}
+    
+        #alpha 60
+        #beta  60
+        gamma 120
+        
+        Al ${Al1x}  ${Al1y}  0
+        Al  ${Al2x}  ${Al2y}  ${Al2z}
+        
+        N  ${N1x}   ${N1y}   ${N1z}
+        N  ${N2x}   ${N2y}   ${N2z}
+    end
+    
+    replicate 8  8  8
+	
+	lmpstyle charge
+	charge Al 0.3
+	charge N -0.3
+        
+    saveopt lmp tric
+	lmpmargin 2 1 1
+			    
+    save atoms.lmp
+end
+

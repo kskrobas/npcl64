@@ -3,7 +3,7 @@ objdir=objdeb
 bindir=../bin
 cpp=g++
 
-cppflags=-fopenmp -std=c++17 -g  -march=native -m64 -fPIC -pipe  -DDEBUG -Wall
+cppflags=-fopenmp -std=c++17 -g  -march=native -m64 -fPIC -pipe  -DDEBUG -Wall 
 cpplibs=-L../fparser -lpthread -lfparser
 target=$(bindir)/npclA.d
 obj=$(objdir)/cavepdh.o $(objdir)/cdiff.o $(objdir)/cgr.o $(objdir)/cpdh.o $(objdir)/elements.o   \

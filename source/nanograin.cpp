@@ -78,6 +78,7 @@ void gotoEOL(fstream &file)
 ostream & NanoGrain::operator<<(ostream &o,const NanoGrain::StAtom &a)
 {
     o<<a.id<<"\t"<<a.atype<<"\t"<<a.x<<"\t"<<a.y<<"\t"<<a.z;
+return o;
 }
 
 //-----------------------------------------------------------------------------
@@ -735,7 +736,7 @@ const size_t atomNameA=0;
 
             }
             else {
-            #pragma message (" zb110  not implemented for multitypes structure")
+            #pragma message (" !!! zb110  not implemented for multitypes structure")
             }
 
 
@@ -805,8 +806,8 @@ position prob;
             atoms.reserve(pm*repX*pm*repY*pm*repZ*sizeBase);
 
             //-----------------------------------------
-            atomTypes.clear();
-            atomTypes.reserve(sizeBase);
+            //atomTypes.clear();
+            //atomTypes.reserve(sizeBase);
 
             for(auto &baseAtom: uc.atoms){
             auto iter=std::find(atomTypes.begin(),atomTypes.end(),NanoGrain::StAtomType(baseAtom.name));
@@ -2553,6 +2554,11 @@ const StAtom * ptr_atom=atoms.data();
 
                 file<<" Atoms # charge"<<endl<<endl;
 
+                /*cout<<" atomTypes "<<atomTypes.size()<<endl;
+                for (auto &s : atomTypes)
+                    cout<<" "<<s.charge;
+                */
+
                 for(i=1;i<=numOfatomsTot;i++,ptr_atom++){
                     file<<setw(6)<<i<<"  "<<( ptr_atom->atype+1 )<<"  "<<  atomTypes[ptr_atom->atype].charge<<"  "
                         <<ptr_atom->x<<" "<<ptr_atom->y<<" "<<ptr_atom->z<<endl;
@@ -2945,8 +2951,8 @@ const str send("end");
                 }
 
                 if(cmd[index]=="charge"){
-                string aname(cmd[index][1]);
-                string value(cmd[index][2]);
+                const string aname(cmd[index][1]);
+                const string value(cmd[index][2]);
                 const int anamedup= (findAtomName(aname));
 
                         lmpstyle="charge";

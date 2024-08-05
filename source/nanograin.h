@@ -248,8 +248,9 @@ typedef vector<StAtom> vatoms;
 struct StAtomType{
 std::string name,charge;
 
-    StAtomType() { name ="?"; charge="?";}
-    StAtomType(const string name__):name (name__) { }
+    StAtomType() { name ="?"; charge="?";  }
+    StAtomType(const string name__):name (name__) {  }
+    ~StAtomType(){  }
 
    // bool operator()(const string &a){ return a==name;}
     bool operator == (const StAtomType &a){
