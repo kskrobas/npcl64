@@ -172,3 +172,14 @@ cpos tripleProduct(StVector &a, StVector &b, StVector &c)
 return a.x*(b.y*c.z-b.z*c.y)+a.y*(b.z*c.x-b.x*c.z)+a.z*(b.x*c.y-b.y*c.x);
 }
 
+//-----------------------------------------------------------------------------
+StVector StMatrix::operator *(const StVector &a)
+{
+StVector o;
+
+        o.x=m11*a.x+m12*a.y+m13*a.z;
+        o.y=m21*a.x+m22*a.y+m23*a.z;
+        o.z=m31*a.x+m32*a.y+m33*a.z;
+
+return o;
+}

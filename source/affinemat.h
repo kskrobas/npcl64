@@ -121,6 +121,20 @@ double tmax,tmin;
 };
 
 
+struct StMatrix{
+
+union{
+      struct{ position m11,m12,m13,m21,m22,m23,m31,m32,m33;};
+      position m[9];
+      position mm[3][3];
+};
+
+      StVector operator * (const StVector &a);
+
+
+};
+
+
 class StRotationMatrix{
 public:
 
@@ -137,8 +151,9 @@ bool on=false;
 
     void buildMatrix(const StAxis &axis_);
     void buildMatrix(const StAxis &axis_,cpos &sinA, cpos &cosA);
+
     StVector operator*(const StVector &v);
-//StAtom operator*=(S);
+
 
     StRotationMatrix(){ ux=uy=uz=theta=0;}
     StRotationMatrix(const StAxis &axis_,cpos &sinA, cpos &cosA){

@@ -415,6 +415,8 @@ std::stringstream atomsRemoved;
                 StUcAtom() { }
                 StUcAtom(const string &name__):name(name__){ }
                 bool operator()(const string &a){ return a==name;}
+                void operator=(const StVector &v){x=v.x; y=v.y; z=v.z;}
+
         };
 
 public:
@@ -456,10 +458,11 @@ void (StNanoGrain::*callbackSetThreads)(std::string &threads);
     position xy, xz, yz;
     size_t rdhAtoms;
     vector<StUcAtom> atoms;
+    enum ECOORDSYS{TRIC,CART} csys;   // coordination system
 
             StTric(){reset(); }
 
-            void reset(){rdhAtoms=0;alpha=beta=gamma=std::string("90");  lpa.clear(); lpb.clear(); lpc.clear(); }
+            void reset(){rdhAtoms=0;alpha=beta=gamma=std::string("90");  csys=ECOORDSYS::TRIC; lpa.clear(); lpb.clear(); lpc.clear(); }
             bool empty(){return lpa.empty() || lpb.empty() || lpc.empty(); }
     } tric;
 

@@ -898,7 +898,33 @@ cpos C=std::stod(tric.lpc);
                 uc.vtrans[2]=std::move(c);
 
                 uc.rdhAtoms=tric.rdhAtoms;
-                uc.atoms=std::move(tric.atoms);
+
+                /////////////////////////////////////////////////////
+
+
+                /// conversion from triclinic to Cartesian system
+                /// see:
+                /// https://www.ucl.ac.uk/~rmhajc0/frorth.pdf
+                if(tric.csys==StTric::TRIC){
+                const size_t nOfatoms=tric.atoms.size();
+                vector<StUcAtom> ucAtoms(nOfatoms);
+                const auto &tricAtoms=tric.atoms;
+                StMatrix mconv;
+
+                        mconv.m11=A; mconv.m12=b.x; mconv.m13=c.x;
+                        mconv.m21=0; mconv.m22=b.y; mconv.m23=-C*sin(beta)*cos(beta);
+                        mconv.m31=0; mconv.m32=0;   mconv.m33= C*sin(beta)*sin(alpha);
+
+                        for(size_t i=0;i<nOfatoms;i++){
+                        const auto &atomt=tricAtoms[i];
+                                ucAtoms[i]=atomt;
+                                ucAtoms[i]=mconv*StVector(atomt.x,atomt.y,atomt.z);
+                        }
+
+                        uc.atoms=std::move(ucAtoms);
+                }
+                else  /// tric.atoms in Cartesian system
+                    uc.atoms=std::move(tric.atoms);
 
 
                 buildFromUC();
@@ -3350,6 +3376,15 @@ const str send("end");
 
                         if(cmd[index]=="end")
                         break;
+
+                        if(cmd[index]=="csys"){
+                            if(cmd[index].getValue()=="tric")
+                                tric.csys=StTric::TRIC;
+                            else
+                                tric.csys=StTric::CART;
+
+                        continue;
+                        }
 
                     ClKeyValues keyValues(cmd[index]);
 

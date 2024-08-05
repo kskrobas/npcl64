@@ -3,6 +3,8 @@ creation date: 08-05-24
 
 build AlN wurzite structure by using triclinic unit cell parameters
 
+NOTE:  unit cell atom positions defined in  (natural) Triclinic system 
+
 NOTE: LAMMPS triclinic box is not fully implemented, works for hexagon-based lattices only
 </
 
@@ -13,23 +15,23 @@ lpb=3.1117
 lpc=4.9788
 
 
-Al1x=${lpa}/2
-Al1y=sqrt(3)*${lpb}/6
-Al1z=0
+Al1x=2/3
+Al1y=1/3
+Al1z=1
 
 
-Al2x=0
-Al2y=sqrt(3)*${lpb}/3
-Al2z=${lpc}/2
+Al2x=1/3
+Al2y=2/3
+Al2z=1/2
 
 
 N1x=${Al1x}
 N1y=${Al1y}
-N1z=${lpc}/4
+N1z=0.38
 
 N2x=${Al2x}
 N2y=${Al2y}
-N2z=${lpc}*3/4
+N2z=0.88
 
 
 
@@ -47,7 +49,7 @@ grain
         #beta  60
         gamma 120
         
-        Al ${Al1x}  ${Al1y}  0
+        Al ${Al1x}  ${Al1y}  ${Al1z}
         Al  ${Al2x}  ${Al2y}  ${Al2z}
         
         N  ${N1x}   ${N1y}   ${N1z}

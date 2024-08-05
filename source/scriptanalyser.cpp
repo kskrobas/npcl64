@@ -563,6 +563,14 @@ vcmdlist tric_cmdlist;
                  }
 
 
+                 if(regex_match(cmdline,std::regex("csys[[:s:]]+(tric|cart)"))){
+                         testDuplicate(tric_cmdlist,cmdline.substr(0,4));
+                         appKeyValues(tric_cmdlist,cmdline);
+                 continue;
+                 }
+
+
+
                  if(regex_match(cmdline,std::regex("lp[abc]("+sPRE_NUMBER+"|[[:s:]]+"+sVAR+")"))){
                          testDuplicate(tric_cmdlist,cmdline.substr(0,3));
                          appKeyValues(tric_cmdlist,cmdline);
@@ -582,6 +590,8 @@ vcmdlist tric_cmdlist;
                     atoms++;
                 continue;
                 }
+
+
 
                 //the end of block
                 if(regex_match(cmdline,std::regex("end"))){
