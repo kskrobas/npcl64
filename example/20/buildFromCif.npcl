@@ -1,0 +1,34 @@
+/>
+creation date: 08-06-2024
+
+    uc structure building based on CIF file     
+
+
+</
+
+
+grain
+    struct cif
+    cif cif.cif
+    
+    replicate 8  8  8
+	
+	lmpmargin 2 1 1
+			    
+    save atomsCif.xyz
+end
+
+
+
+grain
+    struct cif
+    cif Graphite_AMS_DATA.cif
+    
+    replicate 8  8  8
+	
+	lmpmargin 2 1 1
+			    
+    save graphene.xyz
+end
+
+
