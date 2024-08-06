@@ -345,7 +345,7 @@ std::stringstream atomsRemoved;
         void feni();
         void buildFromUC();
         void buildFromTric();
-
+        void buildFromCIF();
 
         void buildHcpABC();
         void buildRandomABC(vector<string> &params);
@@ -427,7 +427,7 @@ std::string hcpu,hcpcs, hcpABC;
 vector<StAtomType> atomTypes;
 vector<size_t> atomNamesNumber;
 vector<StAtomDispFactor> atomDisperse;
-std::string fileNameIn,fileNameHeader;
+std::string fileNameIn,fileNameHeader,fileCIF;
 vector<string> fileNameOut;
 std::string lmpstyle,comment;
 std::string rmatoms;

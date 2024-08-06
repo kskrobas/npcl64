@@ -26,6 +26,8 @@
 #include <string>
 #include <functional>
 #include <omp.h>
+#include <regex>
+#include <algorithm>
 
 #include "createdir.h"
 #include "crandom.h"
@@ -118,7 +120,7 @@ void NanoGrain::StNanoGrain::resetPrms()
         replicate.clear();
         rename.clear();
         tric.reset();
-
+        fileCIF.clear();
 
         atomTypes.clear();
         atomNamesNumber.clear();
@@ -162,7 +164,6 @@ void NanoGrain::StNanoGrain::resetPrms()
         hcpsl=true;
         hcpsurf=EHCPSURF::sB;
         numOfAtomsTest=false;
-        //testSNA=false;
         numOfAtomsPush.clear();
         saveFileStatusPush.clear();
         margins.clear();
@@ -806,16 +807,19 @@ position prob;
             atoms.reserve(pm*repX*pm*repY*pm*repZ*sizeBase);
 
             //-----------------------------------------
-            //atomTypes.clear();
-            //atomTypes.reserve(sizeBase);
+
+            atomTypes.reserve(uc.atoms.size());
 
             for(auto &baseAtom: uc.atoms){
             auto iter=std::find(atomTypes.begin(),atomTypes.end(),NanoGrain::StAtomType(baseAtom.name));
 
-                if(iter==atomTypes.end())
-                    atomTypes.push_back(baseAtom.name);
+                if(iter==atomTypes.end()){
+                    atomTypes.push_back(baseAtom.name);                    
+                    baseAtom.id=atomTypes.size()-1;
+                }
+                else
+                    baseAtom.id=(size_t) std::distance(atomTypes.begin(),iter);
 
-                baseAtom.id=(size_t) std::distance(atomTypes.begin(),iter);
             }
 
             atomTypes.shrink_to_fit();
@@ -926,9 +930,178 @@ cpos C=std::stod(tric.lpc);
                 else  /// tric.atoms in Cartesian system
                     uc.atoms=std::move(tric.atoms);
 
-
                 buildFromUC();
 
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::buildFromCIF()
+{
+fstream fin(fileCIF,ios::in);
+
+        if(!fin){
+            fin.close();
+            errMsg(" file *.CIF is missing");
+        throw NanoGrain::Status::ERR_FOPEN;
+        }
+
+
+        ///https://www.iucr.org/__data/assets/pdf_file/0019/22618/cifguide.pdf
+
+std::string fline;
+StTric tmpTric;
+auto ifbra=[](const char &c){return c=='('|| c==')';};
+size_t dataCompletness=0;
+
+        while(!fin.eof() && dataCompletness!=7 ){
+            std::getline(fin,fline);
+            trim(fline);
+
+            if(fline.empty() || fline[0]=='#' || fline[0]==';') continue;
+
+                                            /// it checks both formats:  1.234567  & 1.2345(67)
+            if(regex_match(fline,std::regex("_cell_length_[abc][[:s:]]+[0-9]+[.]?[0-9]*([\\(][0-9]*[\\)])?"))){
+            vector<string> tokens(split<string>(fline," \t"));
+            string value;
+
+                    value.resize(tokens[1].size());
+                    for(size_t i=0,j=0;i<tokens[1].size();i++) {
+                        if(ifbra(tokens[1][i]))  continue;
+
+                        value[j++]=tokens[1][i];
+                    }
+
+                   switch (tokens[0].back()){
+                   case 'a': tmpTric.lpa=value;break;
+                   case 'b': tmpTric.lpb=value;break;
+                   case 'c': tmpTric.lpc=value;break;
+                   }
+
+                   dataCompletness++;
+
+            continue;
+            }
+
+
+            if(regex_match(fline,std::regex("_cell_angle_(alpha|beta|gamma)[[:s:]]+[0-9]+[.]?[0-9]*([\\(][0-9]*[\\)])?"))){
+            vector<string> tokens(split<string>(fline," \t"));
+            string value;
+
+                    value.resize(tokens[1].size());
+                    for(size_t i=0,j=0;i<tokens[1].size();i++) {
+                        if(ifbra(tokens[1][i]))  continue;
+
+                        value[j++]=tokens[1][i];
+                    }
+
+                   switch (tokens[0].at(12)){
+                   case 'a': tmpTric.alpha=tokens[1];break;
+                   case 'b': tmpTric.beta=tokens[1];break;
+                   case 'g': tmpTric.gamma=tokens[1];break;
+                   }
+
+                   dataCompletness++;
+
+            continue;
+            }
+
+
+            if(regex_match(fline,std::regex("loop_"))){
+
+                std::getline(fin,fline);
+                trim(fline);
+
+                if(fline.find("_atom_site_")!=string::npos){
+                int aName,aLabel,aX,aY,aZ;
+                int tagPos=0;
+
+                    aName=aX=aY=aZ=-1;
+
+                    do{
+                        if(regex_match(fline,std::regex("_atom_site_type_symbol")))
+                            aName=tagPos;
+                        else
+                            if(regex_match(fline,std::regex("_atom_site_label")))
+                                aLabel=tagPos;
+                            else{
+                                if(regex_match(fline,std::regex("_atom_site_fract_[xyz]"))){
+                                    switch (fline.back()){
+                                    case 'x': aX=tagPos;break;
+                                    case 'y': aY=tagPos;break;
+                                    case 'z': aZ=tagPos;break;
+                                    }
+                                }
+                        }
+
+                        std::getline(fin,fline);
+                        trim(fline);
+                        tagPos++;
+                    }while(fline[0]=='_' && !fin.eof());
+
+                    if(aName<0 && aLabel>=0){
+                        aName=aLabel;
+                        warnMsg("_atom_site_type_symbol not given, replaced by _atom_site_label value");
+                    }
+
+
+
+                    if(! fin.good() || aName<0 || aX<0 || aY<0 || aZ<0 || tagPos<4){
+                        errMsg(" the cif file format is corrupted, line: "+std::to_string(__LINE__));
+                    throw NanoGrain::Status::ERR_FFORMAT;
+                    }
+
+
+                    do{
+                    vector<string> tokens(split<string>(fline," \t"));
+                    const size_t tsize=tokens.size();
+
+                        if( (tsize!=tagPos)) break;
+
+                    string N(tokens[aName]);
+                    string X(tokens[aX]);
+                    string Y(tokens[aY]);
+                    string Z(tokens[aZ]);
+
+                    auto testX=regex_match(X,std::regex("[01][.][0-9]*"));
+                    auto testY=regex_match(Y,std::regex("[01][.][0-9]*"));
+                    auto testZ=regex_match(Z,std::regex("[01][.][0-9]*"));
+
+                        if(testX && testY && testZ){
+
+                            tmpTric.atoms.push_back(StUcAtom());
+                            tmpTric.atoms.back().name=N;
+                            tmpTric.atoms.back().x=std::stod(X);
+                            tmpTric.atoms.back().y=std::stod(Y);
+                            tmpTric.atoms.back().z=std::stod(Z);
+
+                        }
+                        else{
+                            errMsg(" couldn't recognize fractonial position");
+                        throw NanoGrain::Status::ERR_FFORMAT;
+                        }
+
+                        std::getline(fin,fline);
+                        trim(fline);
+
+                    }while( !fin.eof() &&
+                            fline.find("loop")==string::npos && fline.find("data")==string::npos &&
+                            fline[0]!='_' && fline[0]!='#' || fline[0]!=';');
+
+                    dataCompletness++;
+                }
+
+            }
+
+        }
+
+        fin.close();
+
+        if(dataCompletness!=7){
+            errMsg(" dataCompletness != 7");
+        throw NanoGrain::Status::ERR_FFORMAT;
+        }
+
+        tric=std::move(tmpTric);
+        buildFromTric();
 }
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::buildHcpABC()
@@ -1782,30 +1955,33 @@ void NanoGrain::StNanoGrain::build()
         if(structure.find("tric")!=str::npos)
             buildFromTric();
         else
-            if(structure.find("sc")!=str::npos)
-                        sc();
-                    else
-                        if(structure.find("bcc")!=str::npos)
-                            bcc();
+            if(structure.find("cif")!=str::npos)
+                buildFromCIF();
+            else
+                if(structure.find("sc")!=str::npos)
+                            sc();
                         else
-                            if(structure.find("fcc")!=str::npos)
-                                fcc();
+                            if(structure.find("bcc")!=str::npos)
+                                bcc();
                             else
-                                if(structure.find("zb110")!=str::npos)
-                                    zb110();
+                                if(structure.find("fcc")!=str::npos)
+                                    fcc();
                                 else
-                                    if(structure.find("uo2")!=str::npos)
-                                        fcc(EFCCTYPE::UO2);
+                                    if(structure.find("zb110")!=str::npos)
+                                        zb110();
                                     else
-                                        if(structure.find("feni")!=str::npos)
-                                            feni();
+                                        if(structure.find("uo2")!=str::npos)
+                                            fcc(EFCCTYPE::UO2);
                                         else
-                                            if(structure.find("zb")!=str::npos)
-                                                fcc(EFCCTYPE::ZB);
-                                            else{
-                                                hcp();
-                                            return;
-                                            }
+                                            if(structure.find("feni")!=str::npos)
+                                                feni();
+                                            else
+                                                if(structure.find("zb")!=str::npos)
+                                                    fcc(EFCCTYPE::ZB);
+                                                else{
+                                                    hcp();
+                                                return;
+                                                }
 
 
         if(!shapePrm.empty())
@@ -2994,6 +3170,12 @@ const str send("end");
                 continue;
                 }
 
+                if(cmd[index]=="cif"){
+                        fileCIF =cmd[index++][1];
+                        Script::replaceVars(ptr_uvar,fileCIF);
+                continue;
+                }
+
                 if(cmd[index]=="csh"){
 
                     do{
@@ -3506,12 +3688,14 @@ const str send("end");
 
 
             if(fileNameIn.empty()){
+            const bool vttriccif=uc.vtrans.empty() &
+                                    tric.empty() &
+                                    fileCIF.empty();
 
-                if(clp.empty() && uc.vtrans.empty()
-                                     && tric.empty())           throw Status::ERR_LP;
-                if(radius.empty() && replicate.empty() )        throw Status::ERR_RADII;
-                if(shape.empty() && uc.vtrans.empty() && tric.empty() )         throw Status::ERR_GEOM;
-                if(atomTypes.empty() && uc.vtrans.empty() && tric.empty() )     throw Status::ERR_ATYPES;
+                if(clp.empty() && vttriccif)                throw Status::ERR_LP;
+                if(radius.empty() && replicate.empty() )    throw Status::ERR_RADII;
+                if(shape.empty()     && vttriccif)          throw Status::ERR_GEOM;
+                if(atomTypes.empty() && vttriccif)          throw Status::ERR_ATYPES;
 
                 build();
 

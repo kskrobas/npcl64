@@ -878,6 +878,13 @@ bool radiusOrside=false;
                     }
 
 
+                    if(regex_match(cmdline,std::regex("cif[[:s:]]+[[:print:]]+"))){
+                            //testDuplicate(gb_cmdlist,"mass");
+                            appKeyValues(gb_cmdlist,cmdline);
+                    continue;
+                    }
+
+
                     if(regex_match(cmdline,std::regex("disloc[[:s:]]+(dumbell|intdef)[[:s:]]+uniform"+sRE_NUMBER+sPRE_NUMBER+sPRE_NUMBER+"([[:s:]]+(x|y|z))?"))){
                     ClKeyValues kv("disloc");
 
@@ -1190,7 +1197,7 @@ bool radiusOrside=false;
                     }
 
 
-                    if(regex_match(cmdline,std::regex("struct[[:s:]]+(sc|bcc|fcc|hcp|zb|uo2|zb110|feni|uc|tric)"))){
+                    if(regex_match(cmdline,std::regex("struct[[:s:]]+(sc|bcc|fcc|hcp|zb|uo2|zb110|feni|uc|tric|cif)"))){
                             testDuplicate(gb_cmdlist,"struct");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
