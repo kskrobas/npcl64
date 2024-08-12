@@ -34,6 +34,7 @@
 #include "colormsg.h"
 #include "parse_expr.h"
 #include "cprogress.h"
+#include "stsymmgroupgenerator.h"
 
 #ifndef __linux
 #define M_PI 3.1415926539
@@ -477,7 +478,7 @@ const size_t atomNameA=0;
                      cpos  gv=1.0*M_PI*sqr(fradius)*coneHeight/3.0; //cone grain volume
                      size_t   appSize=(size_t)  gv/ucv;
                      const size_t mult=(fcctype) ? 8 : 4;
-                     position radii2,X2,Y2,r2xy,r2xyh,fradii2,fradii2h;
+                     position radii2,X2,Y2,r2xy,fradii2,fradii2h;
                      cpos heightHalf=0.5*coneHeight;
                      cpos cmaxLp=(cpos) (floor( (fradius>minRadius) ?  fradius/fclp : minRadius/fclp));
                      cpos cSTART=-cmaxLp*fclp;
@@ -496,7 +497,6 @@ const size_t atomNameA=0;
                                     Y2h=Yh*Yh;
 
                                     r2xy=X2+Y2;
-                                    r2xyh=X2h+Y2h;
 
                                     for(Z=-heightHalf,Zh=-heightHalf+fclp*0.5;Z<=heightHalf;Z+=fclp,Zh+=fclp){
                                         radii2=r2xy;
@@ -951,6 +951,7 @@ std::string fline;
 StTric tmpTric;
 auto ifbra=[](const char &c){return c=='('|| c==')';};
 size_t dataCompletness=0;
+vector<string> sgOperators;
 
         while(!fin.eof() && dataCompletness!=7 ){
             std::getline(fin,fline);
@@ -1011,6 +1012,8 @@ size_t dataCompletness=0;
                 trim(fline);
 
                 if(fline.find("_atom_site_")!=string::npos){
+                    if(fline.find("_aniso_")!=string::npos) continue;
+
                 int aName,aLabel,aX,aY,aZ;
                 int tagPos=0;
 
@@ -1054,16 +1057,41 @@ size_t dataCompletness=0;
                     vector<string> tokens(split<string>(fline," \t"));
                     const size_t tsize=tokens.size();
 
-                        if( (tsize!=tagPos)) break;
+                        if( (tsize!=static_cast<int>(tagPos))) break;
 
                     string N(tokens[aName]);
-                    string X(tokens[aX]);
-                    string Y(tokens[aY]);
-                    string Z(tokens[aZ]);
+                    string X,Y,Z;//([\\(][0-9]*[\\)])?
 
-                    auto testX=regex_match(X,std::regex("[01][.][0-9]*"));
-                    auto testY=regex_match(Y,std::regex("[01][.][0-9]*"));
-                    auto testZ=regex_match(Z,std::regex("[01][.][0-9]*"));
+                    string value;
+                    size_t j=0;
+                            value.resize(tokens[aX].size());
+                            for(size_t i=0;i<tokens[aX].size();i++) {
+                                if(ifbra(tokens[aX][i]))  continue;
+                                value[j++]=tokens[aX][i];
+                            }
+                            X=value.substr(0,j);
+
+                            value.resize(tokens[aY].size());
+                            j=0;
+                            for(size_t i=0;i<tokens[aY].size();i++) {
+                                if(ifbra(tokens[aY][i]))  continue;
+                                value[j++]=tokens[aY][i];
+                            }
+                            Y=value.substr(0,j);
+                            j=0;
+
+                            value.resize(tokens[aZ].size());
+                            for(size_t i=0;i<tokens[aZ].size();i++) {
+                                if(ifbra(tokens[aZ][i]))  continue;
+                                value[j++]=tokens[aZ][i];
+                            }
+                            Z=value.substr(0,j);
+
+
+
+                    auto testX=regex_match(X,std::regex("[01]([.][0-9]*)?"));
+                    auto testY=regex_match(Y,std::regex("[01]([.][0-9]*)?"));
+                    auto testZ=regex_match(Z,std::regex("[01]([.][0-9]*)?"));
 
                         if(testX && testY && testZ){
 
@@ -1075,7 +1103,7 @@ size_t dataCompletness=0;
 
                         }
                         else{
-                            errMsg(" couldn't recognize fractonial position");
+                            errMsg(" couldn't recognize fractonial position : "+fline);
                         throw NanoGrain::Status::ERR_FFORMAT;
                         }
 
@@ -1089,9 +1117,45 @@ size_t dataCompletness=0;
                     dataCompletness++;
                 }
 
-            }
+                else
+                    if(fline.find("_space_group")!=string::npos || fline.find("_symmetry_equiv")!=string::npos){
+                    const string cmdName(fline);
+                    std::streampos streamPos;
 
-        }
+                        sgOperators.reserve(200);
+
+                        while(!fin.eof()){
+                            streamPos=fin.tellg();
+                            std::getline(fin,fline);
+                            trim(fline);
+
+                            if(fline[0]=='_' || fline[0]==';' || fline[0]=='#' ||
+                               fline.empty() ||
+                                fline.find("loop")!=string::npos){  break; }
+
+                            try{
+                            auto itr=std::find_if(fline.begin(),fline.end(),[](const char &ch) {return ch==',';});
+                                if(itr!=fline.end()){
+                                        itr=std::find_if(itr,fline.end(),[](const char &ch) {return ch==',';});
+                                        if(itr!=fline.end())
+                                            sgOperators.push_back(fline);
+                                        else
+                                            throw 1;
+                                }
+                                else throw 0;
+                            }
+                            catch(int i)
+                            {
+                                errMsg("unrecognized/wrong format of " +cmdName+" section within CIF file");
+                                fin.close();
+                            throw NanoGrain::Status::ERR_FFORMAT;
+                            }
+                        }
+                        fin.seekg(streamPos);
+                    }/////
+
+                }
+            }/// while
 
         fin.close();
 
@@ -1100,7 +1164,38 @@ size_t dataCompletness=0;
         throw NanoGrain::Status::ERR_FFORMAT;
         }
 
-        tric=std::move(tmpTric);
+        if(!tmpTric.atoms.empty() && !sgOperators.empty()){
+        vector<StAtomFracPostion> acceptedAtoms;
+
+                    for(auto &ap:  tmpTric.atoms){
+                        for(auto &sgFormula: sgOperators){
+                        StSymmGroupGenerator stg(buildGenerator(sgFormula));
+                        StAtomFracPostion    ucAtomPos(stg.ucAtomPos(StAtomFracPostion(ap.x,ap.y,ap.z)));
+                              ucAtomPos.reduct();
+
+                        auto itr=std::find_if(acceptedAtoms.begin(),acceptedAtoms.end(),ucAtomPos);
+                            if(itr==acceptedAtoms.end()){
+                                acceptedAtoms.emplace_back(ucAtomPos);
+                                acceptedAtoms.back().name=ap.name;
+
+                            }
+                        }
+                    }
+
+                    tric=std::move(tmpTric);
+                    tric.atoms.clear();
+                    tric.atoms.reserve(acceptedAtoms.size());
+
+                    for(auto &a:acceptedAtoms){
+                        tric.atoms.emplace_back(StUcAtom(a.x,a.y,a.z,a.name));
+                    }
+
+
+        }
+        else
+            tric=std::move(tmpTric);
+
+
         buildFromTric();
 }
 //-----------------------------------------------------------------------------
@@ -1757,7 +1852,7 @@ bool noATypeCompare(const NanoGrain::StAtom &a,const position &r2, int &atype)
 //-----------------------------------------------------------------------------
 bool whATypeCompare(const NanoGrain::StAtom &a,const position &r2, int &atype )
 {
-    return (a.atype==atype) && (a.r2<r2);
+    return (a.atype==static_cast<size_t>(atype)) && (a.r2<r2);
     //if (a.atype==atype && a.r2<r2)
      //   return true;
 
@@ -1819,7 +1914,7 @@ bool (*ptr_cmp)(const NanoGrain::StAtom &a,const position &r2, int &atype);
                 }
             }
 
-            #pragma omp barier
+            //#pragma omp barier
 
 
             #pragma omp single
@@ -1829,7 +1924,7 @@ bool (*ptr_cmp)(const NanoGrain::StAtom &a,const position &r2, int &atype);
                 Zm=atoms[id].z;
             }
 
-            #pragma omp barier
+            //#pragma omp barier
             #pragma omp for
             for (size_t i=0;i<numOfAtoms;i++){
                 atoms[i].x-=Xm;
@@ -1954,7 +2049,7 @@ void NanoGrain::StNanoGrain::build()
     else
         if(structure.find("tric")!=str::npos)
             buildFromTric();
-        else
+        else{
             if(structure.find("cif")!=str::npos)
                 buildFromCIF();
             else
@@ -1982,6 +2077,7 @@ void NanoGrain::StNanoGrain::build()
                                                     hcp();
                                                 return;
                                                 }
+        }
 
 
         if(!shapePrm.empty())

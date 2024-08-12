@@ -414,6 +414,8 @@ std::stringstream atomsRemoved;
         double rmProb=0;
                 StUcAtom() { }
                 StUcAtom(const string &name__):name(name__){ }
+                StUcAtom(const position &x__,const position &y__,const position &z__,const string &name__)
+                    :x(x__),y(y__),z(z__),name(name__){ }
                 bool operator()(const string &a){ return a==name;}
                 void operator=(const StVector &v){x=v.x; y=v.y; z=v.z;}
 

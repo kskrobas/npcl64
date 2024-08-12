@@ -1,0 +1,53 @@
+/>
+creation date: 08-12-2024
+
+build crystal structure from CIF file data
+
+NOTE:    Although CIF format is well established,  the CIF'S user are not. 
+				Thus, there are a lot of errors within cif-files   Always check before using.
+</				
+
+
+
+
+
+grain
+    struct cif
+    cif wurtziteZnS.cif
+    
+    replicate 8  8  8
+			    
+    save wurtzZnsCif.xyz
+end
+
+
+
+grain
+    struct cif
+    cif zns.cif
+    
+    replicate 4  4  4
+			    
+    save znsDiam.xyz
+end
+
+
+
+grain
+    struct cif
+    cif   magnetite.cif
+    
+    replicate 8  8  8
+			    
+    save magnetite.xyz
+end
+
+
+grain
+    struct cif
+    cif    spinel.cif
+    
+    replicate 3  3  3
+			    
+    save spinel.xyz
+end
