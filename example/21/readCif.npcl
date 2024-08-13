@@ -1,13 +1,11 @@
 />
 creation date: 08-12-2024
-
+update: 08-13-2024
 build crystal structure from CIF file data
 
 NOTE:    Although CIF format is well established,  the CIF'S user are not. 
 				Thus, there are a lot of errors within cif-files   Always check before using.
 </				
-
-
 
 
 
@@ -50,4 +48,13 @@ grain
     replicate 3  3  3
 			    
     save spinel.xyz
+end
+
+grain
+    struct cif
+    cif    hydroxy.cif
+    
+    replicate 3  3  3
+			    
+    save hydroxy.xyz
 end
