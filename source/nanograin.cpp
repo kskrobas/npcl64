@@ -2857,11 +2857,6 @@ const StAtom * ptr_atom=atoms.data();
 
                 file<<" Atoms # charge"<<endl<<endl;
 
-                /*cout<<" atomTypes "<<atomTypes.size()<<endl;
-                for (auto &s : atomTypes)
-                    cout<<" "<<s.charge;
-                */
-
                 for(i=1;i<=numOfatomsTot;i++,ptr_atom++){
                     file<<setw(6)<<i<<"  "<<( ptr_atom->atype+1 )<<"  "<<  atomTypes[ptr_atom->atype].charge<<"  "
                         <<ptr_atom->x<<" "<<ptr_atom->y<<" "<<ptr_atom->z<<endl;

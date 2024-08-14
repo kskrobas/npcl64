@@ -60,8 +60,8 @@ print("print (string|${var}|__progress|\"string\") - print any number of values 
 print("strRep ${var} <position> <rep. string> - replace a part of string ${var} at position <position> with new value <rep. string>");
 print("system command - execute a command by the operating system");
 print("threads <value> - global set number of threads for each block");
-print("<numericalVariable>=<math expression> - definition of a numerical(double) type variable or expression");
-print("<stringVariable>=\"string of characters\" - definition of a string type variable");
+print("<numericalVariable>=<math expression> - definition of a numerical(double) type variable <var> or expression");
+print("<stringVariable>=\"string of characters\" - definition of a string type variable <var>");
 print("${<math/string variable>} - call the math/string variable");
 print("# or \% - one line comment");
 print("/> multiline text </ - respectively begin/end of block/multiline comment");
@@ -72,6 +72,7 @@ cout<<"\t\t2)grain block: "<<endl;
 print("atom <atomName> - atom name of monolattice");
 print("atoms <atomName> <atomName> - atom names of binary lattice");
 print("center (geom|catom(atom Type)?|id <value>) - center the grain; catom centers to the closest atom; use the specified atom type; center using # of an atom (starts from 0)");
+print("charge <elementName> <value> - set the charge of element");
 print("comment");
 print("csh - start subblock of core-shell paramters");
 print("disperse (*|atomName) <value>");
@@ -97,7 +98,7 @@ print("                               |  arg0  | arg1   |");
 print("                       uniform |  from  |   to   |");
 print("                       normal  |  mean  |  std   |");
 print("                    lognormal  |  mean  |  std   |");
-print("mass <atom name> <value>");
+print("mass <atom name> <value> - set the mass of element");
 print("open - read atoms from *.xyz. Number of atom types is not limited");
 print("printPrm - print current parametrs or status");
 print("radius (<value>|var)(lp)? - radius in Angs; if 'lp' is given the multiplicity of lp is taken");
@@ -112,8 +113,9 @@ print("saveHeader (fileName|var) - save header only");
 print("saveopt (min|max) <value> - save file if number of atoms greater|less than <value>");
 print("saveopt (if [HWL][<>][HWL]) - save file if Height/Width/Lenght size is greater|less than other dimension");
 print("saveopt lmp tric - save file in lammps format including tilt parameters");
-print("struct (sc|bcc|fcc|hcp|zb|zb110|uo2|nife|uc) - select Bravis lattice or zb(110) or hcp or uo2 or uc");
-print("ucp - start subblock of unit cell parameters. See below for description");
+print("struct (sc|bcc|fcc|hcp|zb|zb110|uo2|nife|uc|tric|cif) - select Bravis lattice or zb(110) or hcp or uo2 or uc");
+print("tricp - start subblock of unit cell parameters based on triclinic geometry; see below for description");
+print("ucp - start subblock of unit cell parameters; see below for description");
 print("voids <from> <to> - remove atoms according to uniform distributin given by <from> <to> parametrs");
 print("");
 print("* The custom hcp sequence is an expresion which consists of number of layers given by a user. An expression has a scheme of numbers and ABC(abc) letters.");
@@ -194,13 +196,19 @@ print("weights (uniform|normal|lognormal) <m> <s>");
 cout<<endl;
 
 
-cout<<"\t\t8)ucp block:"<<endl;
+cout<<"\t\t8)ucp subblock:"<<endl;
 print("v[xyz] <value>{3} - define translation vectors along x or y or z axis (always 3 vectors must be defined)");
-print("<atomName> <value>{3} - define atom name and atom positions of unit cell (at least one atom must be given)");
+print("<atomName> (<value>|<var>) {3} - define atom name and atom positions of unit cell (at least one atom must be given)");
+cout<<endl;
+
+cout<<"\t\t9)tricp subblock:"<<endl;
+print("(lpa|lpb|lpc) <value> - define lattice  a, b, c parameters");
+print("(alpha|beta|gamma) <value> - define alpha, beta, gamma angles");
+print("<atomName> (<value>|<var>){3} - define atom name and atom positions of unit cell (at least one atom must be given)");
 cout<<endl;
 
 
-cout<<"\t\t9)disloc block:"<<endl;
+cout<<"\t\t10)disloc block:"<<endl;
 print("mode (rot|cyl|loop) - select type of dislocation");
 print("axis <value>{3} - vector perpendicular to plane(s) of dislocated atomic positions");
 print("position <value>{3} - position of axis center");
