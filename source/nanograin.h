@@ -246,9 +246,9 @@ typedef vector<StAtom> vatoms;
 //---------------------------------------------------------------------------
 
 struct StAtomType{
-std::string name,charge;
+std::string name,charge,mass;
 
-    StAtomType() { name ="?"; charge="?";  }
+    StAtomType() { name ="?"; charge="?";  mass="?"; }
     StAtomType(const string name__):name (name__) {  }
     ~StAtomType(){  }
 

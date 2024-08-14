@@ -877,12 +877,12 @@ bool radiusOrside=false;
                     continue;
                     }
 
-
+                    /*
                     if(regex_match(cmdline,std::regex("cif[[:s:]]+[[:print:]]+"))){
                             //testDuplicate(gb_cmdlist,"mass");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
-                    }
+                    }*/
 
 
                     if(regex_match(cmdline,std::regex("disloc[[:s:]]+(dumbell|intdef)[[:s:]]+uniform"+sRE_NUMBER+sPRE_NUMBER+sPRE_NUMBER+"([[:s:]]+(x|y|z))?"))){
@@ -1043,7 +1043,7 @@ bool radiusOrside=false;
 
 
 
-                    if(regex_match(cmdline,std::regex("lmpstyle[[:s:]]+(atomic|charge)"))){
+                    if(regex_match(cmdline,std::regex("lmpstyle[[:s:]]+(atomic|atomcharge)"))){
                             testDuplicate(gb_cmdlist,"lmpstyle");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
@@ -1070,7 +1070,7 @@ bool radiusOrside=false;
                     }
 
 
-                    if(regex_match(cmdline,std::regex("mass[[:s:]]+[0-9]"+sPRE_NUMBER+""))){
+                    if(regex_match(cmdline,std::regex("mass[[:s:]]+\\w+"+sPRE_NUMBER+""))){
                             //testDuplicate(gb_cmdlist,"mass");
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;

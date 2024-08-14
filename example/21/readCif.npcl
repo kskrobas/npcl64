@@ -1,9 +1,9 @@
 />
 creation date: 08-12-2024
-update: 08-13-2024
+update: 08-14-2024
 build crystal structure from CIF file data
 
-NOTE:    Although CIF format is well established,  the CIF'S user are not. 
+NOTE:    Although CIF format is well established standard,  the CIF'S users are not. 
 				Thus, there are a lot of errors within cif-files   Always check before using.
 </				
 
@@ -11,7 +11,7 @@ NOTE:    Although CIF format is well established,  the CIF'S user are not.
 
 grain
     struct cif
-    cif wurtziteZnS.cif
+    open wurtziteZnS.cif
     
     replicate 8  8  8
 			    
@@ -22,7 +22,7 @@ end
 
 grain
     struct cif
-    cif zns.cif
+    open zns.cif
     
     replicate 4  4  4
 			    
@@ -33,7 +33,7 @@ end
 
 grain
     struct cif
-    cif   magnetite.cif
+    open   magnetite.cif
     
     replicate 8  8  8
 			    
@@ -43,7 +43,7 @@ end
 
 grain
     struct cif
-    cif    spinel.cif
+    open    spinel.cif
     
     replicate 3  3  3
 			    
@@ -52,9 +52,28 @@ end
 
 grain
     struct cif
-    cif    hydroxy.cif
+    open    hydroxy.cif
     
     replicate 3  3  3
 			    
     save hydroxy.xyz
+end
+
+
+
+grain
+    struct cif
+    open wurtziteZnO.cif
+    replicate    8   8   8
+	
+	
+	lmpstyle atomcharge
+	charge Zn    0.1
+	charge O     -0.1
+	mass Zn 65.32
+	mass O  15.9994
+    
+    
+    saveopt lmp tric
+    save ZnOatoms.lmp
 end

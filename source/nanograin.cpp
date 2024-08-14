@@ -2783,7 +2783,7 @@ StMinMax minmax;
 
 
             if(saveopt.lmpTric){
-                if(structure.find("tric")!=str::npos){
+                if(structure.find("tric")!=str::npos || structure.find("cif")!=str::npos){
                  #pragma message (" !!! definition of triclinic box is not implemented for xz, yz planes")
                 const int repY=std::stoi(replicate[1]);
                 const int repZ=std::stoi(replicate[2]);
@@ -2831,12 +2831,17 @@ mapConstIter massIter;
             for( size_t i=0;i<atomTypes.size();i++){
 
                 file<<"    "<<i+1<<"  ";
-                if( (massIter=Elements::mass.find(atomTypes[i].name))==Elements::mass.end()){
-                    file<<"?";
-                    warnMsg("unknown mass for "+atomTypes[i].name);
+
+                if(atomTypes[i].mass.empty()){
+                    if( (massIter=Elements::mass.find(atomTypes[i].name))==Elements::mass.end()){
+                        file<<"?";
+                        warnMsg("unknown mass for "+atomTypes[i].name);
+                    }
+                    else
+                        file<<massIter->second;
                 }
                 else
-                    file<<massIter->second;
+                    file<<atomTypes[i].mass;
 
                 file<<"  #  "<<atomTypes[i].name<<endl;
 
@@ -2848,7 +2853,7 @@ const size_t numOfatomsTot=atoms.size();
 const size_t at=atomTypes.size();
 const StAtom * ptr_atom=atoms.data();
 
-            if(lmpstyle=="charge"){
+            if(lmpstyle=="atomcharge"){
 
                 file<<" Atoms # charge"<<endl<<endl;
 
@@ -3253,7 +3258,7 @@ const str send("end");
                 const string value(cmd[index][2]);
                 const int anamedup= (findAtomName(aname));
 
-                        lmpstyle="charge";
+                        lmpstyle="atomcharge";
 
                         if(anamedup>=0)
                             atomTypes[anamedup].charge=value;
@@ -3266,11 +3271,12 @@ const str send("end");
                 continue;
                 }
 
+                /*
                 if(cmd[index]=="cif"){
                         fileCIF =cmd[index++][1];
                         Script::replaceVars(ptr_uvar,fileCIF);
                 continue;
-                }
+                }*/
 
                 if(cmd[index]=="csh"){
 
@@ -3362,17 +3368,21 @@ const str send("end");
                 }
                 
                 
-/*
                 if(cmd[index]=="mass"){
+                const string aname(cmd[index][1]);
+                const string value(cmd[index][2]);
+                const int anamedup= (findAtomName(aname));
 
-//                    if(cmd[index][1]=="1")
-//                        atomMassA=cmd[index][2];
-//                    else
-//                        atomMassB=cmd[index][2];
+                        if(anamedup>=0)
+                            atomTypes[anamedup].mass=value;
+                        else{
+                            addAtomName(aname);
+                            atomTypes.back().mass=value;
+                        }
 
-                    index++;
+                        index++;
                 continue;
-                }*/
+                }
 
 
                 if(cmd[index]=="hcpabc"){
@@ -3490,8 +3500,15 @@ const str send("end");
 
 
                 if(cmd[index]=="open"){
-                    fileNameIn=cmd[index++][1];
-                    Script::replaceVars(ptr_uvar,fileNameIn);
+                string fileName(cmd[index++][1]);
+
+                    Script::replaceVars(ptr_uvar,fileName);
+                    if(fileName.rfind(".cif")!=string::npos)
+                        fileCIF=fileName;
+                    else
+                        fileNameIn=fileName;
+
+
                 continue;
                 }
 
