@@ -392,6 +392,8 @@ std::stringstream atomsRemoved;
         void rescale();
         void renameAtoms();
         void removeAtoms();
+        void removeRandomAtoms();
+        void removeAtomsPlane(const string &prms);
         void findMaxR();
         void findAtomNamesNumber();
         position getLP();
@@ -439,6 +441,7 @@ std::string margins;
 std::string catomType;
 position maxR,maxX,maxY,maxZ; //maximal distance from (0,0,0)
 vatoms atoms;
+vector<string> vremoveAtomsPrms;
 bool disperse,hcpsl,numOfAtomsTest;//,testSNA;
 static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
@@ -458,6 +461,7 @@ void (StNanoGrain::*callbackSetThreads)(std::string &threads);
     string lpa,lpb,lpc;
     string alpha,beta,gamma;
     position xy, xz, yz;
+    StVector a,b,c;
     size_t rdhAtoms;
     vector<StUcAtom> atoms;
     enum ECOORDSYS{TRIC,CART} csys;   // coordination system
@@ -480,13 +484,15 @@ void (StNanoGrain::*callbackSetThreads)(std::string &threads);
 
     } saveopt;
 
+
+
     //************************************************
 
 
     void resetPrms();
     bool parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__);
     int findAtomName(const string &aname__);
-    void addAtomName(const string &aname__);
+    void addAtomName(const string &aname__,bool checkMass=true);
     void saveToFile();
 
     friend ostream & operator<< (ostream &, StNanoGrain &grain) ;

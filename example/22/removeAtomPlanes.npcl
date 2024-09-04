@@ -1,0 +1,35 @@
+/>
+creation date: 09-04-2024
+open file with a model and next remove atoms over a plane given by a formula Ax+By+Cz+D=0
+
+</
+
+C="0"
+
+
+for A=0:1
+
+		for B=0:1
+		
+				for h=10:5:30
+		
+				fname="${A}_${B}_${h}.xyz"
+				D=-1*${h}
+				
+				grain
+				
+				
+					open 1808.xyz
+					
+					remove plane out   ${A}  ${B}  ${C}  ${D}
+										
+					save ${fname}
+					
+				end
+				
+				endfor
+				
+		endfor
+		
+endfor		
+

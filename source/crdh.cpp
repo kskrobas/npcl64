@@ -133,7 +133,7 @@ cdouble rmax =std::stod(trange[2]);
                 }
 
 csize size=static_cast<size_t>(std::ceil((rmax-rmin)/rstep/0.95));
-cdouble ibin=1.0/rstep;
+//cdouble ibin=1.0/rstep;
 
 
 cdouble rmin2=rmin*rmin;

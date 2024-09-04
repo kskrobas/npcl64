@@ -58,7 +58,7 @@ grain
     
     replicate 8  8  8
 	
-	lmpstyle charge
+	lmpstyle atomcharge
 	charge Al 0.3
 	charge N -0.3
         

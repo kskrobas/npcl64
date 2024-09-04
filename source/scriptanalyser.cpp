@@ -1124,24 +1124,31 @@ bool radiusOrside=false;
                     }
 
                    if(regex_match(cmdline,std::regex("radius[[:s:]]+(uniform|normal|lognormal)"+sPRE_NUMBER+sPRE_NUMBER))){
-                           testDuplicate(gb_cmdlist,"radius");
+                            testDuplicate(gb_cmdlist,"radius");
                             gb_cmdlist.emplace_back(ClKeyValues(strpair("radius",cmdline.substr(7))));
                    continue;
                    }
 
-
-                   if(regex_match(cmdline,std::regex("replicate("+sUINT_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:space:]]+[\\+][/\\\\]-)?"))){
-                           // testDuplicate(gb_cmdlist,"replace");
-                            appKeyValues(gb_cmdlist,cmdline);
+                   if(regex_match(cmdline,std::regex("remove[[:s:]]+plane[[:s:]]+(out|in)("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){4}"))){
+                            gb_cmdlist.emplace_back(ClKeyValues(strpair("remove",cmdline.substr(6))));
                    continue;
                    }
 
+                   if(regex_match(cmdline,std::regex("remove"+sUINT_NUMBER+sPRE_NUMBER+"("+sPRE_NUMBER+")?"))){
+                           appKeyValues(gb_cmdlist,cmdline);
+                   continue;
+                   }
 
                    if(regex_match(cmdline,std::regex("rename([[:s:]]+[[:print:]]+[[:s:]]+[[:print:]]+("+sPRE_NUMBER+"|"+sVAR+"))"))){
                             gb_cmdlist.emplace_back(ClKeyValues(strpair("rename",cmdline.substr(6))));
                    continue;
                    }
 
+                   if(regex_match(cmdline,std::regex("replicate("+sUINT_NUMBER+"|[[:s:]]+"+sVAR+"){3}([[:space:]]+[\\+][/\\\\]-)?"))){
+                           // testDuplicate(gb_cmdlist,"replace");
+                            appKeyValues(gb_cmdlist,cmdline);
+                   continue;
+                   }
 
                     if(regex_match(cmdline,std::regex("rescale("+sPRE_NUMBER+")"))){
                             testDuplicate(gb_cmdlist,"rescale");
@@ -1151,12 +1158,6 @@ bool radiusOrside=false;
 
                     if(regex_match(cmdline,std::regex("rescale("+sPRE_NUMBER+"){3}"))){
                             testDuplicate(gb_cmdlist,"rescale");
-                            appKeyValues(gb_cmdlist,cmdline);
-                    continue;
-                    }
-
-
-                    if(regex_match(cmdline,std::regex("remove"+sUINT_NUMBER+sPRE_NUMBER+"("+sPRE_NUMBER+")?"))){
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
                     }

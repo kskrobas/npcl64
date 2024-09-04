@@ -170,6 +170,7 @@ void NanoGrain::StNanoGrain::resetPrms()
         margins.clear();
 
         saveopt.reset();
+        vremoveAtomsPrms.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -860,7 +861,9 @@ position prob;
 void NanoGrain::StNanoGrain::buildFromTric()
 {
 
-StVector a,b,c;
+StVector &a=tric.a;
+StVector &b=tric.b;
+StVector &c=tric.c;
 
 cpos deg2rad=M_PI/180;
 cpos alpha=std::stod(tric.alpha)*deg2rad;
@@ -2289,6 +2292,16 @@ double rvalue;
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::removeAtoms()
 {
+        if(!rmatoms.empty()) removeRandomAtoms();
+
+        for(auto &rPrms: vremoveAtomsPrms){
+            removeAtomsPlane(rPrms);
+        }
+
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::removeRandomAtoms()
+{
 size_t i,j;
 const size_t numOfAtoms=atoms.size();
 vector<string> tokens(split<string>(rmatoms," \t"));
@@ -2362,12 +2375,33 @@ vatoms tmpAtoms(std::move(atoms));
                     }
             }
 
-
             atoms.shrink_to_fit();
 
-            if(DB) cout<<"  num of atoms: before, after "<<numOfAtoms<<", "<<atoms.size()<<endl;
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::removeAtomsPlane(const string &prms)
+{
+vector<string> toks{split<string>(prms," ")};
+const bool out=(toks[1]=="out");
+const position A=std::stod(toks[2]);
+const position B=std::stod(toks[3]);
+const position C=std::stod(toks[4]);
+const position D=std::stod(toks[5]);
+const size_t numOfAtoms=atoms.size();
+position v;
+vatoms tmpAtoms(std::move(atoms));
 
+            atoms.clear();
+            atoms.reserve(numOfAtoms);
 
+            for (auto &atom: tmpAtoms){
+                v=A*atom.x+B*atom.y+C*atom.z+D;
+
+                if( (v<=0) ^ !out)
+                    atoms.push_back(atom);
+            }
+
+            atoms.shrink_to_fit();
 }
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::findMaxR()
@@ -2502,15 +2536,17 @@ int apos=0;
 return -1;
 }
 //-----------------------------------------------------------------------------
-void NanoGrain::StNanoGrain::addAtomName(const string &aname__)
+void NanoGrain::StNanoGrain::addAtomName(const string &aname__, bool checkMass)
 {
 const bool anamedup= (findAtomName(aname__)>=0);
 
         if(anamedup)
             cerr<<"WARNING: atom name duplicate has been found: "<<aname__<<endl;
 
-        if(Elements::mass.find(aname__)==Elements::mass.end())
-            cerr<<"WARNING: unknown mass of an atom: "<<aname__<<endl;
+        if(checkMass){
+            if(Elements::mass.find(aname__)==Elements::mass.end())
+                cerr<<"WARNING: unknown mass of an atom: "<<aname__<<endl;
+        }
 
         atomTypes.emplace_back(StAtomType(aname__));
 }
@@ -2727,6 +2763,29 @@ fstream fout(fileName,ios::out);
         fout.close();
 }
 //-----------------------------------------------------------------------------
+inline position minv(position a,position b,position c)
+{
+position minv=0;
+
+            if(a<minv) minv=a;
+            if(b<minv) minv=b;
+            if(c<minv) minv=c;
+
+return minv;
+}
+//-----------------------------------------------------------------------------
+inline position maxv(position a,position b,position c)
+{
+position maxv=0;
+
+            if(a>maxv) maxv=a;
+            if(b>maxv) maxv=b;
+            if(c>maxv) maxv=c;
+
+return maxv;
+}
+//-----------------------------------------------------------------------------
+
 void NanoGrain::StNanoGrain::saveLammpsFile(const string &fileName)
 {
 
@@ -2785,40 +2844,41 @@ StMinMax minmax;
             if(saveopt.lmpTric){
                 if(structure.find("tric")!=str::npos || structure.find("cif")!=str::npos){
                  #pragma message (" !!! definition of triclinic box is not implemented for xz, yz planes")
+                const int repX=std::stoi(replicate[0]);
                 const int repY=std::stoi(replicate[1]);
                 const int repZ=std::stoi(replicate[2]);
 
+                cpos XY=repY*tric.b.x;
 
-                cpos gamma=std::stod(tric.gamma)*M_PI/180;
-                cpos ctg=cos(gamma)/sin(gamma);
-                cpos sX=(2*mY+minmax.getLength())*ctg;
+                cpos XZ=repZ*tric.c.x;
+                cpos YZ=repZ*tric.c.y;
 
-
-
-                    /*cout<<"mX, mY, mZ "<<mX<<", "<<mY<<", "<<mZ<<endl;
-                    cout<<"minmax ";
-                    for(size_t i=0;i<6;i++){
-                        if(i%2==0) cout<<endl;
-                        cout<<minmax.xyzMinMax[i]<<" ";
-                    }
-                    cout<<endl;
-
-                    cout<<"sX "<<sX<<endl;
-                    */
-
-                    file<<"    "<<minmax.xmin-sX-mX   <<"    "<<minmax.xmax+mX<<"    xlo xhi"<<endl;
-                    file<<"    "<<minmax.ymin-mY    <<"    "<<minmax.ymax+mY <<"    ylo yhi"<<endl;
-                    file<<"    "<<minmax.zmin-mZ    <<"    "<<minmax.zmax+mZ <<"    zlo zhi"<<endl;
+                cpos XYZ=XY+XZ;
 
 
-                    file<<"    "<<sX<<"    "<<tric.xz*repY<<"    "<<tric.yz*repZ<<"   xy xz  yz"<<endl;
-                }
-            }
-            else{
+                cpos xlo=0-minv(XY,XZ,XYZ);
+                cpos xhi=repX*tric.a.x-maxv(XY,XZ,XYZ);
+
+                cpos ylo=0-minv(0,0,YZ);
+                cpos yhi=repY*tric.b.y-maxv(0,0,YZ);
+
+                    file<<"    "<<0 <<"    "<<repX*tric.a.x*1.25<<"    xlo xhi"<<endl;
+                    file<<"    "<<-0.125* repY*tric.b.y  <<"    "<<repY*tric.b.y*1.25<<"    ylo yhi"<<endl;
+                    file<<"    "<<0 <<"    "<<repZ*tric.c.z*1.25<<"    zlo zhi"<<endl;
+
+                    file<<"    "<<XY<<"    "<<XZ<<"    "<<YZ<<"   xy xz  yz"<<endl;
+                }            
+                else{
                     file<<"    "<<minmax.xmin-mX<<"    "<<minmax.xmax+mX<<"    xlo xhi"<<endl;
                     file<<"    "<<minmax.ymin-mY<<"    "<<minmax.ymax+mY<<"    ylo yhi"<<endl;
                     file<<"    "<<minmax.zmin-mZ<<"    "<<minmax.zmax+mZ<<"    zlo zhi"<<endl;
                     file<<"    0  0  0  xy  xz  yz"<<endl;
+                }
+            }
+            else{
+                file<<"    "<<minmax.xmin-mX<<"    "<<minmax.xmax+mX<<"    xlo xhi"<<endl;
+                file<<"    "<<minmax.ymin-mY<<"    "<<minmax.ymax+mY<<"    ylo yhi"<<endl;
+                file<<"    "<<minmax.zmin-mZ<<"    "<<minmax.zmax+mZ<<"    zlo zhi"<<endl;
             }
 
 
@@ -3258,7 +3318,7 @@ const str send("end");
                         if(anamedup>=0)
                             atomTypes[anamedup].charge=value;
                         else{
-                            addAtomName(aname);
+                            addAtomName(aname,false);
                             atomTypes.back().charge=value;
                         }
 
@@ -3266,12 +3326,6 @@ const str send("end");
                 continue;
                 }
 
-                /*
-                if(cmd[index]=="cif"){
-                        fileCIF =cmd[index++][1];
-                        Script::replaceVars(ptr_uvar,fileCIF);
-                continue;
-                }*/
 
                 if(cmd[index]=="csh"){
 
@@ -3371,7 +3425,7 @@ const str send("end");
                         if(anamedup>=0)
                             atomTypes[anamedup].mass=value;
                         else{
-                            addAtomName(aname);
+                            addAtomName(aname,false);
                             atomTypes.back().mass=value;
                         }
 
@@ -3553,7 +3607,6 @@ const str send("end");
                 continue;
                 }
 
-
                 if(cmd[index]=="rename"){
                     rename=cmd[index].getValue();
                     Script::replaceVars(ptr_uvar,rename);
@@ -3573,9 +3626,17 @@ const str send("end");
 
 
                 if(cmd[index]=="remove"){
-                    rmatoms=cmd[index][1]+" "+cmd[index][2];
-                    if(cmd[index].numOfKeyValues()==(1+3))
-                        rmatoms+=" "+cmd[index][3];
+                    if(cmd[index].numOfKeyValues()==2){
+                    std::string rparams{cmd[index][1]};
+
+                        Script::replaceVars(ptr_uvar,rparams);
+                        vremoveAtomsPrms.emplace_back(rparams);
+                    }
+                    else{
+                        rmatoms=cmd[index][1]+" "+cmd[index][2];
+                        if(cmd[index].numOfKeyValues()==(1+3))
+                            rmatoms+=" "+cmd[index][3];
+                    }
 
                     index++;
                 continue;
@@ -3819,7 +3880,7 @@ const str send("end");
             if(atoms.empty()) throw Status::ERR_ANUM_ZERO;
 
             if(!voidsprm.empty()) voids();
-            if(!rmatoms.empty()) removeAtoms();
+            if(!rmatoms.empty() || !vremoveAtomsPrms.empty() ) removeAtoms();
 
             if(!scaleFactors.empty()) rescale();
             if(disperse) disperseN();
