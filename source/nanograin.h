@@ -391,6 +391,7 @@ std::stringstream atomsRemoved;
         void displaceAtoms();
         void rescale();
         void renameAtoms();
+        void renameAtomsFromTo(const string fromToProb);
         void removeAtoms();
         void removeRandomAtoms();
         void removeAtomsPlane(const string &prms);
@@ -436,7 +437,7 @@ vector<string> fileNameOut;
 std::string lmpstyle,comment;
 std::string rmatoms;
 std::string threads,mthreads;
-std::string rename;
+vector<string> rename;
 std::string margins;
 std::string catomType;
 position maxR,maxX,maxY,maxZ; //maximal distance from (0,0,0)

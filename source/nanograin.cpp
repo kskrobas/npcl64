@@ -2216,8 +2216,17 @@ vector<string> sfxyz(split<string>(scaleFactors," "));//scale factors
 }
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::renameAtoms()
+{    
+            for(auto & fromToRename: rename){
+                renameAtomsFromTo(fromToRename);
+            }
+
+            sortAtomsByName();
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::renameAtomsFromTo(const string fromToProb)
 {
-vector<string> toks(split<string>(rename," "));
+vector<string> toks(split<string>(fromToProb," "));
 const size_t toksNumber=toks.size();
 constexpr size_t argSize=3;
 const size_t pairsNumber=toksNumber/argSize;
@@ -2283,8 +2292,6 @@ double rvalue;
 
                     }
 
-
-                    sortAtomsByName();
 
 }
 
@@ -3608,8 +3615,10 @@ const str send("end");
                 }
 
                 if(cmd[index]=="rename"){
-                    rename=cmd[index].getValue();
-                    Script::replaceVars(ptr_uvar,rename);
+                std::string val{cmd[index].getValue()};
+
+                    Script::replaceVars(ptr_uvar,val);
+                    rename.emplace_back(val);
 
                     index++;
                 continue;
