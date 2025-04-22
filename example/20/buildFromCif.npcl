@@ -9,7 +9,7 @@ creation date: 08-06-2024
 
 grain
     struct cif
-    cif cif.cif
+    open cif.cif
     
     replicate 8  8  8
 	
@@ -22,13 +22,13 @@ end
 
 grain
     struct cif
-    cif Graphite_AMS_DATA.cif
+    open Graphite_AMS_DATA.cif
     
     replicate 8  8  8
 	
 	lmpmargin 2 1 1
 			    
-    save graphene.xyz
+    save graphite.xyz
 end
 
 

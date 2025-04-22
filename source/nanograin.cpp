@@ -1092,9 +1092,10 @@ vector<string> sgOperators;
 
 
 
-                    auto testX=regex_match(X,std::regex("[01]([.][0-9]*)?"));
-                    auto testY=regex_match(Y,std::regex("[01]([.][0-9]*)?"));
-                    auto testZ=regex_match(Z,std::regex("[01]([.][0-9]*)?"));
+                    const string numberFormat("[+-]?([01]([.][0-9]*)?|[.][0-9]+)");
+                    auto testX=regex_match(X,std::regex(numberFormat));
+                    auto testY=regex_match(Y,std::regex(numberFormat));
+                    auto testZ=regex_match(Z,std::regex(numberFormat));
 
                         if(testX && testY && testZ){
 
@@ -1121,7 +1122,8 @@ vector<string> sgOperators;
                 }
 
                 else
-                    if(fline.find("_space_group")!=string::npos || fline.find("_symmetry_equiv")!=string::npos){
+                    if(fline.find("_space_group_symop_operation_xyz")!=string::npos ||
+                            fline.find("_symmetry_equiv_pos_as_xyz")!=string::npos){
                     const string cmdName(fline);
                     std::streampos streamPos;
 
@@ -1170,7 +1172,7 @@ vector<string> sgOperators;
         if(!tmpTric.atoms.empty() && !sgOperators.empty()){
         vector<StAtomFracPostion> acceptedAtoms;
 
-                    for(auto &ap:  tmpTric.atoms){
+                    for(auto &ap:  tmpTric.atoms){                        
                         for(auto &sgFormula: sgOperators){
                         StSymmGroupGenerator stg(buildGenerator(sgFormula));
                         StAtomFracPostion    ucAtomPos(stg.ucAtomPos(StAtomFracPostion(ap.x,ap.y,ap.z)));
@@ -1180,8 +1182,10 @@ vector<string> sgOperators;
                             if(itr==acceptedAtoms.end()){
                                 acceptedAtoms.emplace_back(ucAtomPos);
                                 acceptedAtoms.back().name=ap.name;
-
                             }
+
+
+
                         }
                     }
 

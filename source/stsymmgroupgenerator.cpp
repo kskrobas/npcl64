@@ -18,7 +18,8 @@
  */
 #include "stsymmgroupgenerator.h"
 
-position StAtomFracPostion::tol=1e-4;
+position StAtomFracPostion::tol=1e-6;
+const position oneMtol=1-StAtomFracPostion::tol;
 
 //-----------------------------------------------------------------------------
 inline position sqr(const position x){return x*x; }
@@ -98,9 +99,16 @@ size_t i=0,j;
 return gnr;
 }
 //-----------------------------------------------------------------------------
+void StAtomFracPostion::reduct()
+{
+        if(x<0) x+=1; if(x>=oneMtol) x-=1;
+        if(y<0) y+=1; if(y>=oneMtol) y-=1;
+        if(z<0) z+=1; if(z>=oneMtol) z-=1;
+}
+//-----------------------------------------------------------------------------
 bool StAtomFracPostion::operator ()(const StAtomFracPostion &v)
 {
-auto r2=sqr(v.x-x)+sqr(v.y-y)+sqr(v.z-z);
+auto r2=sqr(v.x-x)+sqr(v.y-y)+sqr(v.z-z);    
 return r2<tol;
 }
 //-----------------------------------------------------------------------------

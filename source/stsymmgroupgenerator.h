@@ -33,12 +33,7 @@ string name;
         StAtomFracPostion(const position x__, const position y__, const position z__)
             :x(x__),y(y__),z(z__) { }
 
-        void reduct()
-        {
-            if(x<0) x+=1; if(x>1) x-=1;
-            if(y<0) y+=1; if(y>1) y-=1;
-            if(z<0) z+=1; if(z>1) z-=1;
-        }
+        void reduct();
 
         bool operator () (const  StAtomFracPostion &v) ;
       //  bool operator () (const StVector v) ;
