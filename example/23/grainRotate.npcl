@@ -1,0 +1,25 @@
+/>
+creation date: 25-04-2025
+
+Create a diamond grain model rotated against  [0, 0, 1] axis with angle alpha=30°; axis located at default position, e.i.: [0,0,0].
+
+To change the axis location type:  
+
+		rotate  angle A B C  xo yo zo  
+		
+where: xo, yo, zo stand for axis position
+
+</
+
+grain
+        struct zb
+        atom C
+        lp 3.567
+        radius 5lp
+        geometry cube
+
+        rotate 30 0 0  1 
+        
+        save cube.xyz
+        
+end

@@ -117,10 +117,8 @@ void Cpdh::monoLatticePdh()
 {
             if(DB) cout<<"monolattice PDH computations"<<endl;
 
-auto calcBin=[](NanoGrain::StAtom *A, NanoGrain::StAtom *B)
-        {
-        return static_cast<size_t>( sqrt( sqrd(A->x-B->x)+sqrd(A->y-B->y)+sqrd(A->z-B->z)  ));
-        };
+auto calcBin=[](NanoGrain::StAtom *A, NanoGrain::StAtom *B){
+            return static_cast<size_t>( sqrt( sqrd(A->x-B->x)+sqrd(A->y-B->y)+sqrd(A->z-B->z)) ); };
 
 position wbin,ibin;
 size_t size;
@@ -242,13 +240,12 @@ CProgress progress;
                                 for(pj=pi+1,patom1=patom0+1;pj<numOfatoms;pj++,patom1++){
 
                                     r=(size_t)sqrt( sqr(patom1->x-patom0->x)+
-                                                         sqr(patom1->y-patom0->y)+
-                                                         sqr(patom1->z-patom0->z));
+                                                    sqr(patom1->y-patom0->y)+
+                                                    sqr(patom1->z-patom0->z));
                                     bin=(size_t) r;
                                     beta=r-bin;
                                     p_dataYii[bin+1]+=beta;
                                     p_dataYii[bin]+=1-beta;
-
                                 }
                                 #pragma omp critical
                                 progress++;

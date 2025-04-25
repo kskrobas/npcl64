@@ -38,7 +38,7 @@ private:
 
         float istep=1;
         
-        static bool printShown;
+        volatile static bool printShown;
         static void print();
 
 public:

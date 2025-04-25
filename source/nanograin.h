@@ -395,6 +395,7 @@ std::stringstream atomsRemoved;
         void removeAtoms();
         void removeRandomAtoms();
         void removeAtomsPlane(const string &prms);
+        void rotate();
         void findMaxR();
         void findAtomNamesNumber();
         position getLP();
@@ -428,7 +429,8 @@ public:
 std::string side,radius,clp,structure,scaleFactors;
 std::string shape,shapePrm,shapePrm2D;
 std::string disloc,dislocPlane,voidsprm;
-std::string hcpu,hcpcs, hcpABC;
+std::string hcpu,hcpcs,hcpABC;
+std::string rotatePrm;
 vector<StAtomType> atomTypes;
 vector<size_t> atomNamesNumber;
 vector<StAtomDispFactor> atomDisperse;
@@ -484,11 +486,7 @@ void (StNanoGrain::*callbackSetThreads)(std::string &threads);
         void reset(){ min=0;max=-1;  lwh.clear(); fileSaved=false;lmpTric=false;}
 
     } saveopt;
-
-
-
     //************************************************
-
 
     void resetPrms();
     bool parseCommands(vcmdlist &cmd, size_t &index, stdumap *uvar__);

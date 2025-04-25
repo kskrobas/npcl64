@@ -1162,6 +1162,12 @@ bool radiusOrside=false;
                     continue;
                     }
 
+                    if(regex_match(cmdline,std::regex("rotate("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){4}(("+sRE_NUMBER+"|[[:s:]]+"+sVAR+"){3})?"))){
+                            testDuplicate(gb_cmdlist,"rotate");
+                            appKeyValues(gb_cmdlist,cmdline);
+                    continue;
+                    }
+
 
                     //file operations   save filename
                     if(regex_match(cmdline,regex("save[[:s:]]+[[:print:]]+"))){

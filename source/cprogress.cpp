@@ -34,7 +34,7 @@ using namespace std::chrono;
 
 volatile float CProgress::pos=0;
 volatile bool  CProgress::active=false;
-bool CProgress::printShown=false;
+volatile bool CProgress::printShown=false;
 
 const float oneDay=3600*24;
 const float oneHour=3600;
@@ -280,10 +280,12 @@ std::string strTime;
     }
 
 
-    cout<<"\r"<<setw(terminalCols+strTime.length())<<setfill(' '); ///clear whole line
-    cout<<"\rX"<<title<<std::fixed<<setprecision(1)<<setw(5)<<pos<<"%";
-    cout.flush();
-    printShown=true;
+    if(!printShown){
+        cout<<"\r"<<setw(terminalCols+strTime.length())<<setfill(' '); ///clear whole line
+        cout<<"\rX"<<title<<std::fixed<<setprecision(1)<<setw(5)<<pos<<"%";
+        cout.flush();
+        printShown=true;
+     }
 
 }
 
@@ -314,19 +316,17 @@ void CProgress::stop()
     pos=100;
     active=false;
 
-    //cout<<"progress stop"<<endl;
-
     if(pthread.joinable())
         pthread.join();
 
 
-    //if(!printShown){
+    if(!printShown){
     	cout<<"\r"<<setw(80)<<setfill(' '); ///clear whole line
     	cout<<"\rX"<<title<<std::fixed<<setprecision(1)<<setw(5)<<100<<"%";
     	cout.flush();
-    //}
-    //else
-        //printShown=true;
+        printShown=true;
+    }
+
 }
 //-----------------------------------------------------------------------------
 void CProgress::next()

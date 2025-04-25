@@ -104,6 +104,7 @@ print("printPrm - print current parametrs or status");
 print("radius (<value>|var)(lp)? - radius in Angs; if 'lp' is given the multiplicity of lp is taken");
 print("radius (uniform|normal|lognormal) <arg0> <arg1> - radius based on respective distribution, see above 'lp'");
 print("rename (<oldName> <newName> <prob>){1,} - rename atoms with probability ");
+print("rotate <angle> <A> <B> <C> (<xo> <yo> <zo>)? - rotate against ABC axis; angle is given in degrees, axis default position: [0,0,0]");
 print("replicate <value>{3} (+/-)?- replicate unit cell along x, y, z axis");
 print("side  <value> - size of LAMMPS box side");
 print("remove <intvalue - numOfbonds> <value - lenOfbonds> (<value - probability 0..100>)? - remove selected atoms");

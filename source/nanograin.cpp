@@ -168,6 +168,7 @@ void NanoGrain::StNanoGrain::resetPrms()
         numOfAtomsPush.clear();
         saveFileStatusPush.clear();
         margins.clear();
+        rotatePrm.clear();
 
         saveopt.reset();
         vremoveAtomsPrms.clear();
@@ -2415,6 +2416,42 @@ vatoms tmpAtoms(std::move(atoms));
             atoms.shrink_to_fit();
 }
 //-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::rotate()
+{
+vector<string> toks{split<string>(rotatePrm," ")};
+const size_t nOftoks{toks.size()};
+
+cpos deg2rad=M_PI/180;
+cpos alpha{std::stod(toks[0])*deg2rad};
+cpos sa(std::sin(alpha));
+cpos ca(std::cos(alpha));
+
+cpos A(std::stod(toks[1]));
+cpos B(std::stod(toks[2]));
+cpos C(std::stod(toks[3]));
+
+cpos  px{  (nOftoks>4) ? std::stod(toks[4]) : 0};
+cpos  py{  (nOftoks>4) ? std::stod(toks[5]) : 0};
+cpos  pz{  (nOftoks>4) ? std::stod(toks[6]) : 0};
+
+StVector axisPos(px,py,pz);
+StAxis rotAxis(A,B,C);
+StRotationMatrix rotMat(rotAxis,sa,ca);
+StVector v_xyz,vrot;
+
+
+           for (auto & atom: atoms){
+               v_xyz=atom.Pos()-axisPos;
+               vrot=rotMat*v_xyz;
+
+               atom.x=vrot.x;
+               atom.y=vrot.y;
+               atom.z=vrot.z;
+
+           }
+
+}
+//-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::findMaxR()
 {
 
@@ -2435,7 +2472,6 @@ const size_t size=atoms.size();
                 if(atom.y>maxY)  maxY=atom.y;
                 if(atom.z>maxZ)  maxZ=atom.z;
                 if(atom.r2>maxR) maxR=atom.r2;
-
             }
 
             maxR=std::sqrt(maxR);
@@ -3655,6 +3691,19 @@ const str send("end");
                 continue;
                 }
 
+                if(cmd[index]=="rotate"){
+                string varValue;
+
+                    for(int i=1;i<cmd[index].numOfKeyValues();i++){
+                        varValue=cmd[index][i];
+                        Script::replaceVars(ptr_uvar,varValue);
+                        rotatePrm+=" "+varValue;
+                    }
+
+                    index++;
+                continue;
+                }
+
 
                 if(cmd[index]=="save"){
                 std::string fileName =cmd[index++][1];
@@ -3675,6 +3724,10 @@ const str send("end");
                             saveopt.min=std::stod(value);
                         continue;
                         }
+
+                        //StRotationMatrix rotMat(mainAxis,sa,ca);
+
+
 
                         if(key=="max"){
                             saveopt.max=std::stod(value);
@@ -3899,7 +3952,6 @@ const str send("end");
             if(disperse) disperseN();
             if(!rename.empty()) renameAtoms();
 
-
             findAtomNamesNumber();
 
             switch(center){
@@ -3908,6 +3960,8 @@ const str send("end");
             case ID:    idCentering();break;
             case COFF:break;
             }
+
+            if(!rotatePrm.empty()) rotate();
 
             findMaxR();
 

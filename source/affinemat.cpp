@@ -68,6 +68,7 @@ position bx,by,bz;
 return StVector(bx,by,bz);
 }
 
+//-----------------------------------------------------------------------------
 void StRotationMatrix::showMatrix()
 {
             std::cout<<"[ ";
@@ -153,8 +154,7 @@ StVector crossProductTriple(StVector &a, StVector &b, StVector &c)
 {
 cpos d_1= -a._2*b._2*c._1 - a._3*b._3*c._1 + a._2*b._1*c._2 + a._3*b._1*c._3;
 cpos d_2=  a._1*b._2*c._1 - a._1*b._1*c._2 - a._3*b._3*c._2 + a._3*b._2*c._3;
-cpos d_3=  a._1*b._3*c._1 + a._2*b._3*c._2 - a._1*b._1*c._3 - a._2*b._2*c._3;
-        //std::cout<<"cpt " << d_1<<", "<<d_2<<", "<<d_3<<std::endl;
+cpos d_3=  a._1*b._3*c._1 + a._2*b._3*c._2 - a._1*b._1*c._3 - a._2*b._2*c._3;        
 
 return StVector(d_1,d_2,d_3);
 }
@@ -166,6 +166,8 @@ cpos cosa(const StVector &a, const StVector &b)
 cpos sum=a.x*b.x+a.y*b.y+a.z*b.z;
 return sum/(a.getModule()*b.getModule());
 }
+
+//-----------------------------------------------------------------------------
 
 cpos tripleProduct(StVector &a, StVector &b, StVector &c)
 {
@@ -183,3 +185,4 @@ StVector o;
 
 return o;
 }
+//-----------------------------------------------------------------------------
