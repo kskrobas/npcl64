@@ -2297,18 +2297,14 @@ double rvalue;
 
                     }
 
-
 }
-
-
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::removeAtoms()
 {
         if(!rmatoms.empty()) removeRandomAtoms();
 
-        for(auto &rPrms: vremoveAtomsPrms){
+        for(auto &rPrms: vremoveAtomsPrms)
             removeAtomsPlane(rPrms);
-        }
 
 }
 //-----------------------------------------------------------------------------
@@ -3137,6 +3133,10 @@ string sline;
 
                     nOftypes=std::stoi(tokens[0]);
 
+                    atomTypes.resize(nOftypes);
+                    for (size_t i=1;i<=nOftypes;i++)
+                        atomTypes[i-1].name=std::to_string(i);
+
                     // find tag 'Masses'
                     do{
                         std::getline(fin,sline);
@@ -3148,25 +3148,7 @@ string sline;
                         tokens=split<string>(sline," \t");
                         if(tokens.empty()) continue;
 
-                        countTypes++;
-
-                        // searchin a key (atom name) for a given value (atom mass) of monotype lattice
-                        if(atomTypes.empty()){
-                        bool testExists= false;
-                            // Traverse the map
-                            for (auto& mass : Elements::mass) {
-                                if (mass.second == tokens[1]) {
-                                    // type name push
-                                    atomTypes.push_back(mass.first);
-                                    testExists=true;
-                                    break;
-                                }
-                            }
-
-                            if (!testExists)
-                                infoMsg("unrecognized type of atom "+std::string(tokens[1]));
-                        }
-
+                        countTypes++; 
 
                     }while(countTypes<nOftypes);
 

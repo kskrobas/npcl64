@@ -5,9 +5,9 @@ Create a diamond grain model rotated against  [0, 0, 1] axis with angle alpha=30
 
 To change the axis location type:  
 
-		rotate  angle A B C  xo yo zo  
+		rotate  angle A B C  (xo yo zo )?
 		
-where: xo, yo, zo stand for axis position
+where:  (optional) xo, yo, zo stand for axis position,  default: 0 0 0
 
 </
 
