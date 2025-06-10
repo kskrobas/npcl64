@@ -1,11 +1,11 @@
 #ver: 04
 #title: diffraction data
-#date: Tue Feb 20 17:33:01 2024
+#date: Tue Jun 10 11:30:04 2025
 #sizeRC: 5761	4
 #numOfAtoms: 3692
 #range: 5 0.03125 180
 #radiation: xray
-#lambda: Ag 
+#lambda: 0.561	Ag
 #extrapolate: 1
 #threads: 4
 #fastsinc: 1

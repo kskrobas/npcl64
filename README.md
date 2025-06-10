@@ -24,7 +24,7 @@ The npcl is a software application designed for the creation of nanocrystal mode
 The 'npcl' meets the POSIX standard, but it's only fully tested in Linux-like and 'cygwin' environments.
 
 Requirements:
-* Function Parser for C++ v4.5.2 by Juha Nieminen, Joel Yliluoma  http://warp.povusers.org/FunctionParser/
+* Function Parser for C++ v4.5.2 by Juha Nieminen, Joel Yliluoma  http://warp.povusers.org/FunctionParser/ or https://github.com/thliebig/fparser/tree/master
 * c++ v.17
 * gnuplot for plotting (Linux version only)
 
