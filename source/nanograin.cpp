@@ -303,6 +303,25 @@ const size_t atomNameA=0;
             atoms.shrink_to_fit();
 }
 //-----------------------------------------------------------------------------
+struct acceptRadii{
+virtual bool isInside (const double &R) =0;
+virtual ~acceptRadii(){ };
+};
+struct acceptRadiiOut: acceptRadii{
+const double rout;
+        acceptRadiiOut(cpos &Rout):rout(Rout){ }
+        bool isInside (const double &R){ return R<=rout; }
+
+};
+struct acceptRadiiInOut: acceptRadii{
+const double rout;
+const double rin;
+        acceptRadiiInOut(cpos &Rout,cpos &Rin):rout(Rout),rin(Rin){ }
+        bool isInside (const double &R){ return R<=rout && R>=rin; }
+
+};
+//bool operator ==
+//-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::fcc(EFCCTYPE fcctype)
 {
 
@@ -323,7 +342,15 @@ const size_t atomNameA=0;
             size_t   appSize=(size_t)  gv/ucv;
             const size_t mult=(fcctype) ? 8 : 4;
             cpos fradii2=sqr(fradius);
-            position radii2,X2,Y2,r2xy,r2xyh;
+            position radii2,X2,Y2,r2xy,r2xyh;                                  
+            acceptRadii *atomInside;
+
+                    if(cradius.empty())  //cavity radius
+                        atomInside=new acceptRadiiOut(fradii2);
+                    else{
+                    cpos cradii2{sqr(getRadius(fclp,cradius))};
+                        atomInside=new acceptRadiiInOut(fradii2,cradii2);
+                    }
 
                     atoms.reserve(mult*appSize);
 
@@ -343,26 +370,32 @@ const size_t atomNameA=0;
                             for(Z=pSTART,Zh=pSTART+fclp*0.5;Z<=pSTOP;Z+=fclp,Zh+=fclp){
                                 radii2=Z*Z+r2xy;
 
-                                if(radii2<=fradii2)
+                                //if(radii2<=fradii2)
+                                if( atomInside->isInside(radii2))
                                     atoms.push_back(StAtom(X,Y,Z,atomNameA,radii2));
 
                                 radii2=r2xyh+Z*Z;
-                                if(radii2<=fradii2)
+                                //if(radii2<=fradii2)
+                                if( atomInside->isInside(radii2))
                                     atoms.push_back(StAtom(Xh,Yh,Z,atomNameA));                                
 
 
                                 radii2=X2h+Y2+Zh*Zh;
-                                if(radii2<=fradii2)
+                                //if(radii2<=fradii2)
+                                if( atomInside->isInside(radii2))
                                     atoms.push_back(StAtom(Xh,Y,Zh,atomNameA));
 
                                 radii2=X2+Y2h+Zh*Zh;
-                                if(radii2<=fradii2)
+                                //if(radii2<=fradii2)
+                                if( atomInside->isInside(radii2))
                                     atoms.push_back(StAtom(X,Yh,Zh,atomNameA));
 
 
                             }
                         }
                     }
+
+                    delete atomInside;
             }
             else{    /// cube
                 if(shape=="cube"){
@@ -2546,13 +2579,14 @@ vector<string> tokens(split<string>(clp," "));
             } //ERR_LPLTZERO,ERR_RLTZERO
 }
 //-----------------------------------------------------------------------------
-position NanoGrain::StNanoGrain::getRadius(cpos &lp)
+position NanoGrain::StNanoGrain::getRadius(cpos &lp,const string &sradius)
 {
-vector<string> tokens(split<string>(radius," "));
+const string R((sradius.empty()) ? this->radius : sradius);
+vector<string> tokens(split<string>(R," "));
 
         if(tokens.size()==1){
         const size_t posLP=radius.find("lp");
-        return (posLP==string::npos)? std::stod(radius) : std::stod(radius.substr(0,posLP))*lp;
+        return (posLP==string::npos)? std::stod(R) : std::stod(R.substr(0,posLP))*lp;
         }
         else {
         const double randValue=getRandomValue(tokens);
@@ -3433,7 +3467,6 @@ const str send("end");
                 }
 
 
-
                 if(cmd[index]=="lmpstyle"){
                     lmpstyle=cmd[index++][1];
                 continue;
@@ -3571,6 +3604,13 @@ const str send("end");
                 }
 
 
+                if(cmd[index]=="cradius"){
+                    cradius=cmd[index++][1];
+                    Script::replaceVars(ptr_uvar,cradius);
+                continue;
+                }
+
+
                 if(cmd[index]=="numOfatomsTest"){
                     numOfAtomsTest=(cmd[index++][1]=="yes");
                 continue;
@@ -3616,9 +3656,10 @@ const str send("end");
 
                 if(cmd[index]=="radius"){
                     radius=cmd[index++][1];
-                    Script::replaceVars(ptr_uvar,radius);
+                    Script::replaceVars(ptr_uvar,radius);                    
                 continue;
                 }
+
 
                 if(cmd[index]=="replicate"){
                 ClKeyValues keyValues(cmd[index]);

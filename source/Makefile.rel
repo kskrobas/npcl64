@@ -13,7 +13,7 @@ obj=$(objdir)/cavepdh.o $(objdir)/cdiff.o $(objdir)/cgr.o $(objdir)/cpdh.o $(obj
 
 
 
-.PHONY: all clean install  sysinstall
+.PHONY: all clean install  sysinstall rebuild
 
 
 all:  dirs $(target)
@@ -123,6 +123,10 @@ $(objdir)/stsymmgroupgenerator.o: stsymmgroupgenerator.cpp stsymmgroupgenerator.
 	
 clean:
 	rm -f $(target) $(objdir)/*
+	
+rebuild: clean all
+
+
 install:
 	@dt=$$(date +'%Y%m%d-%H%M%S') && if [ -f $(HOME)/bin/npcl ]; then mv $(HOME)/bin/npcl $(HOME)/bin/$$dt-npcl; fi;
 	@if [ ! -f $(HOME)/bin/scFact.sft ]; then cp ../scFact.sft $(HOME)/bin/.; fi;

@@ -399,7 +399,7 @@ std::stringstream atomsRemoved;
         void findMaxR();
         void findAtomNamesNumber();
         position getLP();
-        position getRadius(cpos & lp);
+        position getRadius(cpos & lp, const string &sradius="");
 
         void dispParameters();
 
@@ -426,7 +426,7 @@ std::stringstream atomsRemoved;
         };
 
 public:
-std::string side,radius,clp,structure,scaleFactors;
+std::string side,radius,cradius,clp,structure,scaleFactors;
 std::string shape,shapePrm,shapePrm2D;
 std::string disloc,dislocPlane,voidsprm;
 std::string hcpu,hcpcs,hcpABC;

@@ -516,9 +516,7 @@ vcmdlist uc_cmdlist;
 //-----------------------------------------------------------------------------
 void tricBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
 {
-int vx,vy,vz,atoms;
-    vx=vy=vz=atoms=0;
-
+int atoms=0;
 vcmdlist tric_cmdlist;
             tric_cmdlist.reserve(10);
 
@@ -666,7 +664,7 @@ void cshBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t 
 void dislocBlock(fstream &script, vcmdlist *ptr_cl , string &cmdline, const size_t options,size_t &cline)
 {
 vcmdlist gb_cmdlist;
-bool radiusOrside=false;
+//bool radiusOrside=false;
 
 
                 gb_cmdlist.reserve(10);
@@ -877,6 +875,12 @@ bool radiusOrside=false;
                     continue;
                     }
 
+                    if(regex_match(cmdline,std::regex("cradius("+sPRE_NUMBER+"(lp)?|[[:s:]]+"+sVAR+"(lp)?)"))){
+                             testDuplicate(gb_cmdlist,"cradius");
+                             appKeyValues(gb_cmdlist,cmdline);
+                     continue;
+                     }
+
                     /*
                     if(regex_match(cmdline,std::regex("cif[[:s:]]+[[:print:]]+"))){
                             //testDuplicate(gb_cmdlist,"mass");
@@ -1036,6 +1040,7 @@ bool radiusOrside=false;
                     continue;
                     }
 
+
                     if(regex_match(cmdline,std::regex("insfault[[:s:]]+random[[:s:]]+"+sVAR))){
                             appKeyValues(gb_cmdlist,cmdline);
                     continue;
@@ -1055,6 +1060,7 @@ bool radiusOrside=false;
                             gb_cmdlist.emplace_back(ClKeyValues(strpair("lmpmargin",cmdline.substr(10))));
                     continue;
                     }
+
 
                     if(regex_match(cmdline,std::regex("lp("+sPRE_NUMBER+"|[[:s:]]+"+sVAR+")"))){
                             testDuplicate(gb_cmdlist,"lp");
@@ -1122,6 +1128,9 @@ bool radiusOrside=false;
 
                     continue;
                     }
+
+
+
 
                    if(regex_match(cmdline,std::regex("radius[[:s:]]+(uniform|normal|lognormal)"+sPRE_NUMBER+sPRE_NUMBER))){
                             testDuplicate(gb_cmdlist,"radius");

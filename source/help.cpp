@@ -91,6 +91,7 @@ print("hcpsl (no|yes)? - enable sublattice for monoatomic grain; hcpsl is always
 print("hcpsurfA (yes|no|AB|H) - surface termination type (obsolete: see hcpsurftype)");
 print("hcpsurftyp (<value>|var)  - surface termination type given by a value in range 0...2 corresponding to AA, AB or BB");
 print("insfault random <value> - insert stacking faults for hcp at random place(s) with a number given by <value>");
+print("cradius (<value>|var)(lp)? - cavity radius for sphere-like models (default 0)");
 print("lmpmargin <value> - lammps format file, define distance between the side of a box and  most extended atom(s) for xyz axis");
 print("lp (<value>|var)  - lattice parameter in Angs");
 print("lp (uniform|normal|lognormal) <arg0> <arg1> - lattice parameter based on respective distribution, where:");
