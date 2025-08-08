@@ -375,6 +375,7 @@ std::stringstream atomsRemoved;
         void saveMXYZFile(const string &fileName);
         void saveNDLFile(const string &fileName);
         void saveLammpsFile(const string &fileName);
+        void savePolyFile(const string &fileName);
         void saveHeader();
 
 

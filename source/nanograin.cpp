@@ -2679,14 +2679,11 @@ const size_t nOfatoms=atoms.size();
                 continue;
                 }
 
-
                 if(fileName.rfind(".xyz")!=string::npos){
                     saveXYZFile(fileName);
                     saveopt.fileSaved=true;
                 continue;
                 }
-
-
 
                 if(fileName.rfind(".ndl")!=string::npos){
                     saveNDLFile(fileName);
@@ -2696,6 +2693,13 @@ const size_t nOfatoms=atoms.size();
 
                 if(fileName.rfind(".lmp")!=string::npos){
                     saveLammpsFile(fileName);
+                    saveopt.fileSaved=true;
+                continue;
+                }
+
+
+                if(fileName.rfind(".poly")!=string::npos){
+                    savePolyFile(fileName);
                     saveopt.fileSaved=true;
                 continue;
                 }
@@ -3010,6 +3014,79 @@ const StAtom * ptr_atom=atoms.data();
 
             file.close();
 
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::savePolyFile(const string &fileName)
+{
+fstream file(fileName,ios::out);
+
+            //cout<<endl<<" save poly "<<endl;
+
+            if(!file){
+                cerr<<"couldn't open file for saving, atom positions will be lost"<<endl;
+                file.close();
+            throw Status::ERR_FOPEN;
+            }
+
+size_t i;
+const size_t numOfatomsTot=atoms.size();
+double mX,mY,mZ;
+StMinMax minmax;
+const StAtom * ptr_atom=atoms.data();
+
+
+            if(margins.empty()){
+                if(clp.empty()){
+                    if(uc.vtrans.empty()){
+                        mX=mY=mZ=0;
+                    }
+                    else{
+                        mX=0.5*(uc.vtrans[0].x+uc.vtrans[1].x+uc.vtrans[2].x);
+                        mY=0.5*(uc.vtrans[0].y+uc.vtrans[1].y+uc.vtrans[2].y);
+                        mZ=0.5*(uc.vtrans[0].z+uc.vtrans[1].z+uc.vtrans[2].z);
+                    }
+                }
+                else
+                    mX=mY=mZ=0.5*std::stod(clp);
+            }
+            else{
+            vector<string> toks(split<string>(margins," "));
+                if(toks.size()==1)
+                    mX=mY=mZ=std::stod(toks[0]);
+                else{
+                    mX=std::stod(toks[0]);
+                    mY=std::stod(toks[1]);
+                    mZ=std::stod(toks[2]);
+                }
+            }
+
+            minmax.searchForMinMax(atoms);
+
+
+            //file header
+            file<<"***   created by npcl ***"<<endl;
+
+            /// 2 row simulation params
+            file<<setw(10)<<std::right<<0<<setw(10)<<std::right<<2<<setw(10)<<std::right<<numOfatomsTot
+               <<setw(20)<<std::right<<1<<endl;
+
+            /// 3, 4, 5 row:  box size
+            file<<setw(20)<<std::right<<(minmax.xmax-minmax.xmin+2*mX)<<setw(20)<<std::right<<0<<setw(20)<<std::right<<0<<endl;
+            file<<setw(20)<<std::right<<0<<setw(20)<<std::right<<(minmax.ymax-minmax.ymin+2*mY)<<setw(20)<<std::right<<0<<endl;
+            file<<setw(20)<<std::right<<0<<setw(20)<<std::right<<0<<setw(20)<<std::right<<(minmax.zmax-minmax.zmin+2*mZ)<<endl;
+
+            ///atoms
+            for(i=0;i<numOfatomsTot;i++,ptr_atom++){
+                file<<atomTypes[ptr_atom->atype].name<<"        "<<i<<endl;
+                file<<setw(16)<<right<<ptr_atom->x<<"    ";
+                file<<setw(16)<<right<<ptr_atom->y<<"    ";
+                file<<setw(16)<<right<<ptr_atom->z<<"    ";
+                file<<endl;
+            }
+
+
+
+            file.close();
 }
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveHeader()
