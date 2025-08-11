@@ -4,7 +4,7 @@ bindir=../bin
 cpp=g++
 
 cppflags=-fopenmp -std=c++17 -g  -march=native -m64 -fPIC -pipe  -DDEBUG -Wall -Wno-misleading-indentation
-cpplibs=-L../fparser -lpthread -lfparser
+cpplibs=-L../fparser -lpthread -lfparser -lz
 target=$(bindir)/npclA.d
 obj=$(objdir)/cavepdh.o $(objdir)/cdiff.o $(objdir)/cgr.o $(objdir)/cpdh.o $(objdir)/elements.o   \
 	$(objdir)/main.o $(objdir)/nanograin.o $(objdir)/scriptanalyser.o  $(objdir)/cprogress.o $(objdir)/csupersphere.o \

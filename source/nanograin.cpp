@@ -28,6 +28,7 @@
 #include <omp.h>
 #include <regex>
 #include <algorithm>
+#include <zlib.h>
 
 #include "createdir.h"
 #include "crandom.h"
@@ -3115,23 +3116,31 @@ fstream fout(fileNameHeader,ios::out);
 void NanoGrain::StNanoGrain::openFile()
 {
 
-            if(fileNameIn.find(".xyz")!=string::npos){
+            if(fileNameIn.rfind(".xyz.gz")!=string::npos){
+                openXYZGZFile();
+                sortAtomsByName();
+            return;
+            }
+
+            if(fileNameIn.rfind(".xyz")!=string::npos){
                 openXYZFile();
                 sortAtomsByName();
             return;
             }
 
-            if(fileNameIn.find(".lmp")!=string::npos){
+            if(fileNameIn.rfind(".lmp")!=string::npos){
                 openLMPFile();
                 sortAtomsByName();
             return;
             }
 
-            if(fileNameIn.find(".ndl")!=string::npos){
+            if(fileNameIn.rfind(".ndl")!=string::npos){
                 openNDLFile();
                 sortAtomsByName();
             return;
             }
+
+
 
 
             cerr<<" unknown format "<<endl;
@@ -3202,6 +3211,71 @@ int row=0,arows=-1;
 
 
 fin.close();
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::openXYZGZFile()
+{
+fstream fin(fileNameIn,ios::in);
+
+            if(!fin){
+                cerr<<"couldn't open file for reading"<<endl;
+                fin.close();
+                throw Status::ERR_FOPEN;
+            }
+
+            fin.close();
+
+
+gzFile file = gzopen(fileNameIn.c_str(), "rb");  // "rb" = read binary
+char buffer[128];
+string fline;
+size_t arows;
+
+            //numO
+            gzgets(file, buffer, sizeof(buffer));
+            fline=std::string(buffer);
+
+            //get comment and ignore
+            gzgets(file, buffer, sizeof(buffer));
+
+            arows=std::stol(fline);
+            atoms.clear();
+            atoms.reserve(arows);
+
+position x,y,z;
+string aname;
+int atype;
+vector<string> toks;
+size_t maxLines=arows;
+
+            while (gzgets(file, buffer, sizeof(buffer)) != Z_NULL) {
+
+                fline=std::string(buffer);
+                toks=split<string>(fline," \t");
+                aname=toks[0];
+                x=std::stod(toks[1]);
+                y=std::stod(toks[2]);
+                z=std::stod(toks[3]);
+
+                if( (atype=findAtomName(aname)) <0){
+                    //atomNames.push_back(aname);
+                    atomTypes.push_back(StAtomType(aname));
+                    atype=atomTypes.size()-1;
+                }
+
+                atoms.emplace_back(StAtom(x,y,z,atype));
+                maxLines--;
+            }
+
+            if(maxLines>0){
+                cerr<<"ERROR: wrong format, file: "<<fileNameIn<<"\n\t line: "<<arows+2-maxLines<<endl;
+                gzclose(file);
+                throw Status::ERR_FOPEN;
+            }
+
+
+            atoms.shrink_to_fit();
+            gzclose(file);
 }
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::openLMPFile()
