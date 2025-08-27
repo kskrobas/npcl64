@@ -41,6 +41,9 @@
 #define M_PI 3.1415926539
 #endif
 
+
+
+
 //#define DEBUG
 
 
@@ -504,7 +507,7 @@ const size_t atomNameA=0;
                      vector<string> coneParams(split<string>(shapePrm," "));//scale factors
                             if(coneParams[1]=="0"){
                                 errMsg("cone height must be greater than 0");
-                            throw Status::ERR_HEIGHT;
+                            throw Status::ERR_HEIGHT+Status::EOS;
                             }
 
                      cpos minRadius=std::stod(coneParams[0]);
@@ -514,7 +517,7 @@ const size_t atomNameA=0;
                      cpos  gv=1.0*M_PI*sqr(fradius)*coneHeight/3.0; //cone grain volume
                      size_t   appSize=(size_t)  gv/ucv;
                      const size_t mult=(fcctype) ? 8 : 4;
-                     position radii2,X2,Y2,r2xy,fradii2,fradii2h;
+                     position radii2,X2,Y2,r2xy,fradii2;
                      cpos heightHalf=0.5*coneHeight;
                      cpos cmaxLp=(cpos) (floor( (fradius>minRadius) ?  fradius/fclp : minRadius/fclp));
                      cpos cSTART=-cmaxLp*fclp;
@@ -554,7 +557,7 @@ const size_t atomNameA=0;
                     }
                     else{
                         errMsg(" unknown shape type ");
-                    throw Status::ERR_UNKSHAPE;
+                    throw Status::ERR_UNKSHAPE+Status::EOS;
                     }
                 }
             }
@@ -979,7 +982,7 @@ fstream fin(fileCIF,ios::in);
         if(!fin){
             fin.close();
             errMsg(" file *.CIF is missing");
-        throw NanoGrain::Status::ERR_FOPEN;
+        throw NanoGrain::Status::ERR_FOPEN+Status::EOS;
         }
 
 
@@ -1087,7 +1090,7 @@ vector<string> sgOperators;
 
                     if(! fin.good() || aName<0 || aX<0 || aY<0 || aZ<0 || tagPos<4){
                         errMsg(" the cif file format is corrupted, line: "+std::to_string(__LINE__));
-                    throw NanoGrain::Status::ERR_FFORMAT;
+                    throw NanoGrain::Status::ERR_FFORMAT+Status::EOS;
                     }
 
 
@@ -1095,7 +1098,7 @@ vector<string> sgOperators;
                     vector<string> tokens(split<string>(fline," \t"));
                     const size_t tsize=tokens.size();
 
-                        if( (tsize!=static_cast<int>(tagPos))) break;
+                        if( (tsize!=static_cast<size_t>(tagPos))) break;
 
                     string N(tokens[aName]);
                     string X,Y,Z;//([\\(][0-9]*[\\)])?
@@ -1143,15 +1146,15 @@ vector<string> sgOperators;
                         }
                         else{
                             errMsg(" couldn't recognize fractonial position : "+fline);
-                        throw NanoGrain::Status::ERR_FFORMAT;
+                        throw NanoGrain::Status::ERR_FFORMAT+Status::EOS;
                         }
 
                         std::getline(fin,fline);
                         trim(fline);
 
-                    }while( !fin.eof() &&
-                            fline.find("loop")==string::npos && fline.find("data")==string::npos &&
-                            fline[0]!='_' && fline[0]!='#' || fline[0]!=';');
+                    }while( (!fin.eof() &&
+                            (fline.find("loop")==string::npos) && (fline.find("data")==string::npos) &&
+                            (fline[0]!='_') && (fline[0]!='#')) || (fline[0]!=';'));
 
                     dataCompletness++;
                 }
@@ -1188,7 +1191,7 @@ vector<string> sgOperators;
                             {
                                 errMsg("unrecognized/wrong format of " +cmdName+" section within CIF file");
                                 fin.close();
-                            throw NanoGrain::Status::ERR_FFORMAT;
+                            throw NanoGrain::Status::ERR_FFORMAT+Status::EOS;
                             }
                         }
                         fin.seekg(streamPos);
@@ -1201,7 +1204,7 @@ vector<string> sgOperators;
 
         if(dataCompletness!=7){
             errMsg(" dataCompletness != 7");
-        throw NanoGrain::Status::ERR_FFORMAT;
+        throw NanoGrain::Status::ERR_FFORMAT+Status::EOS;
         }
 
         if(!tmpTric.atoms.empty() && !sgOperators.empty()){
@@ -2051,7 +2054,7 @@ double dTh=2*M_PI/(N-1);
             planeAtoms.reserve(N);
             Ang=0;
 
-            for(size_t i=0;i<N;i++){
+            for(size_t i=0;i< static_cast<size_t>(N);i++){
                 sqR=std::sqrt(rdistr(generatorRadius));
                 Ang=dTh*i;
                 //Ang=adistr(generatorAngle);
@@ -2662,11 +2665,16 @@ const size_t nOfatoms=atoms.size();
 
                 if(!createDirsIfDontExist(fileName)){
                     errMsg("couldn't create nested directories for "+fileName);
-                throw Status::ERR_FOPEN;
+                throw Status::ERR_FOPEN+Status::EOS;
                 }
 
                 if(fileName.rfind(".dat")!=string::npos){
                     saveDatFile(fileName);
+                continue;
+                }
+
+                if(fileName.rfind(".gz")!=string::npos){
+                    saveXYZGZFile(fileName);
                 continue;
                 }
 
@@ -2698,7 +2706,6 @@ const size_t nOfatoms=atoms.size();
                 continue;
                 }
 
-
                 if(fileName.rfind(".poly")!=string::npos){
                     savePolyFile(fileName);
                     saveopt.fileSaved=true;
@@ -2707,7 +2714,8 @@ const size_t nOfatoms=atoms.size();
 
 
                 cerr<<" unknown file format "<<fileName<<endl;
-            throw Status::ERR_FFORMAT;
+
+            throw Status::ERR_FFORMAT+Status::EOS;
             }
 
 
@@ -2724,7 +2732,7 @@ fstream fout(fileName,ios::out);
         if(!fout){
             cerr<<"couldn't open file for saving, atom positions will be lost"<<endl;
             fout.close();
-        throw Status::ERR_FOPEN;
+        throw Status::ERR_FOPEN+Status::EOS;
         }
 
         for(StAtom &atom: atoms)
@@ -2739,22 +2747,78 @@ void NanoGrain::StNanoGrain::saveXYZFile(const string &fileName)
 {
 fstream fout(fileName,ios::out);
 
-        if(!fout){
-            cerr<<"couldn't open file for saving, atom positions will be lost"<<endl;
+            if(!fout){
+                cerr<<"couldn't open file for saving, atom positions will be lost"<<endl;
+                fout.close();
+            throw Status::ERR_FOPEN+Status::EOS;
+            }
+
+
+            fout<<atoms.size()<<endl;
+            fout<<"ver.01"<<endl;
+
+            for(StAtom &atom: atoms)
+                 fout<<atomTypes[atom.atype].name<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<endl;///<<"\t"<<( (atom.rdh) ? "*" : "" )
+
             fout.close();
-        throw Status::ERR_FOPEN;
-        }
-
-
-        fout<<atoms.size()<<endl;
-        fout<<"ver.01"<<endl;
-
-        for(StAtom &atom: atoms)
-             fout<<atomTypes[atom.atype].name<<"\t"<<atom.x<<"\t"<<atom.y<<"\t"<<atom.z<<endl;///<<"\t"<<( (atom.rdh) ? "*" : "" )
-
-        fout.close();
 }
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::saveXYZGZFile(const string &fileName)
+{
+gzFile gzout;
 
+            gzout=gzopen(fileName.c_str(),"wb");
+            if(!gzout) {
+                cerr<<"couldn't open  *.xyz.gz file for saving, atom positions will be lost"<<endl;
+            throw Status::ERR_FOPEN+Status::EOS;
+            }
+
+string strLine,strHeader;
+char *pout=nullptr,*pout_beg,*pout_end;
+std::unique_ptr<char> unq_out;
+size_t copy_size=0;
+const size_t nOfatoms=atoms.size();
+
+const size_t col_size=16;   // single column size
+const size_t header_size=100;  //
+const size_t row_size=8+3*col_size+4;  // 8 - name size, 3*double,  4*(space/EOL)
+const size_t gzout_size=nOfatoms*row_size+header_size;
+
+            unq_out=std::unique_ptr<char>(new char[gzout_size]);
+            pout=unq_out.get();
+            pout_beg=pout;
+            pout_end=pout+gzout_size;
+
+            strHeader=std::to_string(atoms.size())+"\n";
+            strHeader+="----  generated by npcl\n";
+
+            copy_size=strHeader.copy(pout,strHeader.size());
+            pout+=copy_size;
+
+            for(StAtom &atom: atoms){
+                 strLine=atomTypes[atom.atype].name+"\t"+
+                         std::to_string(atom.x)+"\t"+
+                         std::to_string(atom.y)+"\t"+
+                         std::to_string(atom.z)+"\n";
+                 copy_size=strLine.copy(pout,strLine.size());
+                 pout+=copy_size;
+
+                 if(pout>pout_end){
+                     cerr<<"ERROR: size of buffer exceeded"<<endl;
+                 throw Status::ERR_EXCEED+Status::EOS;
+                 }
+            }
+
+            if(! gzwrite(gzout, pout_beg, pout-pout_beg)){
+            int errnum = 0;
+                    cerr << "gzwrite error: " << gzerror(gzout, &errnum) << endl;
+                    gzclose(gzout);
+
+            throw Status::ERR_GZIP+Status::EOS;
+            }
+
+            gzclose(gzout);
+}
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::saveNXYZFile(const string &fileName)
 {
@@ -2935,14 +2999,14 @@ StMinMax minmax;
                 cpos XZ=repZ*tric.c.x;
                 cpos YZ=repZ*tric.c.y;
 
-                cpos XYZ=XY+XZ;
+                //cpos XYZ=XY+XZ;
 
 
-                cpos xlo=0-minv(XY,XZ,XYZ);
-                cpos xhi=repX*tric.a.x-maxv(XY,XZ,XYZ);
+                //cpos xlo=0-minv(XY,XZ,XYZ);
+                //cpos xhi=repX*tric.a.x-maxv(XY,XZ,XYZ);
 
-                cpos ylo=0-minv(0,0,YZ);
-                cpos yhi=repY*tric.b.y-maxv(0,0,YZ);
+                //cpos ylo=0-minv(0,0,YZ);
+                //cpos yhi=repY*tric.b.y-maxv(0,0,YZ);
 
                     file<<"    "<<0 <<"    "<<repX*tric.a.x*1.25<<"    xlo xhi"<<endl;
                     file<<"    "<<-0.125* repY*tric.b.y  <<"    "<<repY*tric.b.y*1.25<<"    ylo yhi"<<endl;
@@ -2992,7 +3056,7 @@ mapConstIter massIter;
 
 size_t i;
 const size_t numOfatomsTot=atoms.size();
-const size_t at=atomTypes.size();
+//const size_t at=atomTypes.size();
 const StAtom * ptr_atom=atoms.data();
 
             if(lmpstyle=="atomcharge"){
@@ -3197,7 +3261,7 @@ int row=0,arows=-1;
 
                     atoms.shrink_to_fit();
             }
-            catch(std::ifstream::failure e){
+            catch(std::ifstream::failure &e){
 
                 cerr<<" exceptions during file procesing, row: "<<row<<", e.what(): "<<e.what()<<endl;
                 fin.close();
@@ -3232,8 +3296,15 @@ string fline;
 size_t arows;
 
             //numO
-            gzgets(file, buffer, sizeof(buffer));
-            fline=std::string(buffer);
+            if( gzgets(file, buffer, sizeof(buffer)) !=Z_NULL)
+                fline=std::string(buffer);
+            else{
+            int errorC=0;
+                cerr<<"ERROR (zlib): "<<gzerror(file,&errorC)<<endl;
+                cerr<<"       error code: "<<errorC<<endl;
+            throw Status::ERR_FOPEN;
+            }
+
 
             //get comment and ignore
             gzgets(file, buffer, sizeof(buffer));
@@ -3248,23 +3319,30 @@ int atype;
 vector<string> toks;
 size_t maxLines=arows;
 
-            while (gzgets(file, buffer, sizeof(buffer)) != Z_NULL) {
+            try{
+                while (gzgets(file, buffer, sizeof(buffer)) != Z_NULL) {
 
-                fline=std::string(buffer);
-                toks=split<string>(fline," \t");
-                aname=toks[0];
-                x=std::stod(toks[1]);
-                y=std::stod(toks[2]);
-                z=std::stod(toks[3]);
+                    fline=std::string(buffer);
+                    toks=split<string>(fline," \t");
+                    aname=toks[0];
+                    x=std::stod(toks[1]);
+                    y=std::stod(toks[2]);
+                    z=std::stod(toks[3]);
 
-                if( (atype=findAtomName(aname)) <0){
-                    //atomNames.push_back(aname);
-                    atomTypes.push_back(StAtomType(aname));
-                    atype=atomTypes.size()-1;
+                    if( (atype=findAtomName(aname)) <0){
+                        //atomNames.push_back(aname);
+                        atomTypes.push_back(StAtomType(aname));
+                        atype=atomTypes.size()-1;
+                    }
+
+                    atoms.emplace_back(StAtom(x,y,z,atype));
+                    maxLines--;
                 }
-
-                atoms.emplace_back(StAtom(x,y,z,atype));
-                maxLines--;
+            }
+            catch(...){
+                cerr<<"ERROR: xyz.gz reading exception, line "<<arows+2-maxLines<<", fline: "<<fline<<endl;
+                gzclose(file);
+                throw Status::ERR_FOPEN;
             }
 
             if(maxLines>0){
@@ -3319,7 +3397,7 @@ string sline;
                     nOftypes=std::stoi(tokens[0]);
 
                     atomTypes.resize(nOftypes);
-                    for (size_t i=1;i<=nOftypes;i++)
+                    for (size_t i=1;i<=static_cast<size_t>(nOftypes);i++)
                         atomTypes[i-1].name=std::to_string(i);
 
                     // find tag 'Masses'
@@ -3408,7 +3486,7 @@ fstream fin(fileNameIn,ios::in);
             throw Status::ERR_FOPEN;
             }
 
-int nOfatoms,nOftypes;
+int nOfatoms;
 string sline;
 
             try{
@@ -4196,25 +4274,28 @@ const str send("end");
          }
          catch(Status e){
 
-             cerr<<"ERROR ";
-             switch(e){
-             case Status::ERR_FFORMAT :  cerr<<" wrong format";               break;
-             case Status::ERR_FOPEN :    cerr<<" file couldn't be opened";    break;
-             case Status::ERR_LP :       cerr<<" unknown lattice parameter";  break;
-             case Status::ERR_RADII :    cerr<<" unknown radius  ";           break;
-             case Status::ERR_GEOM  :    cerr<<" unknown geometry ";          break;
-             case Status::ERR_ATYPES :   cerr<<" unknown atom types ";        break;
-             case Status::ERR_ANUM_ZERO: cerr<<" number of atoms is 0";       break;
-             case NanoGrain::ERR_UNKSEQ: cerr<<" empty hcp string";           break;
-             case Status::ERR_LPLTZERO:  cerr<<" random value of latt. param. is less than zero"; break;
-             case Status::ERR_RLTZERO:   cerr<<" random value of radius is less than zero"; break;
-             case Status::ERR_ABCPARSE:  cerr<<" hcpabc failure";               break;
-             case Status::ERR_ST:        cerr<<" unrecognized surface type"; break;
-             default: cout<<"unknown error (Status type), code "<<e<<" ";
-             }
+            if(e<Status::EOS){
+                 cerr<<"ERROR ";
+                 switch(e){
+                 case Status::ERR_FFORMAT :  cerr<<" wrong format";               break;
+                 case Status::ERR_FOPEN :    cerr<<" file couldn't be opened";    break;
+                 case Status::ERR_LP :       cerr<<" unknown lattice parameter";  break;
+                 case Status::ERR_RADII :    cerr<<" unknown radius  ";           break;
+                 case Status::ERR_GEOM  :    cerr<<" unknown geometry ";          break;
+                 case Status::ERR_ATYPES :   cerr<<" unknown atom types ";        break;
+                 case Status::ERR_ANUM_ZERO: cerr<<" number of atoms is 0";       break;
+                 case NanoGrain::ERR_UNKSEQ: cerr<<" empty hcp string";           break;
+                 case Status::ERR_LPLTZERO:  cerr<<" random value of latt. param. is less than zero"; break;
+                 case Status::ERR_RLTZERO:   cerr<<" random value of radius is less than zero"; break;
+                 case Status::ERR_ABCPARSE:  cerr<<" hcpabc failure";               break;
+                 case Status::ERR_ST:        cerr<<" unrecognized surface type"; break;
+                 case Status::ERR_EXCEED:
+                 case Status:: ERR_GZIP:     break;
+                 default: cout<<"unknown error (Status type), code "<<e<<" ";
+                }
+            }
 
              cout<<endl;
-
          }
          catch (const std::out_of_range& e) {
            std::cerr << "ERROR: Out of Range error: " << e.what() << endl;

@@ -1112,8 +1112,6 @@ bool radiusOrside=false;
                     continue;
                     }
 
-
-
                    if(regex_match(cmdline,std::regex("radius("+sPRE_NUMBER+"(lp)?|[[:s:]]+"+sVAR+"(lp)?)"))){
 
                            if(radiusOrside){
@@ -1128,8 +1126,6 @@ bool radiusOrside=false;
 
                     continue;
                     }
-
-
 
 
                    if(regex_match(cmdline,std::regex("radius[[:s:]]+(uniform|normal|lognormal)"+sPRE_NUMBER+sPRE_NUMBER))){
