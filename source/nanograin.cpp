@@ -2673,8 +2673,15 @@ const size_t nOfatoms=atoms.size();
                 continue;
                 }
 
-                if(fileName.rfind(".gz")!=string::npos){
+                if(fileName.rfind(".xyz.gz")!=string::npos){
                     saveXYZGZFile(fileName);
+                    saveopt.fileSaved=true;
+                continue;
+                }
+
+                if(fileName.rfind(".lmp.gz")!=string::npos){
+                    saveLammpsGZFile(fileName);
+                    saveopt.fileSaved=true;
                 continue;
                 }
 
@@ -3079,6 +3086,141 @@ const StAtom * ptr_atom=atoms.data();
 
             file.close();
 
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::saveLammpsGZFile(const string &fileName)
+{
+gzFile gzout;
+
+            gzout=gzopen(fileName.c_str(),"wb");
+            if(!gzout) {
+                cerr<<"couldn't open  *.lmp.gz file for saving, atom positions will be lost"<<endl;
+            throw Status::ERR_FOPEN+Status::EOS;
+            }
+
+string strLine,strHeader;
+char *pout=nullptr,*pout_beg,*pout_end;
+std::unique_ptr<char> unq_out;
+size_t copy_size=0;
+const size_t nOfatoms=atoms.size();
+
+vector<double> mXYZ={0,0,0};
+auto &mX=mXYZ[0];
+auto &mY=mXYZ[1];
+auto &mZ=mXYZ[2];
+const vector<string> lohi{"    xlo xhi\n","    ylo yhi\n","    zlo zhi\n"};
+StMinMax minmax;
+const size_t row_size=100;
+
+
+            if(margins.empty()){
+                if(clp.empty()){
+                    if(!uc.vtrans.empty()){
+                        mX=0.5*(uc.vtrans[0].x+uc.vtrans[1].x+uc.vtrans[2].x);
+                        mY=0.5*(uc.vtrans[0].y+uc.vtrans[1].y+uc.vtrans[2].y);
+                        mZ=0.5*(uc.vtrans[0].z+uc.vtrans[1].z+uc.vtrans[2].z);
+                    }
+                }
+                else
+                    mX=mY=mZ=0.5*std::stod(clp);
+            }
+            else{
+            vector<string> toks(split<string>(margins," "));
+                if(toks.size()==1)
+                    mX=mY=mZ=std::stod(toks[0]);
+                else{
+                    mX=std::stod(toks[0]);
+                    mY=std::stod(toks[1]);
+                    mZ=std::stod(toks[2]);
+                }
+            }
+
+            minmax.searchForMinMax(atoms);
+
+            //-----------------------------------------
+
+            strHeader="# created by npcl\n\n";
+
+            strLine="\t"+std::to_string(nOfatoms)+"\tatoms\n\t"+std::to_string(atomTypes.size())+"\tatom types\n";
+            strHeader+=strLine;
+
+            strLine="";
+            for(size_t i=0;i<3;i++){
+                strLine+="\t"+std::to_string(minmax.xyzMinMax3[i][0]-mXYZ[i])+
+                         "\t"+std::to_string(minmax.xyzMinMax3[i][1]+mXYZ[i])+
+                         "\t"+lohi[i];
+            }
+            strHeader+=strLine;
+
+            strLine="Masses\n\n";
+
+mapConstIter massIter;
+            for( size_t i=0;i<atomTypes.size();i++){
+
+                strLine+="\t"+std::to_string(i+1)+" ";
+
+                if(atomTypes[i].mass.empty()){
+                    if( (massIter=Elements::mass.find(atomTypes[i].name))==Elements::mass.end()){
+                        strLine+="?";
+                        warnMsg("unknown mass for "+atomTypes[i].name);
+                    }
+                    else
+                        strLine+=massIter->second;
+                }
+                else
+                    strLine+=atomTypes[i].mass;
+
+                strLine+="  #  "+atomTypes[i].name+"\n";
+            }
+
+            strHeader+=strLine;
+
+            if(lmpstyle=="atomcharge")
+                strHeader+="Atoms # charge\n\n";
+            else
+                strHeader+="Atoms \n\n";
+
+
+const size_t gzout_size=nOfatoms*row_size+strHeader.length();
+const StAtom * ptr_atom=atoms.data();
+auto atomChargeStyle=(lmpstyle=="atomcharge")
+                                        ? std::function{[&](const size_t &atype){return atomTypes[atype].charge+"  ";}}
+                                        : std::function{[&](const size_t &atype){return "  ";}} ;
+
+
+            unq_out=std::unique_ptr<char>(new char[gzout_size]);
+            pout=unq_out.get();
+            pout_beg=pout;
+            pout_end=pout+gzout_size;
+
+            copy_size=strHeader.copy(pout,strHeader.size());
+            pout+=copy_size;
+
+            for(size_t i=1;i<=nOfatoms;i++,ptr_atom++){
+                strLine=std::to_string(i)+"  "+std::to_string( ptr_atom->atype+1 )+"  "+
+                        atomChargeStyle(ptr_atom->atype)+
+                        std::to_string(ptr_atom->x)+"  "+
+                        std::to_string(ptr_atom->y)+"  "+
+                        std::to_string(ptr_atom->z)+"\n";
+                copy_size=strLine.copy(pout,strLine.size());
+                pout+=copy_size;
+
+                if(pout>pout_end){
+                    cerr<<"ERROR: size of buffer exceeded"<<endl;
+                throw Status::ERR_EXCEED+Status::EOS;
+                }
+            }
+
+            if(! gzwrite(gzout, pout_beg, pout-pout_beg)){
+            int errnum = 0;
+                    cerr << "gzwrite error: " << gzerror(gzout, &errnum) << endl;
+                    gzclose(gzout);
+
+            throw Status::ERR_GZIP+Status::EOS;
+            }
+
+
+            gzclose(gzout);
 }
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::savePolyFile(const string &fileName)
@@ -4389,6 +4531,10 @@ void NanoGrain::StMinMax::searchForMinMax(const NanoGrain::vatoms &atoms)
             if(atom.y<ymin) ymin=atom.y;
             if(atom.z<zmin) zmin=atom.z;
         }
+
+        width=xmax-xmin;
+        length=ymax-ymin;
+        height=zmax-zmin;
 }
 //---------------------------------------------------------------------------
 position NanoGrain::StMinMax::getMaxAbs()

@@ -265,7 +265,13 @@ std::string name,charge,mass;
 struct StMinMax{
     union{
         struct {position xmin,xmax,ymin,ymax,zmin,zmax;};
-        position xyzMinMax[6];
+        position xyzMinMax [6];
+        position xyzMinMax3[3][2];
+    };
+
+    union{
+        struct {position width,length,height;};
+        position wlh[3];
     };
 
 
@@ -273,9 +279,9 @@ struct StMinMax{
     position getMaxAbs();
     position getMinAbs();
     position getMinPos();
-    position getWidth() {return xmax-xmin;}
-    position getLength(){return ymax-ymin;}
-    position getHeight(){return zmax-zmin;}
+    //position getWidth() {return wi;}
+    //position getLength(){return ymax-ymin;}
+    //position getHeight(){return zmax-zmin;}
 
 
 };
@@ -376,6 +382,7 @@ std::stringstream atomsRemoved;
         void saveMXYZFile(const string &fileName);
         void saveNDLFile(const string &fileName);
         void saveLammpsFile(const string &fileName);
+        void saveLammpsGZFile(const string &fileName);
         void savePolyFile(const string &fileName);
         void saveHeader();
 
