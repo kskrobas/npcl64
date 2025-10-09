@@ -866,7 +866,8 @@ size_t i,j;
 
             if(grain->atomTypes.size()==1){
                 for(i=0;i<dataSize;i++)
-                    fout<<" "<<dataX[i]<<" "<<dataYii[i]<<endl;
+                    fout<<setw(15)<<setprecision(12)<< dataX[i]  <<" "
+                        <<setw(15)<<setprecision(12)<< dataYii[i]<<endl;
             }
             else{
 
