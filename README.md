@@ -28,7 +28,7 @@ Requirements:
 * c++ v.17
 * gnuplot for plotting (Linux version only)
 
-Installation instructions for Linux like machines:
+Installation instructions for Linux-like machines:
 1. download, compile code  and install the fparser library:
 
     g++ -c -fpic fparser.cc -o fparser.l
@@ -40,7 +40,7 @@ Installation instructions for Linux like machines:
    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<path_to_fparser> and save. 
    
    Restart your console/terminal.
-2. go to the npcl64 folder and set link to fparser folder, e.g.: 
+2. go to the npcl64 folder and set a link to the fparser folder, e.g.: 
 
    $ ln -s <path_to_fparser> .
    
@@ -53,13 +53,13 @@ Installation instructions for Linux like machines:
 4. Go to the source folder and type:
     make -f Makefile.rel
     
-5. After compilation, ready to use the 'npcl' program is placed at the ./npcl64/bin folder
+5. After compilation, ready to use 'npcl' program is placed in the ./npcl64/bin folder
 6. Installation: 
     For global installation type:
     
     $ sudo make -f Makefile.rel sysinstall
     
-    For local (to your /home/<user>/bin, the bin folder must exists and should be known for system) folder type:
+    For local (to your /home/<user>/bin, the bin folder must exist and should be known to the system) folder type:
  
     $ make -f Makefile.rel install
     

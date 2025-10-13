@@ -102,10 +102,9 @@ private:
             threads__=mthreads;
         }
 
-        void ppp();
-
-        void (ClMainTask::*ptrPPP)();
-        void (ClMainTask::*ptrCalc)(std::string &);
+        //void ppp();
+        //void (ClMainTask::*ptrPPP)();
+        //void (ClMainTask::*ptrCalc)(std::string &);
 
 public:
 
@@ -205,12 +204,14 @@ public:
                 }
 
          size_t cline=0;
+         Script::Result retVal=Script::scriptParsing(script,cline,&cmdlist,&uvars,options);
 
-                if( auto retVal=Script::scriptParsing(script,cline,&cmdlist,&uvars,options)==Script::Result::OK){
+                if(retVal==Script::Result::OK){
                     if(cmdlist.empty())
                         cout<<" WARNING, empty script"<<endl;
                 }
                 else{
+
                     if(retVal==Script::Result::ENDRET)
                         errMsg("misplaced 'end' , line: "+std::to_string(cline));
                     else
@@ -221,7 +222,8 @@ public:
 
                     retvalue=-2;
                     script.close();
-                    return;
+
+                return;
                 }
 
                 script.close();
