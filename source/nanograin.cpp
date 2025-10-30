@@ -129,6 +129,8 @@ void NanoGrain::StNanoGrain::resetPrms()
 
         atomTypes.clear();
         atomNamesNumber.clear();
+        savingOrder.clear();
+        //sortAtoms=&NanoGrain::StNanoGrain::sortAtomsByName;
 
         shape.clear();
         shapePrm.clear();
@@ -173,6 +175,8 @@ void NanoGrain::StNanoGrain::resetPrms()
         saveFileStatusPush.clear();
         margins.clear();
         rotatePrm.clear();
+
+
 
         saveopt.reset();
         vremoveAtomsPrms.clear();
@@ -891,8 +895,9 @@ position prob;
 
             atoms.shrink_to_fit();
 
-            if(atomTypes.size()>1)
+            if(atomTypes.size()>1)                                  
                 sortAtomsByName();
+            //(this->*sortAtoms)();
 
 }
 //-----------------------------------------------------------------------------
@@ -3688,8 +3693,63 @@ string sline;
 //-----------------------------------------------------------------------------
 void NanoGrain::StNanoGrain::sortAtomsByName()
 {
-auto fsort=[](StAtom &a, StAtom&b) { return a.atype<b.atype; } ;
-           std::sort(atoms.begin(),atoms.end(),fsort);
+auto fsort=[](StAtom &a, StAtom &b){ return a.atype<b.atype; } ;
+            std::sort(atoms.begin(),atoms.end(),fsort);
+}
+//-----------------------------------------------------------------------------
+void NanoGrain::StNanoGrain::sortAtomsByOrder()
+{
+vector<StAtomType> tmpAtomTypes;
+
+                tmpAtomTypes.resize(atomTypes.size());
+                std::copy(atomTypes.begin(),atomTypes.end(),tmpAtomTypes.begin());
+
+vector<size_t> swapTable;
+const size_t tmpSize=tmpAtomTypes.size();
+const size_t ordSize=savingOrder.size();
+
+                atomTypes.clear();
+
+                atomTypes.reserve(tmpSize);
+                swapTable.resize(tmpSize);
+
+
+                // build atomTypes according to savingOrder
+                for(size_t i=0; i<ordSize; i++){
+                auto itr=std::find(tmpAtomTypes.begin(),tmpAtomTypes.end(),savingOrder[i]);
+                    if(itr!=tmpAtomTypes.end()){
+                    size_t pos=std::distance(tmpAtomTypes.begin(),itr);
+                        swapTable[pos]=atomTypes.size();
+                        atomTypes.push_back(itr->name);
+
+                    }
+                    else
+                        cerr<<"WARNING: unknown atom type "<<__FILE__<<"\t"<<__LINE__<<endl;
+                }
+
+
+                // copy the remain types if any left
+                if( tmpSize>ordSize )
+                    for(size_t i=0;i<tmpSize;i++){
+                    auto itr=std::find(savingOrder.begin(),savingOrder.end(),tmpAtomTypes[i].name);
+                            if(itr==savingOrder.end()){
+                                swapTable[i]=atomTypes.size();
+                                atomTypes.push_back(tmpAtomTypes[i].name);
+                            }
+                    }
+
+
+                atomTypes.shrink_to_fit();
+
+const size_t numOfAtoms=atoms.size();
+
+                omp_set_num_threads(stoi(threads));
+                #pragma  omp parallel for
+                for(size_t i=0; i<numOfAtoms; i++)
+                    atoms[i].atype=swapTable[atoms[i].atype];
+
+
+                sortAtomsByName();
 
 }
 //-----------------------------------------------------------------------------
@@ -4105,35 +4165,48 @@ const str send("end");
 
                 if(cmd[index]=="saveopt"){
 
-                    for(int i=1; i<cmd[index].numOfKeyValues(); i+=2){
-                    const string key  (cmd[index][i]);
-                    const string value(cmd[index][i+1]);
-
-                        if(key=="min"){
-                            saveopt.min=std::stod(value);
-                        continue;
+                    if(cmd[index][1]=="order"){
+                        savingOrder.resize(cmd[index].numOfKeyValues()-2);
+                        for(int i=2;i<cmd[index].numOfKeyValues();i++){
+                            savingOrder[i-2]=cmd[index][i];
                         }
 
-                        //StRotationMatrix rotMat(mainAxis,sa,ca);
+                    vector<string> tmpSO{savingOrder};
+                        std::sort(tmpSO.begin(),tmpSO.end());
+                    auto itr=std::unique (tmpSO.begin(), tmpSO.end());
 
+                        if(std::distance(tmpSO.begin(),itr)<tmpSO.size())
+                            throw NanoGrain::Status::ERR_ODUP;
 
+                    }
+                    else{
+                        for(int i=1; i<cmd[index].numOfKeyValues(); i+=2){
+                        const string key  (cmd[index][i]);
+                        const string value(cmd[index][i+1]);
 
-                        if(key=="max"){
-                            saveopt.max=std::stod(value);
-                        continue;
+                            if(key=="min"){
+                                saveopt.min=std::stod(value);
+                            continue;
+                            }
+
+                            if(key=="max"){
+                                saveopt.max=std::stod(value);
+                            continue;
+                            }
+
+                            if(key=="if"){
+                                saveopt.lwh.push_back(value);
+                            continue;
+                            }
+
+                            if(key=="lmp"){
+                                saveopt.lmpTric=true;
+                            continue;
+                            }
+
+                            warnMsg("unknown save option "+key);
                         }
 
-                        if(key=="if"){
-                            saveopt.lwh.push_back(value);
-                        continue;
-                        }
-
-                        if(key=="lmp"){
-                            saveopt.lmpTric=true;
-                        continue;
-                        }
-
-                        warnMsg("unknown save option "+key);
                     }
 
                     index++;
@@ -4310,7 +4383,6 @@ const str send("end");
         }
 
 
-
             if(fileNameIn.empty()){
             const bool vttriccif=uc.vtrans.empty() &
                                     tric.empty() &
@@ -4339,7 +4411,8 @@ const str send("end");
 
             if(!scaleFactors.empty()) rescale();
             if(disperse) disperseN();
-            if(!rename.empty()) renameAtoms();
+            if(!rename.empty()) renameAtoms();            
+            if(!savingOrder.empty()) sortAtomsByOrder();
 
             findAtomNamesNumber();
 
@@ -4424,10 +4497,11 @@ const str send("end");
                  case NanoGrain::ERR_UNKSEQ: cerr<<" empty hcp string";           break;
                  case Status::ERR_LPLTZERO:  cerr<<" random value of latt. param. is less than zero"; break;
                  case Status::ERR_RLTZERO:   cerr<<" random value of radius is less than zero"; break;
-                 case Status::ERR_ABCPARSE:  cerr<<" hcpabc failure";               break;
-                 case Status::ERR_ST:        cerr<<" unrecognized surface type"; break;
+                 case Status::ERR_ABCPARSE:  cerr<<" hcpabc failure";              break;
+                 case Status::ERR_ST:        cerr<<" unrecognized surface type";   break;
+                 case Status::ERR_ODUP:      cerr<<" saveopt order: names duplication";   break;
                  case Status::ERR_EXCEED:
-                 case Status:: ERR_GZIP:     break;
+                 case Status::ERR_GZIP:     break;
                  default: cout<<"unknown error (Status type), code "<<e<<" ";
                 }
             }

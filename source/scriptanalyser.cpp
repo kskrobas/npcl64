@@ -1208,6 +1208,12 @@ bool radiusOrside=false;
                     continue;
                     }
 
+                    if(regex_match(cmdline,regex("saveopt[[:s:]]+order([[:s:]]+\\w+)+"))){
+                            testVariables(&cmdline);
+                            appKeyValues(*ptr_cl,cmdline);
+                    continue;
+                    }
+
 
                     if(regex_match(cmdline,std::regex("struct[[:s:]]+(sc|bcc|fcc|hcp|zb|uo2|zb110|feni|uc|tric|cif)"))){
                             testDuplicate(gb_cmdlist,"struct");

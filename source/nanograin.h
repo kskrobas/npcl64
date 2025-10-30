@@ -179,7 +179,7 @@ namespace NanoGrain{
 
 enum Status{OK,ERR_FOPEN,ERR_FIN,ERR_FIN_EXC,ERR_FFORMAT,ERR_LP,ERR_RADII,ERR_GEOM,ERR_ATYPES,ERR_ANUM_ZERO,ERR_UNKSEQ,ERR_UNKSEQNUM,ERR_WRSHAPE,
                 WARN_ANAMEDUP, WARN_ANAMEUNKMASS,ERR_UNKAN,ERR_LPLTZERO,ERR_RLTZERO,
-                ERR_ABCPARSE,ERR_UNKSHAPE,ERR_HEIGHT,ERR_ST,ERR_EXCEED,ERR_GZIP,EOS};
+                ERR_ABCPARSE,ERR_UNKSHAPE,ERR_HEIGHT,ERR_ST,ERR_EXCEED,ERR_GZIP,ERR_ODUP,EOS};
 
 
 
@@ -247,6 +247,7 @@ typedef vector<StAtom> vatoms;
 
 struct StAtomType{
 std::string name,charge,mass;
+size_t savingOrder=-1;
 
     StAtomType() { name ="?"; charge="?";  mass="?"; }
     StAtomType(const string name__):name (name__) {  }
@@ -393,6 +394,7 @@ std::stringstream atomsRemoved;
         void openLMPFile();
         void openNDLFile();
         void sortAtomsByName();
+        void sortAtomsByOrder();
 
 
         void build();
@@ -442,6 +444,7 @@ std::string disloc,dislocPlane,voidsprm;
 std::string hcpu,hcpcs,hcpABC;
 std::string rotatePrm;
 vector<StAtomType> atomTypes;
+vector<string> savingOrder;
 vector<size_t> atomNamesNumber;
 vector<StAtomDispFactor> atomDisperse;
 std::string fileNameIn,fileNameHeader,fileCIF;
@@ -458,7 +461,8 @@ vector<string> vremoveAtomsPrms;
 bool disperse,hcpsl,numOfAtomsTest;//,testSNA;
 static list<size_t> savedNumOfAtoms;
 CSuperSphere *ssShape=nullptr;
-void (StNanoGrain::*callbackSetThreads)(std::string &threads);
+//void (StNanoGrain::*callbackSetThreads)(std::string &threads);
+//void (StNanoGrain::*sortAtoms)();
     //************************************************
     struct StUnitCell{
         vector<StVector> vtrans;
