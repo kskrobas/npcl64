@@ -141,6 +141,11 @@ const str send("end");
                 continue;
                 }
 
+                if(cmd[index]=="gnuplot"){
+                    gnuplot=cmd[index++][1];
+                continue;
+                }
+
                 if(cmd[index]=="Ki"){
                     ki=cmd[index++][1];
                 continue;
@@ -1589,27 +1594,30 @@ std::smatch matchPrm;
             }
 
 
-string gplotPrm("u 1:2 "+plotPrm.substr(matchPrm.length()));
-vector<string> tokens(split<string>(matchPrm.str(),"u :"));
+
 position *x,*y;
-string xlabel("set xlabel "),ylabel("set ylabel ");
+
+string gplotPrm(plotPrm.substr(matchPrm.length()));
+
+vector<string> tokens(split<string>(matchPrm.str(),"u :"));
+//string xlabel("set xlabel "),ylabel("set ylabel ");
 
                 if(tokens[0]=="1"){
                     x=t.values;
-                    xlabel+=("\"2*theta\"\n");
+                    //xlabel+=("\"2*theta\"\n");
                 }
                 else{
                     x=q.values;
-                    xlabel+=("\"Q\"\n");
+                   // xlabel+=("\"Q\"\n");
                 }
 
                 if(tokens[1]=="3"){
                     y=I.values;
-                    ylabel+="\"Intensity\"\n";
+                    //ylabel+="\"Intensity\"\n";
                 }
                 else{
                     y=S.values;
-                    ylabel+="\"S\"\n";
+                    //ylabel+="\"S\"\n";
                 }
 
 
@@ -1621,9 +1629,12 @@ FILE *plotHandle = NULL;
                   assert(plotHandle != NULL);
                 }
 
-                fprintf(plotHandle,xlabel.c_str());
-                fprintf(plotHandle,ylabel.c_str());
-                fprintf(plotHandle,"set grid\n");
+
+                gnuplot+="  \n";
+                fprintf(plotHandle,gnuplot.c_str());
+                //fprintf(plotHandle,xlabel.c_str());
+                //fprintf(plotHandle,ylabel.c_str());
+                //fprintf(plotHandle,"set grid\n");
 
                 if(gplotPrm.find("title")==string::npos)
                     gplotPrm+=" notitle";

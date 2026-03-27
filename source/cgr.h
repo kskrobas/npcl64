@@ -67,7 +67,7 @@ private:
     void saveFigure(const std::string &fileName);
     void plotData(FILE *plotHandle);
 	
-	std::string plotPrm;
+    std::string gnuplot,plotPrm;
     std::string figFileName;
     std::string figWidth,figHeight;
 	
@@ -103,6 +103,7 @@ public:
 
 #ifdef __linux__
         plotPrm.clear();
+        gnuplot.clear();
         figFileName.clear();
 #endif
     }

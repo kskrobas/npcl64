@@ -939,10 +939,16 @@ bool radiusOrside=false;
                     }
 
 
+                    /*
+                          std::regex("geometry[[:s:]]+poly([[:s:]]+rand\\("+sPRE_NUMBER_1+","+sPRE_NUMBER_1+"\\)|"
+                          +"("+sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){3})"
+                          +"("+sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){3}?")
+                     */
+
+
                     if(regex_match(cmdline,
-                            std::regex("geometry[[:s:]]+poly([[:s:]]+rand\\("+
-                                       sPRE_NUMBER_1+","+sPRE_NUMBER_1+"\\)|"+sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){3}("+
-                                       sPRE_NUMBER_1+"|[[:s:]]+"+sVAR+"){3}"))){
+                            std::regex("geometry[[:s:]]+poly("+sPRE_NUMBER+"|[[:s:]]+"+sVAR+"){3}"
+                                       +"(("+sPRE_NUMBER+"|[[:s:]]+"+sVAR+"){3})?"))){
                             testDuplicate(gb_cmdlist,"geometry");
 
                     const size_t prmPos(cmdline.find("poly"));
@@ -952,6 +958,8 @@ bool radiusOrside=false;
                             gb_cmdlist.emplace_back(kv);
                     continue;
                     }
+
+
 
 
                     if(regex_match(cmdline,std::regex("hcpu"+sPRE_NUMBER))){
@@ -1721,6 +1729,13 @@ vcmdlist gb_cmdlist;
                     continue;
                     }
 
+                    ///gnuplot command line
+                    if(regex_match(cmdline,std::regex("gnuplot([[:s:]]+[[:print:]]*)?"))){
+                            //appKeyValues(*ptr_cl,cmdline);
+                            gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
+                    continue;
+                    }
+
 
                     //-- extrapolate
                     if(regex_match(cmdline,std::regex("ex(trapolate)?[[:s:]]+(yes|no)"))){
@@ -1914,6 +1929,14 @@ vcmdlist gb_cmdlist;
                      if(regex_match(cmdline,std::regex("end"))){
                      break;
                      }
+
+
+                     ///gnuplot command line
+                     if(regex_match(cmdline,std::regex("gnuplot([[:s:]]+[[:print:]]*)?"))){
+                             gb_cmdlist.emplace_back(ClKeyValues(cmdline,0));
+                     continue;
+                     }
+
 
                     //
                     if(regex_match(cmdline,std::regex("norm"))){

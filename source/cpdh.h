@@ -109,7 +109,7 @@ public:
     vector<dataPdh> dataYnn;
 
 #ifdef __linux__
-    std::string plotPrm;
+    std::string gnuplot,plotPrm;
     std::string figFileName;
     std::string figWidth,figHeight;
 #endif

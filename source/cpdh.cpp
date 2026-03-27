@@ -1665,7 +1665,8 @@ std::string plotcmd("plot ");
              vector<string> sub0(split<string>(subtokens[0]," \t"));
              vector<string> sub1(split<string>(subtokens[1]," \t"));
 
-                 plotcmd+="'-' binary format=\"%%2"+sizeType+"\" record="+std::to_string(dataSize)+" endian=little u 1:2 w imp title 'PDH for "+grain->atomTypes[0].name +"-"+grain->atomTypes[0].name+"'\n";
+                 plotcmd+="'-' binary format=\"%%2"+sizeType+"\" record="+std::to_string(dataSize)
+                         +" endian=little u 1:2 w imp title 'PDH for "+grain->atomTypes[0].name +"-"+grain->atomTypes[0].name+"'\n";
                  fprintf(plotHandle,plotcmd.c_str());
 
                  try{

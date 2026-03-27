@@ -4,6 +4,7 @@ README~
 ./source/objdeb/*.o
 ./source/objrelwin/*.o
 ./source/omp.h
+docs
 bin
 .gitignore~
 objrel
@@ -13,6 +14,7 @@ npcl64
 me00.png
 model.pdhs
 *.laueb
+*.lmp
 fparser
 source/npcl64.*
 source/.qtc_clangd

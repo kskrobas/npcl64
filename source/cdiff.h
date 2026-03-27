@@ -151,7 +151,7 @@ public:
     std::string fileNameIn,fileSft;
     vector<std::string> fileNameOut;
     std::string comment;
-    std::string plotPrm;
+    std::string gnuplot,plotPrm;  // gnuplot terminal and plot params
     enum EMODE {debyea,laue} mode;
     enum ERADIATION {OFF,XRAY,NEUTR,ELECT} radiation;
 
@@ -190,6 +190,7 @@ public:
         noise.clear();
         dw.clear();
         ki=std::string("0 0 1");
+        gnuplot.clear();
         plotPrm.clear();
 
 

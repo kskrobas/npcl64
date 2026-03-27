@@ -212,6 +212,13 @@ const str send("end");
                     continue;
                     }
 
+
+                    if(cmd[index]=="gnuplot"){
+                        gnuplot=cmd[index++][1];
+                    continue;
+                    }
+
+
                     if( cmd[index].isKey("norm")){
                         norm=true;
                         index++;
@@ -441,6 +448,9 @@ const std::string plotcmd("plot '-' binary format=\"%%2"+sizeType+"\" record="+
 
             if(DB){cout<<__FILE__<<":"<<__LINE__<<"  "<<plotcmd<<endl;}
 
+            gnuplot+="  \n";
+            fprintf(plotHandle,gnuplot.c_str());
+
             fprintf(plotHandle,plotcmd.c_str());
 
 size_t i,j;
@@ -470,12 +480,13 @@ FILE *plotHandle = NULL;
               plotHandle = popen("gnuplot -persist 2>/dev/null", "w");
               assert(plotHandle != NULL);
             }
-
+            /*
             fprintf(plotHandle,"set xlabel \"r\"\n");
             fprintf(plotHandle,"set ylabel \"G(r)\"\n");
             fprintf(plotHandle,"set xticks font \",16\"\n");
             fprintf(plotHandle,"set yticks font \",16\"\n");
             fprintf(plotHandle,"set grid\n");
+            */
 
 
             if(plotPrm.find("title")==string::npos)

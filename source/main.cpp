@@ -729,7 +729,8 @@ public:
                 fid=popen(forArg.c_str(),"r");
 
                 if(!fid){
-                    cerr<<"ERROR: stream failure"<<endl;
+                    errMsg("stream failure");
+                    doIgnoreCommands(cmdIndex);
                 return  false;
                 }
 
@@ -737,11 +738,18 @@ public:
                 while(fgets(buff,1024,fid))
                     fList+=string(buff);
 
-        const int status=pclose(fid);
+        //const int status=pclose(fid);
 
-                if(status){
-                    cerr<<"ERROR: stream status failure"<<endl;
+                if(pclose(fid)){
+                    errMsg("stream status failure");
+                    doIgnoreCommands(cmdIndex);
                 return false;
+                }
+
+                if(fList.empty()){
+                    errMsg(" empty list of files: "+std::to_string(cmdIndex)+" -> "+forArg);
+                    doIgnoreCommands(cmdIndex);
+                return true;
                 }
                 ///////////////////////////////////////////////////////////////////////////
                 /// \brief from

@@ -115,6 +115,7 @@ print("saveHeader (fileName|var) - save header only");
 print("saveopt (min|max) <value> - save file if number of atoms greater|less than <value>");
 print("saveopt (if [HWL][<>][HWL]) - save file if Height/Width/Lenght size is greater|less than other dimension");
 print("saveopt lmp tric - save file in lammps format including tilt parameters");
+print("saveopt order <s-value>+ - save atoms according to the order of element names");
 print("struct (sc|bcc|fcc|hcp|zb|zb110|uo2|nife|uc|tric|cif) - select Bravis lattice or zb(110) or hcp or uo2 or uc");
 print("tricp - start subblock of unit cell parameters based on triclinic geometry; see below for description");
 print("ucp - start subblock of unit cell parameters; see below for description");
