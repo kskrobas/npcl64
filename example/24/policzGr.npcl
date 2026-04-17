@@ -8,17 +8,20 @@ pdh
 end
 	
 
+gnupng="plotdiff.png"
+
 diff 
 	range 2 0.03125 60
 	lambda 0.3
 	radiation xray
 	#save merge.diff
 	
-	gnuplot set terminal png;set output 'diff.png';  set grid; set xlabel '2th'; set ylabel 'I(2th)';
+	gnuplot set terminal png;set output '${gnupng}';  set grid; set xlabel '2th'; set ylabel 'I(2th)';
 	#plot u 2:4  with line lc 'red' title 'S(Q) of merge.diff' , 1
 	plot u 1:3  with line lc 'blue' title 'I(2th) of merge.diff' 
 end
 
+gnupng="plotgr.png"
 
 gr
 	wf  lorch
@@ -26,7 +29,7 @@ gr
 		
 	#saveFigure abd.png
 	
-	gnuplot set terminal png size 1000,250;set output 'gr.png';  set grid; set xlabel 'R'; set ylabel 'G(R)'
+	gnuplot set terminal png size 1000,250;set output '${gnupng}';  set grid; set xlabel 'R'; set ylabel 'G(R)'
 	plot u 1:($2+10) w l lc rgb 0xff1122 title 'G(r)'
 	#save merge.gr
 end

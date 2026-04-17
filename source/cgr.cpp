@@ -194,8 +194,6 @@ const str send("end");
                 ptr_uvar=uvar__;
                 presetData();
 
-
-
                 while(cmd[index]!=send){
 
                     if(DB) cout<<"::: "<<cmd[index]<<endl;
@@ -213,8 +211,9 @@ const str send("end");
                     }
 
 
-                    if(cmd[index]=="gnuplot"){
+                    if(cmd[index]=="gnuplot"){                        
                         gnuplot=cmd[index++][1];
+                        Script::replaceVars(ptr_uvar,gnuplot);
                     continue;
                     }
 
@@ -224,6 +223,7 @@ const str send("end");
                         index++;
                     continue;
                     }
+
 
 				#ifdef __linux__
                     if ( cmd[index].isKey("plot")){
@@ -250,6 +250,7 @@ const str send("end");
                     continue;
                     }
 
+
                     if(cmd[index]=="range"){
                         range=cmd[index][1]+" "+cmd[index][2];
 
@@ -267,6 +268,7 @@ const str send("end");
                         fileNameOut.push_back(fileName);
                     continue;
                     }
+
 
                     #ifdef __linux__
                     if(cmd[index]=="saveFigure"){
@@ -293,6 +295,7 @@ const str send("end");
                         threads=cmd[index++][1];
                     continue;
                     }
+
 
                     if(cmd[index]=="wf"){
                         wf=(cmd[index++][1]);

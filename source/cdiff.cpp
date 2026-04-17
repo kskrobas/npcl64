@@ -141,8 +141,9 @@ const str send("end");
                 continue;
                 }
 
-                if(cmd[index]=="gnuplot"){
+                if(cmd[index]=="gnuplot"){                    
                     gnuplot=cmd[index++][1];
+                    Script::replaceVars(ptr_uvar,gnuplot);
                 continue;
                 }
 
